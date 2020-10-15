@@ -1,0 +1,8 @@
+## imports
+import(shiny)
+
+## exports
+# standard functions
+export(aweSOM)
+
+#store the other console level functions here too

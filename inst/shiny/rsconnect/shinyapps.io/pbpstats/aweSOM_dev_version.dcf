@@ -1,0 +1,12 @@
+name: aweSOM_dev_version
+title: aweSOM_dev_version
+username:
+account: pbpstats
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2551950
+bundleId: 3585250
+url: https://pbpstats.shinyapps.io/aweSOM_dev_version/
+when: 1599071684.73485
+asMultiple: FALSE
+asStatic: FALSE

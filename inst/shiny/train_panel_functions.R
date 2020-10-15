@@ -1,0 +1,307 @@
+
+
+
+
+
+#' Title
+#'
+#' @param input_trainbutton i.e.  an action button 
+#' @param input_trainscale i.e. an checkboxInput
+#' @param ok.data i.e. the data object storing the data frame  ok.data object
+#' @param varSelected i.e. selected variables to train SOM on, vector with TRUE/FALSE values
+#' @param varWeights  i.e. the weights assigned to these variables (format vector of length of variables no.)
+#' when no weights assigned c(1,1,1,1,...)
+#'
+#' @return
+#'
+#' @examples
+ok.traindat.function <- function(input, ok.data, values){
+  
+  if (is.null(ok.data)) return(NULL)
+  err.msg <- NULL
+  codeTxt <- list()
+  
+  # Get selected variables with non-zero weight
+  varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data)), 
+                                   function(var) input[[var]]))
+  varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data)), 
+                       function(var) input[[var]])
+  varSelected <- varSelected & varWeights > 0
+  if (sum(varSelected) < 2) 
+    return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
+  dat <- ok.data[, varSelected]
+  varWeights <- varWeights[varSelected]
+  codeTxt$sel <- paste0("dat <- ok.data[, c('", paste(colnames(ok.data)[varSelected], collapse= "', '"), "')]\n",
+                        if (any(varWeights != 1)) {
+                          paste0("varWeights <- c(", 
+                                 paste(colnames(ok.data)[varSelected], 
+                                       " = ", varWeights, collapse= ", "), 
+                                 ")\n")
+                        })
+  
+  # Check that all variables are numeric, otherwise message and convert
+  varNumeric <- sapply(dat, is.numeric)
+  if (any(!varNumeric)) {
+    err.msg$numeric <- paste0("Variables < ",
+                              paste(colnames(dat)[!varNumeric], collapse= ", "),
+                              " > are not natively numeric, and will be forced to numeric.",
+                              " (This is probably a bad idea.)")
+    dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))
+    codeTxt$numeric <- paste0("varNumeric <- sapply(dat, is.numeric)\n", 
+                              "dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))\n")
+  }
+  
+  # Remove NAs
+  nrow.withNA <- nrow(dat)
+  dat <- as.matrix(na.omit(dat))
+  if (nrow(dat) < nrow.withNA) {
+    err.msg$NArows <- paste(nrow.withNA - nrow(dat), 
+                            "observations contained missing values, and were removed.")
+    codeTxt$NArows <- "dat <- as.matrix(na.omit(dat))\n"
+  }
+  if (nrow(dat) == 0) {
+    err.msg$NArows <- "All observations contain missing values, training impossible."
+    return(list(dat= NULL, msg= err.msg))
+  }
+  
+  # Check for constant variables (if so, exclude and message)
+  varConstant <- apply(dat, 2, sd, na.rm= T) == 0
+  if (any(varConstant)) {
+    err.msg$constant <- paste0("Variables < ",
+                               ifelse(sum(varConstant) == 1, 
+                                      colnames(dat)[varConstant], 
+                                      paste(colnames(dat)[varConstant], collape= ", ")),
+                               " > are constant, and will be removed for training.")
+    dat <- dat[, !varConstant]
+    varWeights <- varWeights[!varConstant]
+    codeTxt$constant <- paste0("varConstant <- apply(dat, 2, sd, na.rm= T) == 0\n", 
+                               "dat <- dat[, !varConstant]\n", 
+                               if (any(varWeights != 1)) paste0("varWeights <- varWeights[!varConstant]\n"))
+    if (sum(!varConstant) < 2) {
+      err.msg$allconstant <- "Less than two selected non-constant variables, training impossible."
+      return(list(dat= NULL, msg= err.msg))
+    }
+  }
+  
+  ## Scale variables and apply normalized weights
+  if (input$trainscale) dat <- scale(dat)
+  varWeights <- length(varWeights) * varWeights / sum(varWeights)
+  dat <- t(sqrt(varWeights) * t(dat))
+  codeTxt$scale <- paste0(ifelse(input$trainscale, "dat <- scale(dat)\n", ""), 
+                          if (any(varWeights != 1)) paste0("varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
+                                                           "dat <- t(sqrt(varWeights) * t(dat))\n"))
+  
+  values$codetxt$traindat <- paste0(codeTxt$sel, 
+                                    if (! is.null(codeTxt$numeric)) {
+                                      paste0("# Warning: ", err.msg$numeric, "\n", 
+                                             codeTxt$numeric)
+                                    },
+                                    if (! is.null(codeTxt$NArows)) {
+                                      paste0("# Warning: ", err.msg$NArows, "\n", 
+                                             codeTxt$NArows)
+                                    },
+                                    if (! is.null(codeTxt$constant)) {
+                                      paste0("# Warning: ", err.msg$constant, "\n", 
+                                             codeTxt$constant)
+                                    },
+                                    codeTxt$scale)
+  return(list(dat= dat, msg= err.msg))
+  
+  
+  
+  
+  
+}
+
+
+#' Train SOM
+#'
+#' @param ok.traindat return object from ok.traindat.function
+#' @param input_trainSeed random seed
+#' @param input_kohInit "pca" for PCA initialization
+#' @param input_kohDimy integer indicating y dimension of SOM
+#' @param input_kohDimx integer indicating x dimension of SOM
+#' @param input_kohTopo "hexagonal" or "recantgular" for geometrical structure of SOM
+#' @param input_trainRlen integer. 100?
+#' @param input_trainAlpha1 integer/double
+#' @param input_trainAlpha2 integer/double
+#' @param input_trainRadius1 integer/double
+#' @param input_trainRadius2 integer/double
+#'
+#' @return res object
+#' @export
+#'
+#' @examples ok.som.function(ok.traindat = ok.traindat, input_trainSeed = 61929, 
+#'                           input_KohInit = "pca", input_kohDimy= 10, input_kohDimx = 10,
+#'                           input_kohTopo = "hexagonal", input_trainRlen = 100,
+#'                           input_trainAlpha1 = 0.05, input_trainAlpha2 = 0.01, 
+#'                           input_trainRadius1 = 6.08, input_trainRadius2 = -6.08,)
+ok.som.function <- function(ok.traindat,  input_trainSeed, input_kohInit,
+                            input_kohDimy, input_kohDimx, input_kohTopo, input_trainRlen,
+                            input_trainAlpha1, input_trainAlpha2, input_trainRadius1,
+                            input_trainRadius2){
+  
+  dat <- ok.traindat$dat # uses the list created/returned by the previous function
+  if (is.null(dat)) return(NULL)
+
+  isolate({
+    ## Initialization
+    set.seed(input_trainSeed)
+    if (input_kohInit == "random") {
+      init <- dat[sample(nrow(dat), input_kohDimx * input_kohDimy, replace= T), ]
+    } else if (input_kohInit %in% c("pca.sample", "pca")) {
+      # the most detailed grid axis is assigned to the first component
+      if (input_kohDimx >= input_kohDimy) {
+        x.ev <- 1
+        y.ev <- 2
+      } else {
+        x.ev <- 2
+        y.ev <- 1
+      }
+      # perform PCA (TODO: make hex grid on pca ?) --> HOW/WHAT?
+      data.pca <- prcomp(dat, center= F, scale.= F)
+      x <- seq(from= quantile(data.pca$x[,x.ev], .025), 
+               to= quantile(data.pca$x[,x.ev], .975),
+               length.out= input_kohDimx)
+      y <- seq(from= quantile(data.pca$x[,y.ev], .025), 
+               to= quantile(data.pca$x[,y.ev], .975),
+               length.out= input_kohDimy)
+      base <- as.matrix(expand.grid(x=x, y=y)) #here a hex variant could be created instead if hex topology
+      if (input_kohInit == "pca.sample") {
+        ## As in SOMbrero, init to observations closest to a 2D PCA grid
+        closest.obs <- apply(base, 1, function(point) 
+          which.min(colSums((t(data.pca$x[,c(x.ev,y.ev)])-point)^2)))
+        init <- dat[closest.obs,]
+      } else if (input_kohInit == "pca") {
+        ## Pure PCA grid
+        base <- cbind(base, matrix(0, nrow(base))[, rep(1, ncol(data.pca$x) - 2)])
+        init <- base %*% t(data.pca$rotation)
+      }
+    } 
+    
+    #where it happens!
+    res <- kohonen::som(dat, grid= kohonen::somgrid(input_kohDimx, input_kohDimy, input_kohTopo), 
+                        rlen= input_trainRlen, alpha= c(input_trainAlpha1, input_trainAlpha2), 
+                        radius= c(input_trainRadius1, input_trainRadius2), init= init, 
+                        dist.fcts= "sumofsquares")
+
+    ## save seed and set new
+    res$seed <- input_trainSeed
+
+    res
+  })
+}
+
+
+
+
+
+#' Calculate SOM quality measures
+#'
+#' @param ok.som SOM object created by ok.som.function
+#' @param ok.traindat object generated by ok.traindat.function
+#' @param ok.dist object ok.dist.function
+#'
+#' @return list with quality measures
+#'
+#' @examples ok.qual.function(ok.som  = ok.som, ok.traindat = ok.traindat, ok.dist = ok.dist)
+ok.qual.function <- function(ok.som, ok.traindat, ok.dist ){
+  if(!is.null(ok.som)) {
+    traindat <- ok.traindat$dat
+    ## BMU, Squared distance from obs to BMU
+    bmu <- ok.som$unit.classif
+    sqdist <- rowSums((traindat - ok.som$codes[[1]][bmu, ])^2)
+    
+    ## Quantization error
+    err.quant <- mean(sqdist)
+    
+    ## Interclass variance ratio
+    totalvar <- sum(apply(traindat, 2, var)) * 
+      (nrow(traindat) - 1) / nrow(traindat)
+    err.varratio <- 100 - round(100 * err.quant / totalvar, 2)
+    
+    ## Topographic error
+    bmu2 <- apply(traindat, 1, function(row) {
+      dist <- colSums((t(ok.som$codes[[1]]) - row)^2)
+      order(dist)[2]
+    })
+    err.topo <- mean(!ok.dist$neigh.matrix[cbind(bmu, bmu2)])
+    
+    ## Kaski-Lagus error
+    err.kaski <- e1071::allShortestPaths(ok.dist$proto.data.dist.neigh)$length[cbind(bmu, bmu2)]
+    err.kaski <- mean(err.kaski + sqrt(sqdist))
+    
+    list(err.quant= err.quant, err.varratio= err.varratio, 
+         err.topo= err.topo, err.kaski= err.kaski)
+  }
+}
+
+
+
+
+
+
+#' Distance measures
+#'
+#' @param ok.som SOM object created by ok.som.function
+#'
+#' @return list with distance measures
+#'
+#' @examples ok.dist.function(ok.som = ok.som)
+ok.dist.function <- function(ok.som ){
+  if (is.null(ok.som)) return(NULL)
+  # proto.gridspace.dist <- as.matrix(dist(ok.som()$grid$pts))
+  proto.gridspace.dist <- kohonen::unit.distances(ok.som$grid, F)
+  proto.dataspace.dist <- as.matrix(dist(ok.som$codes[[1]]))
+  neigh <- round(proto.gridspace.dist, 3) == 1
+  proto.dataspace.dist.neigh <- proto.dataspace.dist
+  proto.dataspace.dist.neigh[!neigh] <- NA
+  list(proto.grid.dist= proto.gridspace.dist, 
+       neigh.matrix= neigh, 
+       proto.data.dist= proto.dataspace.dist, 
+       proto.data.dist.neigh= proto.dataspace.dist.neigh)
+}
+
+
+
+
+
+
+#' Generate super classes for SOM
+#'
+#' @param ok.hclust hierarhical clustering object created by...function
+#' @param ok.pam_clust PAM clustering objected created by...function
+#' @param input_sup_clust_method indicating which clustering method is to be applied
+#' @param input_kohSuperclass number of super classes
+#'
+#' @return supercluster of each cell
+#'
+#' @examples
+ok.sc.function <- function(ok.hclust, ok.pam_clust, input_sup_clust_method, input_kohSuperclass){
+  
+  #browser()
+  if(!is.null(ok.hclust))
+    
+    #create a switch depending on PAM or hierarchical clustering
+    #if hierarhical
+    if(input_sup_clust_method == "hierarchical"){
+      return(unname(cutree(ok.hclust, input_kohSuperclass))) #<- creates a vector with superclass as int for each elem
+    }
+  
+  
+  if(input_sup_clust_method == "pam"){
+    return(unname(ok.pam_clust$clustering))
+    
+  }
+  
+  
+  
+}
+
+
+
+
+
+
+
+

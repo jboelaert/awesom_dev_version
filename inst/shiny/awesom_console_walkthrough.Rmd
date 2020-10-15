@@ -1,0 +1,199 @@
+---
+title: "Walkthrough aweSOM in console"
+author: "Jan Sodoge"
+date: "8/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+source("import_panel_functions.R")
+source("train_panel_functions.R")
+source("clustering_functions.R")
+source("graph_panel_functions.R")
+
+
+
+library(shiny)
+
+
+```
+
+This document provides a quick walthrough to explain how to use aweSOM without the shiny interface. The functionality of this package is externalized into functions so you can take advantage of aweSOM just within the console. 
+
+
+## Importing Data
+To import data, aweSOM offers functionality for different data formats. 
+
+* Import .csv and .txt files using the function ok.data.function.csv.txt
+* Import .xlsx files using ok.data.function.excel_xlsx
+* Import .xls files using ok.data.function.excel_xls
+* Import SPSS files using ok.data.function.spss
+* Import Stata files using ok.data.function.stata
+* Import SAS files using ok.data.function.sas.data
+
+
+To provide an example, let's import the iris dataset as a .csv. The resulting dataset is essential to demonstrate further steps. 
+```{r}
+ok.data <- ok.data.function.csv.txt(input_dataFile = "iris.csv", input_header = TRUE, 
+                         input_sep = "Auto", input_quote = "None", input_dec = "Comma ','",
+                         input_encoding = "unknown", input_dataFile_datapath = "iris.csv")
+print(head(ok.data))
+
+```
+
+
+
+
+## Training an self-organizing map
+
+To train a SOM, the following functions are essential:
+
+First a traindata object is created which selects the variables and assigns weights to the variables which we want to train the SOM on. Some information on the function arguments
+
+* varSelected indicates the variables from the previously loaded ok.data object which we want to include for training the SOM. Here, the last element of the vector is FALSE which corresponds to the "X.variety." variable which we do not want to include. 
+* varweights assigns weights to the variables. Here, we do not put any specific weights on the variables
+```{r}
+
+ok.traindat <- ok.traindat.function(input_trainbutton = 1, input_trainscale = TRUE, 
+                                    ok.data = ok.data,
+                                    varSelected = c(TRUE, TRUE, TRUE, TRUE, FALSE), 
+                                    varWeights = c(1,1,1,1,1))
+```
+
+
+Then, the actual training of the SOM takes action in ok.som.function. 
+
+```{r}
+
+ok.som <- ok.som.function(ok.traindat = ok.traindat, input_trainSeed = 61929, 
+                           input_kohInit = "pca", input_kohDimy= 4, input_kohDimx = 4,
+                           input_kohTopo = "hexagonal", input_trainRlen = 100,
+                           input_trainAlpha1 = 0.05, input_trainAlpha2 = 0.01, 
+                           input_trainRadius1 = 6.08, input_trainRadius2 = -6.08)
+
+```
+
+
+
+
+```{r}
+ok.dist <- ok.dist.function(ok.som)
+```
+
+
+To calculate a list of quality measures.
+```{r}
+ok.qual <- ok.qual.function(ok.som, ok.traindat, ok.dist)
+
+```
+
+To get the superclasses
+```{r}
+
+ok.hclust <- ok.hclust.function(ok.som)
+
+ok.pam_clust <-   ok.pam_clust.function(ok.som, 2)
+
+
+ok.sc.function(ok.hclust = ok.hclust, ok.pam_clust = ok.pam_clust, 
+               input_sup_clust_method = "pam", input_kohSuperclass = 2)
+
+
+ok.sc.function(ok.hclust = ok.hclust, ok.pam_clust = ok.pam_clust, 
+               input_sup_clust_method = "hierarchical", input_kohSuperclass = 2)
+
+
+
+
+```
+
+
+
+
+
+# Visualizing results
+The following section offers examples to reproduce the aweSOM visualizations using functions outside of the shiny application. 
+
+
+
+
+
+## Self-organizing maps visualizations
+
+
+### Smooth Distance Plot
+```{r}
+# need to fix the square issue for the externalized function...
+plot.smoothDist(ok.som, ok.dist, input_palplot = "viridis", input_plotRevPal = FALSE)
+
+```
+
+
+### Abstraction Plot
+
+```{r}
+plot.abstraction(ok.som, ok.traindat, input_plotAbstrCutoff = 0, input_palplot = "viridis", input_plotRevPal = FALSE)
+
+```
+
+
+
+
+
+
+### Javascript/D3 based visualizations
+
+Take advantage of the .html single-file based export function. When you run the getPlotParams function, it will autmatically create an .html file containing an interactive plot. Within that, you can export single static images, too. 
+```{r}
+#cellnames is an issue, where is it from, I do not get it
+plot <- getPlotParams(type = "Hitmap", som = ok.som,
+                         superclass = ok.sc.function(ok.hclust = ok.hclust, ok.pam_clust = ok.pam_clust,
+              input_sup_clust_method = "pam", input_kohSuperclass = 2),
+              data = NULL,
+              plotsize = 100, varnames = NULL,
+                         normtype= "contrast",
+              palsc = "Set3", palplot = "viridis",
+                       cellNames = NULL, plotOutliers = TRUE, reversePal = FALSE, options= NULL,
+               the.average_format = "mean")
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Visualising superclasses
+To visualize the results of both PAM and hierarchical clustering, different plot types are avaiable.
+
+### PAM Silhouette
+```{r}
+plot.pam_silhouette(ok.som, ok.pam_clust, input_sup_clust_method = "pam")
+```
+
+###Hierarchical clustering Dendogram
+```{r}
+plot.dendogram(ok.som, ok.hclust, input_kohSuperclass = 2)
+
+```
+
+
+
+### Hierarchical clustering Screeplot
+```{r}
+plot.screeplot(ok.som, ok.hclust, input_kohSuperclass = 2)
+
+```
+
+
+
