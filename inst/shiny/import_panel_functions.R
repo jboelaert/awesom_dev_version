@@ -37,7 +37,7 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
   the.quote <- switch(input_quote, "None"= "",
                       "Double Quote \""= '"',
                       "Single Quote '"= "'")
-  the.dec <- switch(input_dec, "Period '.'"=".", "Comma ','"=",")
+  the.dec <- switch(input_dec, 'Period "."'=".", 'Comma ","'=",")
   the.encoding <- switch(input_encoding, "unknown" = "unknown", "UTF-8" = "UTF-8", "Latin-1" = "Latin-1")
   
   
