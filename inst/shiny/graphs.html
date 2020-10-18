@@ -26,7 +26,7 @@ $.extend(theOutputBinding, {
 
     //remove the old graph
     document.getElementById("thePlot").innerHTML = "";
-   
+
     // remove old plot messages
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
@@ -1198,7 +1198,7 @@ $.extend(theOutputBinding, {
       var hexInRadius;
 
       //Set the new height and width of the SVG based on the max possible
-      width = nbColumns*hexRadius*Math.sqrt(3);
+      width = nbColumns*hexRadius*Math.sqrt(3)+hexRadius;
       height = nbRows*1.5*hexRadius+2.5*hexRadius;
       //Set the hexagon radius
       var hexbin = d3.hexbin().radius(hexRadius);
@@ -1207,7 +1207,7 @@ $.extend(theOutputBinding, {
        //for (var i = 0; i < nbRows; i++) {
       for (var i = nbRows; i > 0; i--) {  //for (var i = 0; i < nbRows; i++) { <-- this is the edit to change the order of class numbering
         for (var j = 0; j < nbColumns; j++) {
-          points.push([hexRadius * j * 1.75, hexRadius * i * 1.5]); //what are these numbers based on?
+          points.push([(hexRadius * j * 1.75)+hexRadius, (hexRadius * i * 1.5) ]); //+hexRadius added to get different shape
         }
       }
 
