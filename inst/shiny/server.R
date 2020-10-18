@@ -337,7 +337,6 @@ shinyServer(function(input, output, session) {
       if (sum(varSelected) < 2) 
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
       
-      
       values$codetxt$ok.traindat.function <- paste("#compute the ok.traindat object \n",
                                                    "ok.traindat <- ok.traindat.function(",
                                                    "input_trainscale = ", input$trainscale,
@@ -348,16 +347,9 @@ shinyServer(function(input, output, session) {
       
       ok.traindat.function(input_trainscale = input$trainscale, 
                            ok.data = ok.data(), 
-                           #values = values,
                            varSelected = varSelected,
                            varWeights = varWeights)
-      
 
-        
-        
-        
-        
-      
       
       })
     
@@ -371,16 +363,36 @@ shinyServer(function(input, output, session) {
   values <- reactiveValues()
   
   ## Train SOM when button is hit
+  
+  
   ok.som <- reactive({
     
-    dat <- ok.traindat()$dat
-    if (is.null(dat)) {
+    
+    
+    dat <- ok.traindat()
+    if (is.null(dat$dat)) {
       return(NULL)
       }
     
     
+    
+    # values$codetxt$ok.som <- paste("## create ok.som object \n",
+    #                                "ok.som <- ok.som.function(",
+    #                                "ok.traindat = ok.traindat", 
+    #                                ", input_trainSeed", input$trainSeed,
+    #                                ", input_kohInit", input$kohInit,
+    #                                ", input_kohDimy", input$kohDimy,
+    #                                ", input_kohDimx", input$kohDimx,
+    #                                ", input_kohTopo", input$kohTopo,
+    #                                ", input_trainRlen", input$trainRlen,
+    #                                ", input_trainAlpha1", input$trainAlpha1,
+    #                                ", input_trainAlpha2", input$trainAlpha2,
+    #                                ", input_trainRadius1", input$trainRadius1,
+    #                                ", input_trainRadius2", input$trainRadius2,
+    #                                ")")
+    
     updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
-    res <- ok.som.function(ok.traindat = ok.traindat(), 
+    res <- ok.som.function(ok.traindat = dat, 
                     input_trainSeed = input$trainSeed, input_kohInit = input$kohInit,
                     input_kohDimy = input$kohDimy, input_kohDimx = input$kohDimx, 
                     input_kohTopo = input$kohTopo, input_trainRlen = input$trainRlen,
@@ -391,21 +403,7 @@ shinyServer(function(input, output, session) {
     updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
     
     
-    values$codetxt$ok.som <- paste("## create ok.som object \n",
-                                   "ok.som <- ok.som.function(",
-                                   "ok.traindat = ok.traindat", 
-                                   ", input_trainSeed", input$trainSeed,
-                                   ", input_kohInit", input$kohInit,
-                                   ", input_kohDimy", input$kohDimy,
-                                   ", input_kohDimx", input$kohDimx,
-                                   ", input_kohTopo", input$kohTopo,
-                                   ", input_trainRlen", input$trainRlen,
-                                   ", input_trainAlpha1", input$trainAlpha1,
-                                   ", input_trainAlpha2", input$trainAlpha2,
-                                   ", input_trainRadius1", input$trainRadius1,
-                                   ", input_trainRadius2", input$trainRadius2,
-                                   ")")
-                                   
+
     
     
     
