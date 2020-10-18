@@ -15,22 +15,20 @@
 #' @return
 #'
 #' @examples
-ok.traindat.function <- function(input, ok.data, values){
+ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeights){
   
   if (is.null(ok.data)) return(NULL)
   err.msg <- NULL
   codeTxt <- list()
   
-  # Get selected variables with non-zero weight
-  varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data)), 
-                                   function(var) input[[var]]))
-  varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data)), 
-                       function(var) input[[var]])
-  varSelected <- varSelected & varWeights > 0
-  if (sum(varSelected) < 2) 
-    return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
+  
+  values <- list()
+  
   dat <- ok.data[, varSelected]
   varWeights <- varWeights[varSelected]
+  
+  
+  
   codeTxt$sel <- paste0("dat <- ok.data[, c('", paste(colnames(ok.data)[varSelected], collapse= "', '"), "')]\n",
                         if (any(varWeights != 1)) {
                           paste0("varWeights <- c(", 
@@ -38,6 +36,11 @@ ok.traindat.function <- function(input, ok.data, values){
                                        " = ", varWeights, collapse= ", "), 
                                  ")\n")
                         })
+  
+  
+  
+  
+
   
   # Check that all variables are numeric, otherwise message and convert
   varNumeric <- sapply(dat, is.numeric)
@@ -84,10 +87,10 @@ ok.traindat.function <- function(input, ok.data, values){
   }
   
   ## Scale variables and apply normalized weights
-  if (input$trainscale) dat <- scale(dat)
+  if (input_trainscale) dat <- scale(dat)
   varWeights <- length(varWeights) * varWeights / sum(varWeights)
   dat <- t(sqrt(varWeights) * t(dat))
-  codeTxt$scale <- paste0(ifelse(input$trainscale, "dat <- scale(dat)\n", ""), 
+  codeTxt$scale <- paste0(ifelse(input_trainscale, "dat <- scale(dat)\n", ""), 
                           if (any(varWeights != 1)) paste0("varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
                                                            "dat <- t(sqrt(varWeights) * t(dat))\n"))
   

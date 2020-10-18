@@ -314,10 +314,43 @@ shinyServer(function(input, output, session) {
 
     if (input$trainbutton == 0) return(NULL)
     
-    
     isolate({
+    
       
-      ok.traindat.function(input = input, ok.data = ok.data(), values = values)
+      #to make externalized functions more useable this part is placed outside of the (Jan)
+      varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())), 
+                                       function(var) input[[var]]))
+      varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())), 
+                           function(var) input[[var]])
+      
+      varSelected <- varSelected & varWeights > 0
+      
+      
+      
+      values$codetxt$varSelected <-   paste("varSelected <- c(",  paste(c(varSelected), collapse=", "), ")" )
+      values$codetxt$varWeights <-   paste("varSelected <- c(",  paste(c(varWeights), collapse=", "), ")" )
+      
+    
+
+
+      
+      if (sum(varSelected) < 2) 
+        return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
+      
+      
+      values$codetxt$ok.traindat.function <- paste("#compute the ok.traindat object \n",
+                                                   "ok.traindat <- ok.traindat.function(",
+                                                   "input_trainscale = ", input$trainscale,
+                                                   ", ok.data = ok.data",
+                                                   ", varSelected = varSelected",
+                                                   ", varWeights = varWeights)")
+      
+      
+      ok.traindat.function(input_trainscale = input$trainscale, 
+                           ok.data = ok.data(), 
+                           #values = values,
+                           varSelected = varSelected,
+                           varWeights = varWeights)
       
 
         
@@ -327,6 +360,10 @@ shinyServer(function(input, output, session) {
       
       
       })
+    
+    
+    
+    
   })
   
   
@@ -354,6 +391,24 @@ shinyServer(function(input, output, session) {
     updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
     
     
+    values$codetxt$ok.som <- paste("## create ok.som object \n",
+                                   "ok.som <- ok.som.function(",
+                                   "ok.traindat = ok.traindat", 
+                                   ", input_trainSeed", input$trainSeed,
+                                   ", input_kohInit", input$kohInit,
+                                   ", input_kohDimy", input$kohDimy,
+                                   ", input_kohDimx", input$kohDimx,
+                                   ", input_kohTopo", input$kohTopo,
+                                   ", input_trainRlen", input$trainRlen,
+                                   ", input_trainAlpha1", input$trainAlpha1,
+                                   ", input_trainAlpha2", input$trainAlpha2,
+                                   ", input_trainRadius1", input$trainRadius1,
+                                   ", input_trainRadius2", input$trainRadius2,
+                                   ")")
+                                   
+    
+    
+    
     res
     
     
@@ -369,15 +424,28 @@ shinyServer(function(input, output, session) {
   
   ## Compute superclasses when ok.som or superclass changes
   ok.hclust <- reactive({
-    if(!is.null(ok.som()))
+    if(!is.null(ok.som())){
+      
+      values$codetxt$ok.hclust <- paste("## create hierarhical clustering \n",
+                                        "ok.hclust <- ok.hclust.function(ok.som")
+      
       ok.hclust.function(ok.som())
       
+      
+      
+    }
   })
   
   
 
   ok.pam_clust <- reactive({
     if(!is.null(ok.som())){
+      
+      values$codetxt$ok.pam_clust <- paste("## create PAM clustering \n",
+                                           "ok.pam_clust <- ok.pam_clust.function(ok.som,",
+                                           input$kohSuperclass,
+                                           ")")
+      
       ok.pam_clust.function(ok.som(), input$kohSuperclass)
     }
   })
@@ -388,6 +456,15 @@ shinyServer(function(input, output, session) {
 
     if(!is.null(ok.hclust()) & !is.null(ok.pam_clust())){
       
+      
+      values$codetxt$ok.sc <- paste("## compute superclasses \n",
+                                    "ok.sc <- ok.sc.function(",
+                                    "ok.hclust = ok.hclust",
+                                    ", ok.pam_clust = ok.pam_clust",
+                                    ", input_sup_clust_method = ", input$sup_clust_method,
+                                    ", input_kohSuperclass = ", input$kohSuperclass,
+                                    ")")
+                                    
 
     ok.sc.function(ok.hclust = ok.hclust(), ok.pam_clust = ok.pam_clust(),
                           input_sup_clust_method = input$sup_clust_method,
@@ -839,7 +916,12 @@ shinyServer(function(input, output, session) {
   
   output$codeTxt <- renderText({
     paste0("## Import Data\n", 
-           values$codetxt$dataread)
+           values$codetxt$dataread, 
+           "## Create ok.traindat object \n",
+           values$codetxt$varSelected, "\n",
+           values$codetxt$varWeights,"\n",
+           values$codetxt$ok.traindat.function
+           )
            
     
     

@@ -36,7 +36,7 @@ To import data, aweSOM offers functionality for different data formats.
 To provide an example, let's import the iris dataset as a .csv. The resulting dataset is essential to demonstrate further steps. 
 ```{r}
 ok.data <- ok.data.function.csv.txt(input_dataFile = "iris.csv", input_header = TRUE, 
-                         input_sep = "Auto", input_quote = "None", input_dec = "Comma ','",
+                         input_sep = "Auto", input_quote = "None", input_dec = 'Comma ","',
                          input_encoding = "unknown", input_dataFile_datapath = "iris.csv")
 print(head(ok.data))
 
@@ -54,8 +54,7 @@ First a traindata object is created which selects the variables and assigns weig
 * varSelected indicates the variables from the previously loaded ok.data object which we want to include for training the SOM. Here, the last element of the vector is FALSE which corresponds to the "X.variety." variable which we do not want to include. 
 * varweights assigns weights to the variables. Here, we do not put any specific weights on the variables
 ```{r}
-
-ok.traindat <- ok.traindat.function(input_trainbutton = 1, input_trainscale = TRUE, 
+ok.traindat <- ok.traindat.function(input_trainscale = TRUE, 
                                     ok.data = ok.data,
                                     varSelected = c(TRUE, TRUE, TRUE, TRUE, FALSE), 
                                     varWeights = c(1,1,1,1,1))
@@ -160,6 +159,8 @@ plot <- getPlotParams(type = "Hitmap", som = ok.som,
 
 
 ```
+
+
 
 
 
