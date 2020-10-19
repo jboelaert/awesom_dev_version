@@ -1278,7 +1278,7 @@ $.extend(theOutputBinding, {
         ////////////////////////////////////////////////////////////////////////
         // Hexagonal Hitmap
         ////////////////////////////////////////////////////////////////////////
-      	var hexa = svg.selectAll(".hexagon")
+        var hexa = svg.selectAll(".hexagon")
     			.data(hexbin(points))
     			.enter().append("path")
     			.attr("class", "hexagon")
@@ -1295,7 +1295,7 @@ $.extend(theOutputBinding, {
     			});
 
     		var i=0;
-    		svg.append("g")
+    		var inner_hex  = svg.append("g")
     			.selectAll(".hexagon")
     			.data(hexbin(points))
     			.enter()
@@ -1311,11 +1311,42 @@ $.extend(theOutputBinding, {
     			.style("fill", function (d,i) {
     				return "#112E45";
     			})
+
+
+        var el_enter;
+
+
+        inner_hex.on('mouseover', function (d, i) {
+          var el_enter_ins = el_enter
+           .transition()
+           .duration(10)
+           .style("fill-opacity", 0.5);
+
+        })
+
+
+        inner_hex.on('mouseout', function (d, i) {
+          var el_enter_ins = el_enter
+           .transition()
+           .duration(10)
+           .style("fill-opacity", 1);
+
+        })
+
+
     		hexa.on('mouseover', function (d, i) {
-    			var el = d3.select(this)
+
+
+
+           el_enter = d3.select(this);
+
+           el_enter
     				.transition()
     				.duration(10)
-    				.style("fill-opacity", 0.8);
+    				.style("fill-opacity", 0.5);
+
+
+
     			d3.select('#cell-info').text(function () {
     				var ch = 'Cell ' + parseInt(i+1,10) + ', Superclass ' +
               superclass[i] + ', N= ' + cellPop[i];
@@ -1326,11 +1357,18 @@ $.extend(theOutputBinding, {
   				});
     		});
     		hexa.on('mouseout', function (d, i) {
+          console.log(el_enter);
     			var el = d3.select(this)
     				.transition()
     				.duration(1000)
     				.style("fill-opacity", 1);
     		});
+
+
+
+
+
+
       } else {
         ////////////////////////////////////////////////////////////////////////
         // Other hexagonal plots
