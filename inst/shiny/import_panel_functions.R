@@ -40,6 +40,20 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
   the.dec <- switch(input_dec, 'Period "."'=".", 'Comma ","'=",")
   the.encoding <- switch(input_encoding, "unknown" = "unknown", "UTF-8" = "UTF-8", "Latin-1" = "Latin-1")
   
+  data_read_reproducible <- paste0("ok.data <- data.table::fread('", 
+                                   input_dataFile$name, "', ",
+                                    "header = '", the.header, 
+                                    "', sep ='", the.sep, 
+                                    "', quote = '", the.quote, 
+                                    "', dec = '", the.dec, 
+                                    "', stringsAsFactors = ", T, ",",
+                                    "encoding =", the.encoding,
+                                    
+                                    ")\n")
+  
+  
+  
+  
   
   data <- try(data.frame(data.table::fread(input_dataFile_datapath, 
                                            header=the.header, sep=the.sep, 
@@ -47,7 +61,7 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
                                            stringsAsFactors=T,
                                            encoding = the.encoding)))
   if(class(data) == "try-error"){ return(NULL)}
-  return(data)
+  return(list(data, data_read_reproducible))
 }
 
 
@@ -87,6 +101,24 @@ ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, inpu
   if(input_range_specified_bol == TRUE & input_range_specs != "") the.range <- input_range_specs
   the.sheet <- NULL
   if(input_worksheet_specified_bol == TRUE & input_worksheet_specs != "") the.sheet <- input_worksheet_specs
+  
+  
+  data_read_reproducible <- paste0("ok.data <- data.frame(read_xlsx('", 
+                                    input$dataFile$name, "', ",
+                                    "col_names = '", the.header, 
+                                    "', range ='", the.range, 
+                                    "', sheet = '", the.sheet, 
+                                    "', trim_ws = '", the.trim_spaces, 
+                                  
+                                    "skip =", input_rows_to_skip,
+                                    
+                                    ")\n")
+  
+  
+  
+  
+  
+  
   data <- try(data.frame(read_xlsx(input_dataFile_datapath,
                                    col_names = the.header,
                                    range = the.range,
@@ -94,7 +126,7 @@ ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, inpu
                                    trim_ws = the.trim_spaces,
                                    skip = input_rows_to_skip)))
   if(class(data) == "try-error") return(NULL)
-  return(data)
+  return(list(data, data_read_reproducible))
   
   
 }
@@ -131,6 +163,22 @@ ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, i
   if(input_range_specified_bol_xls == TRUE & input_range_specs_xls != "") the.range <- input_range_specs_xls
   the.sheet <- NULL
   if(input_worksheet_specified_bol_xls == TRUE & input_worksheet_specs_xls != "") the.sheet <- input_worksheet_specs_xls
+  
+  
+  data_read_reproducible <- paste0("ok.data <- data.frame(read_xls('", 
+                                   input$dataFile$name, "', ",
+                                   "col_names = '", the.header, 
+                                   "', range ='", the.range, 
+                                   "', sheet = '", the.sheet, 
+                                   "', trim_ws = '", the.trim_spaces, 
+                                   
+                                   "skip =", input_rows_to_skip_xls,
+                                   
+                                   ")\n")
+  
+  
+  
+  
   data <- try(data.frame(read_xls(input_dataFile_datapath,
                                   col_names = the.header,
                                   range = the.range,
@@ -138,7 +186,7 @@ ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, i
                                   trim_ws = the.trim_spaces,
                                   skip = input_rows_to_skip_xls)))
   if(class(data) == "try-error") return(NULL)
-  return(data)
+  return(list(data, data_read_reproducible))
 }
 
 
@@ -160,9 +208,17 @@ ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath){
   }
   library(haven)
   the.spss.encoding <- NULL
+  
+  
+  data_read_reproducible <- paste0("ok.data <- data.frame(read_spss('", 
+                                   input$dataFile$name, "'",
+                                   
+                                   ")\n")
+  
+  
   data <- try(data.frame(read_spss(file = input_dataFile_datapath))) #<- encoding as an argument cannot be matched for some reason
   if(class(data) == "try-error") return(NULL)
-  return(data)
+  return(list(data, data_read_reproducible))
   
 }
 
@@ -181,9 +237,15 @@ ok.data.function.stata <- function(input_dataFile, input_dataFile_datapath){
   if (is.null((input_dataFile))){ 
     return(NULL)
   }
+  
+  data_read_reproducible <- paste0("ok.data <- data.frame(read.dta('", 
+                                   input$dataFile$name, "'",
+                                   ")\n")
+  
+  
   data <- try(data.frame(read.dta(file = input_dataFile_datapath)))
   if(class(data) == "try-error") return(NULL)
-  return(data)
+  return(list(data, data_read_reproducible))
   
   
   
@@ -202,10 +264,16 @@ ok.data.function.sas.data <- function(input_dataFile, input_dataFile_datapath ){
   if (is.null((input_dataFile))){ 
     return(NULL)
   }
-
+    
+  
+    data_read_reproducible <- paste0("ok.data <- data.frame(read_sas('", 
+                                   input$dataFile$name, "'",
+                                   ")\n")
+  
+    
     data <- try(data.frame(read_sas(data_file = input_dataFile_datapath)))
     if(class(data) == "try-error") return(NULL)
-    return(data)
+    return(list(data, data_read_reproducible))
   
 }
 
