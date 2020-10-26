@@ -332,9 +332,6 @@ shinyServer(function(input, output, session) {
       
       
       
-      values$codetxt$varSelected <-   paste("varSelected <- c(",  paste(c(varSelected), collapse=", "), ")" )
-      values$codetxt$varWeights <-   paste("varSelected <- c(",  paste(c(varWeights), collapse=", "), ")" )
-      
     
 
 
@@ -342,18 +339,20 @@ shinyServer(function(input, output, session) {
       if (sum(varSelected) < 2) 
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
       
-      values$codetxt$ok.traindat.function <- paste("#compute the ok.traindat object \n",
-                                                   "ok.traindat <- ok.traindat.function(",
-                                                   "input_trainscale = ", input$trainscale,
-                                                   ", ok.data = ok.data",
-                                                   ", varSelected = varSelected",
-                                                   ", varWeights = varWeights)")
       
       
-      ok.traindat.function(input_trainscale = input$trainscale, 
+      
+      
+      return_traindat <- ok.traindat.function(input_trainscale = input$trainscale, 
                            ok.data = ok.data(), 
                            varSelected = varSelected,
                            varWeights = varWeights)
+      
+      
+      values$codetxt$ok.traindat <- return_traindat[[2]]
+      
+      
+      return_traindat[[1]]
 
       
       })

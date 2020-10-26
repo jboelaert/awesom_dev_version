@@ -22,6 +22,9 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
   codeTxt <- list()
   
   
+  
+  
+  
   values <- list()
   
   dat <- ok.data[, varSelected]
@@ -29,7 +32,11 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
   
   
   
-  codeTxt$sel <- paste0("dat <- ok.data[, c('", paste(colnames(ok.data)[varSelected], collapse= "', '"), "')]\n",
+  
+  
+  
+  #generate reproducible code
+  codeTxt_sel <- paste0("dat <- ok.data[, c('", paste(colnames(ok.data)[varSelected], collapse= "', '"), "')]\n",
                         if (any(varWeights != 1)) {
                           paste0("varWeights <- c(", 
                                  paste(colnames(ok.data)[varSelected], 
@@ -37,6 +44,7 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
                                  ")\n")
                         })
   
+
   
   
   
@@ -50,7 +58,7 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
                               " > are not natively numeric, and will be forced to numeric.",
                               " (This is probably a bad idea.)")
     dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))
-    codeTxt$numeric <- paste0("varNumeric <- sapply(dat, is.numeric)\n", 
+    codeTxt_numeric <- paste0("varNumeric <- sapply(dat, is.numeric)\n", 
                               "dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))\n")
   }
   
@@ -60,7 +68,7 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
   if (nrow(dat) < nrow.withNA) {
     err.msg$NArows <- paste(nrow.withNA - nrow(dat), 
                             "observations contained missing values, and were removed.")
-    codeTxt$NArows <- "dat <- as.matrix(na.omit(dat))\n"
+    codeTxt_NArows <- "dat <- as.matrix(na.omit(dat))\n"
   }
   if (nrow(dat) == 0) {
     err.msg$NArows <- "All observations contain missing values, training impossible."
@@ -77,7 +85,7 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
                                " > are constant, and will be removed for training.")
     dat <- dat[, !varConstant]
     varWeights <- varWeights[!varConstant]
-    codeTxt$constant <- paste0("varConstant <- apply(dat, 2, sd, na.rm= T) == 0\n", 
+    codeTxt_constant <- paste0("varConstant <- apply(dat, 2, sd, na.rm= T) == 0\n", 
                                "dat <- dat[, !varConstant]\n", 
                                if (any(varWeights != 1)) paste0("varWeights <- varWeights[!varConstant]\n"))
     if (sum(!varConstant) < 2) {
@@ -90,25 +98,28 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
   if (input_trainscale) dat <- scale(dat)
   varWeights <- length(varWeights) * varWeights / sum(varWeights)
   dat <- t(sqrt(varWeights) * t(dat))
-  codeTxt$scale <- paste0(ifelse(input_trainscale, "dat <- scale(dat)\n", ""), 
+  codeTxt_scale <- paste0(ifelse(input_trainscale, "dat <- scale(dat)\n", ""), 
                           if (any(varWeights != 1)) paste0("varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
                                                            "dat <- t(sqrt(varWeights) * t(dat))\n"))
   
-  values$codetxt$traindat <- paste0(codeTxt$sel, 
+  codetxt_traindat <- paste0(codeTxt_sel,  "\n",
                                     if (! is.null(codeTxt$numeric)) {
                                       paste0("# Warning: ", err.msg$numeric, "\n", 
-                                             codeTxt$numeric)
+                                             codeTxt_numeric)
                                     },
                                     if (! is.null(codeTxt$NArows)) {
                                       paste0("# Warning: ", err.msg$NArows, "\n", 
-                                             codeTxt$NArows)
+                                             codeTxt_NArows)
                                     },
                                     if (! is.null(codeTxt$constant)) {
                                       paste0("# Warning: ", err.msg$constant, "\n", 
-                                             codeTxt$constant)
+                                             codeTxt_constant)
                                     },
-                                    codeTxt$scale)
-  return(list(dat= dat, msg= err.msg))
+                                    codeTxt_scale)
+  
+
+  
+  return(list(list(dat= dat, msg= err.msg), codetxt_traindat))
   
   
   
