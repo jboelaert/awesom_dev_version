@@ -1,4 +1,5 @@
 ## 27/04/2016 : Shiny SOM
+library(aweSOM)
 options(shiny.maxRequestSize=2^30) # Max filesize
 
 ## TODO : remove these library calls, to be replaced by package::function inline
@@ -48,13 +49,13 @@ shinyServer(function(input, output, session) {
   # Current imported data
   ok.data <- reactive({
     if(input$file_type == "csv_txt"){ 
-      imported_file_object <- ok.data.function.csv.txt(
+      imported_file_object <- aweSOM:::ok.data.function.csv.txt(
         input_dataFile = input$dataFile ,input_header = input$header, 
         input_sep = input$sep, input_quote = input$quote, input_dec = input$dec,
         input_encoding = input$encoding, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "excel_xlsx"){
-      imported_file <-  ok.data.function.excel_xlsx(
+      imported_file <-  aweSOM:::ok.data.function.excel_xlsx(
         input_dataFile = input$dataFile, input_column_names = input$column_names, 
         input_trim_spaces = input$trim_spaces, 
         input_range_specified_bol = input$range_specified_bol, 
@@ -64,7 +65,7 @@ shinyServer(function(input, output, session) {
         input_dataFile_datapath = input$dataFile$datapath,
         input_rows_to_skip = input$rows_to_skip)
     } else if(input$file_type == "excel_xls"){
-      imported_file_object <- ok.data.function.excel_xls(
+      imported_file_object <- aweSOM:::ok.data.function.excel_xls(
         input_dataFile = input$dataFile, 
         input_column_names_xls = input$column_names_xls,
         input_trim_spaces_xls = input$trim_spaces_xls,
@@ -75,15 +76,15 @@ shinyServer(function(input, output, session) {
         input_dataFile_datapath = input$dataFile$datapath,
         input_rows_to_skip_xls = input$rows_to_skip_xls)
     } else if(input$file_type == "spss"){
-      imported_file_object <- ok.data.function.spss(
+      imported_file_object <- aweSOM:::ok.data.function.spss(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "stata"){
-      imported_file_object <- ok.data.function.stata(
+      imported_file_object <- aweSOM:::ok.data.function.stata(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "sas_data"){
-      imported_file_object <- ok.data.function.sas.data(
+      imported_file_object <- aweSOM:::ok.data.function.sas.data(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath)
     }
@@ -218,7 +219,7 @@ shinyServer(function(input, output, session) {
       if (sum(varSelected) < 2) 
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
       
-      return_traindat <- ok.traindat.function(input_trainscale = input$trainscale, 
+      return_traindat <- aweSOM:::ok.traindat.function(input_trainscale = input$trainscale, 
                                               ok.data = ok.data(), 
                                               varSelected = varSelected,
                                               varWeights = varWeights)
@@ -236,7 +237,7 @@ shinyServer(function(input, output, session) {
       return(NULL)
     }
     
-    res <- ok.som.function(ok.traindat = dat, 
+    res <- aweSOM:::ok.som.function(ok.traindat = dat, 
                            input_trainSeed = input$trainSeed, 
                            input_kohInit = input$kohInit,
                            input_kohDimy = input$kohDimy, 
@@ -319,7 +320,7 @@ shinyServer(function(input, output, session) {
     somDist(ok.som = ok.som())
   })
   ok.qual <- reactive({
-    somQuality(ok.som = ok.som(), ok.traindat = ok.traindat())
+    somQuality(ok.som = ok.som(), traindat = ok.traindat()$dat)
   })
   
   ## Training message
@@ -437,32 +438,27 @@ shinyServer(function(input, output, session) {
   ## Dendrogram
   output$plotDendrogram <- renderPlot({
     
-    plot.dendogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+    aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
     }, width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
   
   
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
-    plot.screeplot(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+    aweSOMscreeplot(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
   },
   width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
-  ## Smooth distance plot
   
+  ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
-    plot.smoothDist(ok.som = ok.som(), ok.dist = ok.dist(), input_palplot = input$palplot, 
+    aweSOMsmoothdist(ok.som = ok.som(), ok.dist = ok.dist(), input_palplot = input$palplot, 
                     input_plotRevPal = input$plotRevPal)
     
     },
   width = reactive({(input$plotSize + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
   height = reactive({input$plotSize + 500 }))
 
-  
-  
-  
-  
-  
   ## Abstraction plot
   output$plotAbstraction <-renderPlot({
     plot.abstraction(ok.som = ok.som(), ok.traindat = ok.traindat(),
@@ -491,31 +487,20 @@ shinyServer(function(input, output, session) {
     plot.data <- isolate(ok.data()[ok.trainrows(), ])
     if(is.null(plot.data)) return(NULL)
     
-    
-    
     # Obs names per cell for message box
     if (is.null(input$plotNames)){
       return(NULL)
     }
-    
-    
-    
-    
-    the.legend.function(plot.data = plot.data, input_plotNames = input$plotNames, ok.clust = ok.clust(), 
-                                    input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
-                                    input_plotVarOne = input$plotVarOne,
-                                    ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
-                                    input_contrast = input$contrast, input_average_format = input$average_format, 
-                                    ok.sc = ok.sc(),
-                                    input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
-                                    input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
-    
-    
-    
-    
-    
-    
-    
+
+    aweSOM:::the.legend.function(plot.data = plot.data, 
+                                 input_plotNames = input$plotNames, ok.clust = ok.clust(), 
+                                 input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
+                                 input_plotVarOne = input$plotVarOne,
+                                 ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
+                                 input_contrast = input$contrast, input_average_format = input$average_format, 
+                                 ok.sc = ok.sc(),
+                                 input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
+                                 input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
   },
   width = reactive({input$plotSize + 900}))
   
@@ -576,7 +561,6 @@ shinyServer(function(input, output, session) {
     
     options <- list(equalSize= input$plotEqualSize)
     
-    
 
     if(input$contrast == "contrast")  contrast <- "contrast"
     else if(input$contrast == "range") contrast <- "range"
@@ -586,14 +570,14 @@ shinyServer(function(input, output, session) {
                                  "median"= "median", "prototypes"= "prototypes")
     
     graphType <- ifelse(input$graphType == "UMatrix", "Color", input$graphType)
-    ok.sc <- ok.sc()
-  
-    getPlotParams(graphType, ok.som(), ok.sc,  
-                  data, input$plotSize, plotVar, contrast,
-                  input$palsc, input$palplot, cellNames,
-                  input$plotOutliers, input$plotRevPal, options, the.average_format)
-   
 
+    aweSOM:::getPlotParams(graphType, ok.som(), ok.sc(),  
+                           data, input$plotSize, plotVar, contrast,
+                           input$palsc, input$palplot, cellNames,
+                           input$plotOutliers, input$plotRevPal, options, 
+                           the.average_format)
+    
+    
     
   })
   

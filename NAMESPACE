@@ -3,6 +3,13 @@ import(shiny)
 
 ## exports
 # standard functions
-export(aweSOM, somDist, somQuality)
+export(aweSOM)
+export(somDist)
+export(somQuality)
+export(aweSOMdendrogram)
+export(aweSOMscreeplot)
+export(aweSOMsmoothdist)
+export(plot.abstraction)
+export(plot.pam_silhouette)
 
 #store the other console level functions here too
