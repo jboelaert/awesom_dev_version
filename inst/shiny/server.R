@@ -3,7 +3,6 @@ options(shiny.maxRequestSize=2^30) # Max filesize
 source("train_panel_functions.R")
 source("graph_panel_functions.R")
 source("import_panel_functions.R")
-source("clustering_functions.R")
 library(cluster)
 library(prettycode)
 library(tidyverse)
@@ -315,28 +314,16 @@ shinyServer(function(input, output, session) {
     isolate(rowSums(is.na(ok.data()[, ok.trainvars()])) == 0)
   })
   
+  
+  ## Current map distances and quality measures, triggered by ok.som
   ok.dist <- reactive({
-    ok.dist.function(ok.som = ok.som())
+    somDist(ok.som = ok.som())
   })
-  
-  ## Current quality measures when ok.som changes
   ok.qual <- reactive({
-    ok.qual.function(ok.som = ok.som(), ok.traindat = ok.traindat(), ok.dist = ok.dist())
+    somQuality(ok.som = ok.som(), ok.traindat = ok.traindat())
   })
-  
- 
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   ## Training message
-  #is this a reporudiclbe option yet, if not, make it
   output$Message <- renderPrint({
     if (!is.null(ok.traindat()$msg)) {
       cat(paste0("********** Warning: **********\n", 
@@ -352,6 +339,7 @@ shinyServer(function(input, output, session) {
                        " ; alpha = (", input$trainAlpha1, ", ", input$trainAlpha2, ") ; ",
                        "radius = (", input$trainRadius1, ", ", input$trainRadius2, "), ", 
                        "random seed = ", ok.som()$seed, ".")))
+    
     cat("\n\n## Quality measures:\n")
     cat("* Quantization error     : ", ok.qual()$err.quant, "\n")
     cat("* (% explained variance) : ", ok.qual()$err.varratio, "\n")
@@ -732,13 +720,22 @@ shinyServer(function(input, output, session) {
   #############################################################################
   
   output$codeTxt <- renderText({
-    paste0("## Import Data\n", 
+    paste0("library(aweSOM)\n", 
+           "\n## Import Data\n", 
            values$codetxt$dataread, 
            "\n## Build training data\n",
            values$codetxt_traindat$traindat, 
            "\n## Train SOM\n", 
            values$codetxt$train, "\n",
-           values$codetxt$sc)
+           values$codetxt$sc, 
+           "\n## Quality measures:\n",
+           "ok.qual <- somQuality(ok.som, dat)\n",
+           'cat("* Quantization error     : ", ok.qual$err.quant, "\\n",\n',
+           '    "* (% explained variance) : ", ok.qual$err.varratio, "\\n",\n',
+           '    "* Topographic error      : ", ok.qual$err.topo, "\\n",\n',
+           '    "* Kaski-Lagus error      : ", ok.qual$err.kaski, "\\n")\n',
+           '## Number of obs. per map cell:\n',
+           'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n')
   })
   
 })

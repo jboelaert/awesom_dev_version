@@ -3,6 +3,6 @@ import(shiny)
 
 ## exports
 # standard functions
-export(aweSOM)
+export(aweSOM, somDist, somQuality)
 
 #store the other console level functions here too
