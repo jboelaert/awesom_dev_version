@@ -438,7 +438,7 @@ shinyServer(function(input, output, session) {
   ## Dendrogram
   output$plotDendrogram <- renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
-                                  "aweSOMdendrogram(ok.som, superclust, ", 
+                                  "aweSOM::aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
     aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
     }, width = reactive({input$plotSize + 500}),
@@ -448,7 +448,7 @@ shinyServer(function(input, output, session) {
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
-                                  "aweSOMscreeplot(ok.som, superclust, ", 
+                                  "aweSOM::aweSOMscreeplot(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
     aweSOMscreeplot(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
   },
@@ -458,7 +458,7 @@ shinyServer(function(input, output, session) {
   ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot smooth distances\n", 
-                                  "aweSOMsmoothdist(ok.som, superclust, ", 
+                                  "aweSOM::aweSOMsmoothdist(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
     aweSOMsmoothdist(ok.som = ok.som(), ok.dist = ok.dist(), input_palplot = input$palplot, 
                     input_plotRevPal = input$plotRevPal)
@@ -578,7 +578,7 @@ shinyServer(function(input, output, session) {
     graphType <- ifelse(input$graphType == "UMatrix", "Color", input$graphType)
     
     values$codetxt$plot <- paste0("\n## Plot interactive ** graph \n", 
-                                  "# aweSOMplot(the, arguments)")
+                                  "# aweSOM::aweSOMplot(the, arguments)")
 
     aweSOM:::getPlotParams(graphType, ok.som(), ok.sc(),  
                            data, input$plotSize, plotVar, contrast,
@@ -700,23 +700,23 @@ shinyServer(function(input, output, session) {
   #############################################################################
   
   output$codeTxt <- renderText({
-    paste0("library(aweSOM)\n", 
-           "\n## Import Data\n", 
+    paste0("\n## Import Data\n", 
            values$codetxt$dataread, 
            "\n## Build training data\n",
            values$codetxt_traindat$traindat, 
            "\n## Train SOM\n", 
            values$codetxt$train, "\n",
            values$codetxt$sc, 
-           "\n## Quality measures:\n",
-           "ok.qual <- somQuality(ok.som, dat)\n",
-           'cat("* Quantization error     : ", ok.qual$err.quant, "\\n",\n',
-           '    "* (% explained variance) : ", ok.qual$err.varratio, "\\n",\n',
-           '    "* Topographic error      : ", ok.qual$err.topo, "\\n",\n',
-           '    "* Kaski-Lagus error      : ", ok.qual$err.kaski, "\\n")\n',
-           '## Number of obs. per map cell:\n',
-           'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n',
-           values$codetxt$plot)
+           if (!is.null(ok.som())) paste0(
+             "\n## Quality measures:\n",
+             "ok.qual <- aweSOM::somQuality(ok.som, dat)\n",
+             'cat("* Quantization error     : ", ok.qual$err.quant, "\\n",\n',
+             '    "* (% explained variance) : ", ok.qual$err.varratio, "\\n",\n',
+             '    "* Topographic error      : ", ok.qual$err.topo, "\\n",\n',
+             '    "* Kaski-Lagus error      : ", ok.qual$err.kaski, "\\n")\n',
+             '## Number of obs. per map cell:\n',
+             'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n',
+             values$codetxt$plot))
   })
   
 })
