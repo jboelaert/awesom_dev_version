@@ -266,14 +266,7 @@ shinyServer(function(input, output, session) {
   ## Compute superclasses when ok.som or superclass changes
   ok.hclust <- reactive({
     if(!is.null(ok.som())){
-      
-      values$codetxt$ok.hclust <- paste("## create hierarhical clustering \n",
-                                        "ok.hclust <- ok.hclust.function(ok.som")
-      
       ok.hclust.function(ok.som())
-      
-      
-      
     }
   })
   
@@ -281,12 +274,6 @@ shinyServer(function(input, output, session) {
 
   ok.pam_clust <- reactive({
     if(!is.null(ok.som())){
-      
-      values$codetxt$ok.pam_clust <- paste("## create PAM clustering \n",
-                                           "ok.pam_clust <- ok.pam_clust.function(ok.som,",
-                                           input$kohSuperclass,
-                                           ")")
-      
       ok.pam_clust.function(ok.som(), input$kohSuperclass)
     }
   })
@@ -296,22 +283,20 @@ shinyServer(function(input, output, session) {
   ok.sc <- reactive({
 
     if(!is.null(ok.hclust()) & !is.null(ok.pam_clust())){
-      
-      
-      values$codetxt$ok.sc <- paste("## compute superclasses \n",
-                                    "ok.sc <- ok.sc.function(",
-                                    "ok.hclust = ok.hclust",
-                                    ", ok.pam_clust = ok.pam_clust",
-                                    ", input_sup_clust_method = ", input$sup_clust_method,
-                                    ", input_kohSuperclass = ", input$kohSuperclass,
-                                    ")")
+      if (input$sup_clust_method == "hierarchical") {
+        values$codetxt$sc <- paste0("## Create superclasses (hierarchical clustering)\n", 
+                                    "superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')\n",
+                                    "superclasses <- unname(cutree(superclust, ", 
+                                    input$kohSuperclass, "))\n")
+      } else 
+        values$codetxt$sc <- paste0("## Create superclasses (PAM clustering)\n", 
+                                    "superclust <- pam(ok.som$codes[[1]], ", 
+                                    input$kohSuperclass, ")\n",
+                                    "superclasses <- unname(superclust$clustering)\n")
                                     
-
-    ok.sc.function(ok.hclust = ok.hclust(), ok.pam_clust = ok.pam_clust(),
-                          input_sup_clust_method = input$sup_clust_method,
-                          input_kohSuperclass = input$kohSuperclass)
-                         
-      
+      ok.sc.function(ok.hclust = ok.hclust(), ok.pam_clust = ok.pam_clust(),
+                     input_sup_clust_method = input$sup_clust_method,
+                     input_kohSuperclass = input$kohSuperclass)
     }
     
     else {
@@ -319,7 +304,7 @@ shinyServer(function(input, output, session) {
     }
     
     
-    })
+  })
   
   
   
@@ -760,7 +745,8 @@ shinyServer(function(input, output, session) {
            "\n## Build training data\n",
            values$codetxt_traindat$traindat, 
            "\n## Train SOM\n", 
-           values$codetxt$train)
+           values$codetxt$train, "\n",
+           values$codetxt$sc)
   })
   
 })

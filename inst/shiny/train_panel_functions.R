@@ -214,7 +214,7 @@ ok.som.function <- function(ok.traindat,  input_trainSeed, input_kohInit,
                           ", alpha = c(", input_trainAlpha1, ", ", 
                           input_trainAlpha2, "), radius = c(", 
                           input_trainRadius1, ",", input_trainRadius2, 
-                          "), init = init, dist.fcts = 'sumofsquares')")
+                          "), init = init, dist.fcts = 'sumofsquares')\n")
     
     ## save seed (a new seed will be set after training)
     res$seed <- input_trainSeed
@@ -310,7 +310,6 @@ ok.dist.function <- function(ok.som ){
 #' @examples
 ok.sc.function <- function(ok.hclust, ok.pam_clust, input_sup_clust_method, input_kohSuperclass){
   
-  #browser()
   if(!is.null(ok.hclust))
     
     #create a switch depending on PAM or hierarchical clustering
