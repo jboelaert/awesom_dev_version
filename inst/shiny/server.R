@@ -41,6 +41,8 @@ plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
 
 shinyServer(function(input, output, session) {
   
+  values <- reactiveValues()
+  
   #############################################################################
   ## Panel "Import Data"
   #############################################################################
@@ -203,17 +205,10 @@ shinyServer(function(input, output, session) {
   
   
  
- 
-  
-  
 
   ok.traindat <- reactive({
-
     if (input$trainbutton == 0) return(NULL)
-    
     isolate({
-    
-      
       #to make externalized functions more useable this part is placed outside of the (Jan)
       varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())), 
                                        function(var) input[[var]]))
@@ -221,42 +216,19 @@ shinyServer(function(input, output, session) {
                            function(var) input[[var]])
       
       varSelected <- varSelected & varWeights > 0
-      
-      
-      
-    
 
-
-      
       if (sum(varSelected) < 2) 
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
       
-      
-      
-      
-      
       return_traindat <- ok.traindat.function(input_trainscale = input$trainscale, 
-                           ok.data = ok.data(), 
-                           varSelected = varSelected,
-                           varWeights = varWeights)
-      
-      
-      values$codetxt$ok.traindat <- return_traindat[[2]]
-      
-      
-      return_traindat[[1]]
-
-      
-      })
-    
-    
-    
-    
+                                              ok.data = ok.data(), 
+                                              varSelected = varSelected,
+                                              varWeights = varWeights)
+      values$codetxt_traindat <- return_traindat$codeTxt
+      return_traindat
+    })
   })
   
-  
-  
-  values <- reactiveValues()
   
   ## Train SOM when button is hit
   
@@ -804,28 +776,15 @@ shinyServer(function(input, output, session) {
   
   
   #############################################################################
-  ## Panel "Import Data"
+  ## Panel "Reproducible code"
   #############################################################################
-  
   
   output$codeTxt <- renderText({
     paste0("## Import Data\n", 
            values$codetxt$dataread, 
-           "## Create ok.traindat object \n",
-           values$codetxt$varSelected, "\n",
-           values$codetxt$varWeights,"\n",
-           values$codetxt$ok.traindat.function
-           )
-           
-    
-    
-    
-   
-           
+           "\n## Build training data\n",
+           values$codetxt_traindat$traindat)
   })
-  
-  
-  
   
 })
   
