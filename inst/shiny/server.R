@@ -47,157 +47,49 @@ shinyServer(function(input, output, session) {
 
   # Current imported data
   ok.data <- reactive({
-    
-
     if(input$file_type == "csv_txt"){ 
-      
-      
-      
-    imported_file_object <- ok.data.function.csv.txt(input_dataFile = input$dataFile ,input_header = input$header, input_sep = input$sep, 
-                             input_quote = input$quote, input_dec = input$dec, input_encoding = input$encoding,
-                                    input_dataFile_datapath = input$dataFile$datapath)
-    imported_file <- imported_file_object[[1]]
+      imported_file_object <- ok.data.function.csv.txt(
+        input_dataFile = input$dataFile ,input_header = input$header, 
+        input_sep = input$sep, input_quote = input$quote, input_dec = input$dec,
+        input_encoding = input$encoding, 
+        input_dataFile_datapath = input$dataFile$datapath)
+    } else if(input$file_type == "excel_xlsx"){
+      imported_file <-  ok.data.function.excel_xlsx(
+        input_dataFile = input$dataFile, input_column_names = input$column_names, 
+        input_trim_spaces = input$trim_spaces, 
+        input_range_specified_bol = input$range_specified_bol, 
+        input_range_specs = input$range_specs,
+        input_worksheet_specified_bol = input$worksheet_specified_bol,
+        input_worksheet_specs = input$worksheet_specs, 
+        input_dataFile_datapath = input$dataFile$datapath,
+        input_rows_to_skip = input$rows_to_skip)
+    } else if(input$file_type == "excel_xls"){
+      imported_file_object <- ok.data.function.excel_xls(
+        input_dataFile = input$dataFile, 
+        input_column_names_xls = input$column_names_xls,
+        input_trim_spaces_xls = input$trim_spaces_xls,
+        input_range_specified_bol_xls = input$range_specified_bol_xls,
+        input_range_specs_xls = input$range_specs_xls,
+        input_worksheet_specified_bol_xls = input$worksheet_specified_bol_xls,
+        input_worksheet_specs_xls = input$worksheet_specs_xls,
+        input_dataFile_datapath = input$dataFile$datapath,
+        input_rows_to_skip_xls = input$rows_to_skip_xls)
+    } else if(input$file_type == "spss"){
+      imported_file_object <- ok.data.function.spss(
+        input_dataFile = input$dataFile, 
+        input_dataFile_datapath = input$dataFile$datapath)
+    } else if(input$file_type == "stata"){
+      imported_file_object <- ok.data.function.stata(
+        input_dataFile = input$dataFile, 
+        input_dataFile_datapath = input$dataFile$datapath)
+    } else if(input$file_type == "sas_data"){
+      imported_file_object <- ok.data.function.sas.data(
+        input_dataFile = input$dataFile, 
+        input_dataFile_datapath = input$dataFile$datapath)
+    }
+    
     values$codetxt$dataread <- imported_file_object[[2]]
-    
-    
-      imported_file
-    
-    }
-
-    
-    
-    else if(input$file_type == "excel_xlsx"){
-      imported_file <-  ok.data.function.excel_xlsx(input_dataFile = input$dataFile, 
-                                                    input_column_names = input$column_names, 
-                                                    input_trim_spaces = input$trim_spaces,
-                                                    input_range_specified_bol = input$range_specified_bol, 
-                                                    input_range_specs = input$range_specs,
-                                                    input_worksheet_specified_bol = input$worksheet_specified_bol,
-                                                    input_worksheet_specs = input$worksheet_specs, 
-                                                    input_dataFile_datapath = input$dataFile$datapath,
-                                                    input_rows_to_skip = input$rows_to_skip)
-      
-      
-      
-      # values$codetxt$dataread <- paste0("# import the data as .xlsx file \n",
-      #                                   "ok.data <- ok.data.function.excel_xlsx(", 
-      #                                   "input_dataFile = '",input$dataFile$name, "', ",
-      #                                   "input_column_names = '", input$column_names, 
-      #                                   "', input_trim_spaces ='", input$trim_spaces, 
-      #                                   "', input_range_specified_bol = '", input$range_specified_bol, 
-      #                                   "', input_range_specs = '", input$range_specs, 
-      #                                   "', input_worksheet_specified_bol = '", input$worksheet_specified_bol, 
-      #                                   "', input_worksheet_specs = '", input$worksheet_specs, 
-      #                                   "', input_rows_to_skip = '", input$rows_to_skip, 
-      #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-      #                                   "')\n")
-      
-      
-      
-      
-      
-      imported_file
-      
-      
-    }
-
-
-    else if(input$file_type == "excel_xls"){
-      imported_file_object <- ok.data.function.excel_xls(input_dataFile = input$dataFile, 
-                                                  input_column_names_xls = input$column_names_xls,
-                                                  input_trim_spaces_xls = input$trim_spaces_xls,
-                                                  input_range_specified_bol_xls = input$range_specified_bol_xls,
-                                                  input_range_specs_xls = input$range_specs_xls,
-                                                  input_worksheet_specified_bol_xls = input$worksheet_specified_bol_xls,
-                                                  input_worksheet_specs_xls = input$worksheet_specs_xls,
-                                                  input_dataFile_datapath = input$dataFile$datapath,
-                                                  input_rows_to_skip_xls = input$rows_to_skip_xls)
-      
-      imported_file <- imported_file_object[[1]]
-      values$codetxt$dataread <- imported_file_object[[2]]
-      
-      
-      # values$codetxt$dataread <- paste0("# import the data as .xls file \n",
-      #                                   "ok.data <- ok.data.function.excel_xls(", 
-      #                                   "input_dataFile = '",input$dataFile$name, "', ",
-      #                                   "input_column_names_xls = '", input$column_names_xls, 
-      #                                   "', input_trim_spaces_xls ='", input$trim_spaces_xls, 
-      #                                   "', input_range_specified_bol_xls = '", input$range_specified_bol_xls, 
-      #                                   "', input_range_specs_xls = '", input$range_specs_xls, 
-      #                                   "', input_worksheet_specified_bol_xls = '", input$worksheet_specified_bol_xls, 
-      #                                   "', input_worksheet_specs_xls = '", input$worksheet_specs_xls, 
-      #                                   "', input_rows_to_skip_xls = '", input$rows_to_skip_xls, 
-      #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-      #                                   "')\n")
-      
-      
-      imported_file
-      
-      
-      
-      
-      
-    }
-
-    else if(input$file_type == "spss"){
-      imported_file_object <- ok.data.function.spss(input_dataFile = input$dataFile, 
-                                             input_dataFile_datapath = input$dataFile$datapath)
-      
-      imported_file <- imported_file_object[[1]]
-      values$codetxt$dataread <- imported_file_object[[2]]
-      
-      # values$codetxt$dataread <- paste0("# import the data as SPSS file \n",
-      #                                   "ok.data <- ok.data.function.spss(", 
-      #                                   "input_dataFile = '",input$dataFile$name, 
-      #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-      #                                   "')\n")
-      
-      imported_file
-      
-      
-      
-    }
-
-    else if(input$file_type == "stata"){
-      imported_file_object <- ok.data.function.stata(input_dataFile = input$dataFile, 
-                                              input_dataFile_datapath = input$dataFile$datapath)
-      
-      imported_file <- imported_file_object[[1]]
-      values$codetxt$dataread <- imported_file_object[[2]]
-      
-      # values$codetxt$dataread <- paste0("# import the data as STATA file \n",
-      #                                   "ok.data <- ok.data.function.stata(", 
-      #                                   "input_dataFile = '",input$dataFile$name, 
-      #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-      #                                   "')\n")
-      
-      imported_file
-      
-      
-      
-      
-      
-    }
-
-    else if(input$file_type == "sas_data"){
-       imported_file_object <- ok.data.function.sas.data(input_dataFile = input$dataFile, 
-                                                  input_dataFile_datapath = input$dataFile$datapath)
-       
-       
-       imported_file <- imported_file_object[[1]]
-       values$codetxt$dataread <- imported_file_object[[2]]
-       
-       # values$codetxt$dataread <- paste0("# import the data as SAS data file \n",
-       #                                   "ok.data <- ok.data.function.sas.data(", 
-       #                                   "input_dataFile = '",input$dataFile$name, 
-       #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-       #                                   "')\n")
-       
-       imported_file
-    }
-    
-    
-
+    imported_file_object[[1]]
   })
   
   
