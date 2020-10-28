@@ -230,55 +230,30 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ## Train SOM when button is hit
-  
-  
+  ## Train SOM when button is hit (triggered by change in ok.traindat)
+
   ok.som <- reactive({
-    
-    
-    
     dat <- ok.traindat()
     if (is.null(dat$dat)) {
       return(NULL)
-      }
+    }
     
-    
-    
-    # values$codetxt$ok.som <- paste("## create ok.som object \n",
-    #                                "ok.som <- ok.som.function(",
-    #                                "ok.traindat = ok.traindat", 
-    #                                ", input_trainSeed", input$trainSeed,
-    #                                ", input_kohInit", input$kohInit,
-    #                                ", input_kohDimy", input$kohDimy,
-    #                                ", input_kohDimx", input$kohDimx,
-    #                                ", input_kohTopo", input$kohTopo,
-    #                                ", input_trainRlen", input$trainRlen,
-    #                                ", input_trainAlpha1", input$trainAlpha1,
-    #                                ", input_trainAlpha2", input$trainAlpha2,
-    #                                ", input_trainRadius1", input$trainRadius1,
-    #                                ", input_trainRadius2", input$trainRadius2,
-    #                                ")")
-    
-    updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
     res <- ok.som.function(ok.traindat = dat, 
-                    input_trainSeed = input$trainSeed, input_kohInit = input$kohInit,
-                    input_kohDimy = input$kohDimy, input_kohDimx = input$kohDimx, 
-                    input_kohTopo = input$kohTopo, input_trainRlen = input$trainRlen,
-                    input_trainAlpha1 = input$trainAlpha1, input_trainAlpha2 = input$trainAlpha2, 
-                    input_trainRadius1 = input$trainRadius1, 
-                    input_trainRadius2 = input$trainRadius2)
+                           input_trainSeed = input$trainSeed, 
+                           input_kohInit = input$kohInit,
+                           input_kohDimy = input$kohDimy, 
+                           input_kohDimx = input$kohDimx, 
+                           input_kohTopo = input$kohTopo, 
+                           input_trainRlen = input$trainRlen,
+                           input_trainAlpha1 = input$trainAlpha1, 
+                           input_trainAlpha2 = input$trainAlpha2, 
+                           input_trainRadius1 = input$trainRadius1, 
+                           input_trainRadius2 = input$trainRadius2)
+    values$codetxt$train <- res$codeTxt
     
+    ## After training, set new seed value in training panel
     updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
-    
-    
-
-    
-    
-    
     res
-    
-    
-
   })
   
   ## Get clustering when ok.som changes
@@ -783,7 +758,9 @@ shinyServer(function(input, output, session) {
     paste0("## Import Data\n", 
            values$codetxt$dataread, 
            "\n## Build training data\n",
-           values$codetxt_traindat$traindat)
+           values$codetxt_traindat$traindat, 
+           "\n## Train SOM\n", 
+           values$codetxt$train)
   })
   
 })

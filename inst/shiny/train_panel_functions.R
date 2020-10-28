@@ -137,12 +137,20 @@ ok.som.function <- function(ok.traindat,  input_trainSeed, input_kohInit,
   
   dat <- ok.traindat$dat # uses the list created/returned by the previous function
   if (is.null(dat)) return(NULL)
+  codeTxt <- list()
 
   isolate({
     ## Initialization
     set.seed(input_trainSeed)
+    codeTxt$seed <- paste0("set.seed(", input_trainSeed, ")\n")
+    
+    codeTxt$init <- "### Initialization "
     if (input_kohInit == "random") {
       init <- dat[sample(nrow(dat), input_kohDimx * input_kohDimy, replace= T), ]
+      codeTxt$init <- paste0(codeTxt$init, "(random observations)\n",
+                             "init <- dat[sample(nrow(dat), ", 
+                             input_kohDimx, " * ", input_kohDimy, 
+                             ", replace= T), ]\n")
     } else if (input_kohInit %in% c("pca.sample", "pca")) {
       # the most detailed grid axis is assigned to the first component
       if (input_kohDimx >= input_kohDimy) {
@@ -161,25 +169,54 @@ ok.som.function <- function(ok.traindat,  input_trainSeed, input_kohInit,
                to= quantile(data.pca$x[,y.ev], .975),
                length.out= input_kohDimy)
       base <- as.matrix(expand.grid(x=x, y=y)) #here a hex variant could be created instead if hex topology
+      codeTxt$init <- paste0(codeTxt$init, 
+                             ifelse(input_kohInit == "pca.sample", 
+                                    "(observations closest to PCA grid)\n",
+                                    "(PCA grid)\n"),
+                             "data.pca <- prcomp(dat, center= F, scale.= F)\n",
+                             "x <- seq(from= quantile(data.pca$x[,", x.ev, "], .025), to= quantile(data.pca$x[,", x.ev, "], .975), length.out= ", input_kohDimx, ")\n",
+                             "y <- seq(from= quantile(data.pca$x[,", y.ev, "], .025), to= quantile(data.pca$x[,", y.ev, "], .975), length.out= ", input_kohDimy, ")\n",
+                             "base <- as.matrix(expand.grid(x=x, y=y))\n")
       if (input_kohInit == "pca.sample") {
         ## As in SOMbrero, init to observations closest to a 2D PCA grid
         closest.obs <- apply(base, 1, function(point) 
           which.min(colSums((t(data.pca$x[,c(x.ev,y.ev)])-point)^2)))
         init <- dat[closest.obs,]
+        codeTxt$init <- paste0(codeTxt$init, 
+                               "closest.obs <- apply(base, 1, function(point) which.min(colSums((t(data.pca$x[,c(", x.ev, ", ", y.ev, ")])-point)^2)))\n",
+                               "init <- dat[closest.obs,]\n")
       } else if (input_kohInit == "pca") {
         ## Pure PCA grid
         base <- cbind(base, matrix(0, nrow(base))[, rep(1, ncol(data.pca$x) - 2)])
         init <- base %*% t(data.pca$rotation)
+        codeTxt$init <- paste0(codeTxt$init, 
+                               "base <- cbind(base, matrix(0, nrow(base))[, rep(1, ncol(data.pca$x) - 2)])\n", 
+                               "init <- base %*% t(data.pca$rotation)\n")
       }
     } 
     
     #where it happens!
-    res <- kohonen::som(dat, grid= kohonen::somgrid(input_kohDimx, input_kohDimy, input_kohTopo), 
-                        rlen= input_trainRlen, alpha= c(input_trainAlpha1, input_trainAlpha2), 
-                        radius= c(input_trainRadius1, input_trainRadius2), init= init, 
-                        dist.fcts= "sumofsquares")
+    res <- kohonen::som(dat, 
+                        grid= kohonen::somgrid(input_kohDimx, input_kohDimy, 
+                                               input_kohTopo), 
+                        rlen= input_trainRlen, 
+                        alpha= c(input_trainAlpha1, input_trainAlpha2), 
+                        radius= c(input_trainRadius1, input_trainRadius2), 
+                        init= init, dist.fcts= "sumofsquares")
 
-    ## save seed and set new
+    res$codeTxt <- paste0("### RNG Seed (for reproducibility)\n", 
+                          codeTxt$seed,
+                          codeTxt$init, 
+                          "### Training\n", 
+                          "ok.som <- kohonen::som(dat, grid = kohonen::somgrid(", 
+                          input_kohDimx, ", ", input_kohDimy, ", '", 
+                          input_kohTopo, "'), rlen = ", input_trainRlen, 
+                          ", alpha = c(", input_trainAlpha1, ", ", 
+                          input_trainAlpha2, "), radius = c(", 
+                          input_trainRadius1, ",", input_trainRadius2, 
+                          "), init = init, dist.fcts = 'sumofsquares')")
+    
+    ## save seed (a new seed will be set after training)
     res$seed <- input_trainSeed
 
     res
