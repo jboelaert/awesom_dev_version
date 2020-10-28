@@ -263,51 +263,43 @@ shinyServer(function(input, output, session) {
   
   
   
-  ## Compute superclasses when ok.som or superclass changes
+  ## Compute superclasses when ok.som or superclass options changes
   ok.hclust <- reactive({
     if(!is.null(ok.som())){
-      ok.hclust.function(ok.som())
+      hclust(dist(ok.som()$codes[[1]]), "ward.D2")
     }
   })
   
-  
-
   ok.pam_clust <- reactive({
     if(!is.null(ok.som())){
-      ok.pam_clust.function(ok.som(), input$kohSuperclass)
+      cluster::pam(ok.som()$codes[[1]], input$kohSuperclass)
     }
   })
   
   
-  
+  ## Assign superclasses to cells
   ok.sc <- reactive({
 
-    if(!is.null(ok.hclust()) & !is.null(ok.pam_clust())){
-      if (input$sup_clust_method == "hierarchical") {
-        values$codetxt$sc <- paste0("## Create superclasses (hierarchical clustering)\n", 
-                                    "superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')\n",
-                                    "superclasses <- unname(cutree(superclust, ", 
-                                    input$kohSuperclass, "))\n")
-      } else 
-        values$codetxt$sc <- paste0("## Create superclasses (PAM clustering)\n", 
-                                    "superclust <- pam(ok.som$codes[[1]], ", 
-                                    input$kohSuperclass, ")\n",
-                                    "superclasses <- unname(superclust$clustering)\n")
-                                    
-      ok.sc.function(ok.hclust = ok.hclust(), ok.pam_clust = ok.pam_clust(),
-                     input_sup_clust_method = input$sup_clust_method,
-                     input_kohSuperclass = input$kohSuperclass)
+    if(is.null(ok.som())) return(NULL)
+    
+    if (input$sup_clust_method == "hierarchical") {
+      superclasses <- unname(cutree(ok.hclust(), input$kohSuperclass))
+      
+      values$codetxt$sc <- paste0("## Group cells into superclasses (hierarchical clustering)\n", 
+                                  "superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')\n",
+                                  "superclasses <- unname(cutree(superclust, ", 
+                                  input$kohSuperclass, "))\n")
+    } else {
+      superclasses <- unname(ok.pam_clust()$clustering)
+      
+      values$codetxt$sc <- paste0("## Group cells into superclasses (PAM clustering)\n", 
+                                  "superclust <- cluster::pam(ok.som$codes[[1]], ", 
+                                  input$kohSuperclass, ")\n",
+                                  "superclasses <- unname(superclust$clustering)\n")
     }
     
-    else {
-      return(NULL)
-    }
-    
-    
+    superclasses
   })
-  
-  
-  
   
   
   ## Current training vars
