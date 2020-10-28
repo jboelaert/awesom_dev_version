@@ -1,8 +1,7 @@
 ## 27/04/2016 : Shiny SOM
 options(shiny.maxRequestSize=2^30) # Max filesize
-source("train_panel_functions.R")
-source("graph_panel_functions.R")
-source("import_panel_functions.R")
+
+## TODO : remove these library calls, to be replaced by package::function inline
 library(cluster)
 library(prettycode)
 library(tidyverse)
