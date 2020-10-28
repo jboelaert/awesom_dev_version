@@ -437,7 +437,9 @@ shinyServer(function(input, output, session) {
   #Code function important for dendogram and further plots
   ## Dendrogram
   output$plotDendrogram <- renderPlot({
-    
+    values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
+                                  "aweSOMdendrogram(ok.som, superclust, ", 
+                                  input$kohSuperclass, ")\n")
     aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
     }, width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
@@ -445,6 +447,9 @@ shinyServer(function(input, output, session) {
   
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
+    values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
+                                  "aweSOMscreeplot(ok.som, superclust, ", 
+                                  input$kohSuperclass, ")\n")
     aweSOMscreeplot(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
   },
   width = reactive({input$plotSize + 500}),
@@ -452,6 +457,9 @@ shinyServer(function(input, output, session) {
   
   ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
+    values$codetxt$plot <- paste0("\n## Plot smooth distances\n", 
+                                  "aweSOMsmoothdist(ok.som, superclust, ", 
+                                  input$kohSuperclass, ")\n")
     aweSOMsmoothdist(ok.som = ok.som(), ok.dist = ok.dist(), input_palplot = input$palplot, 
                     input_plotRevPal = input$plotRevPal)
     
@@ -515,8 +523,6 @@ shinyServer(function(input, output, session) {
                                                      "Hitmap", "Line", 
                                                      "Names", "UMatrix")))
       return(NULL) # si on n'a pas calculé, on donne NULL à JS
-    
-    
 
     plot.data <- isolate(ok.data()[ok.trainrows(), ])
     if(is.null(plot.data)) return(NULL)
@@ -570,15 +576,15 @@ shinyServer(function(input, output, session) {
                                  "median"= "median", "prototypes"= "prototypes")
     
     graphType <- ifelse(input$graphType == "UMatrix", "Color", input$graphType)
+    
+    values$codetxt$plot <- paste0("\n## Plot interactive ** graph \n", 
+                                  "# aweSOMplot(the, arguments)")
 
     aweSOM:::getPlotParams(graphType, ok.som(), ok.sc(),  
                            data, input$plotSize, plotVar, contrast,
                            input$palsc, input$palplot, cellNames,
                            input$plotOutliers, input$plotRevPal, options, 
                            the.average_format)
-    
-    
-    
   })
   
 
@@ -586,16 +592,12 @@ shinyServer(function(input, output, session) {
   
   
   ## warning for smooth distance hex based plot
-  output$smooth_dist_warning <- renderText({
+  output$smooth_dist_warning <- renderPrint({
     if(input$kohTopo == "hexagonal"){ 
       
       print("This might be a biased version since the topology of a hexagonal grid cannnot be account
           for within this plot") #<-- prints also to the console which is rather stupid
       }
-    
-    
- 
-    
   })
   
   
@@ -606,12 +608,7 @@ shinyServer(function(input, output, session) {
                         input_sup_clust_method = input$sup_clust_method)
   })
   
-  
-  
-  
 
-  
-  
   # map cluster function -------------------------------------------------------------
   
   
@@ -718,7 +715,8 @@ shinyServer(function(input, output, session) {
            '    "* Topographic error      : ", ok.qual$err.topo, "\\n",\n',
            '    "* Kaski-Lagus error      : ", ok.qual$err.kaski, "\\n")\n',
            '## Number of obs. per map cell:\n',
-           'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n')
+           'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n',
+           values$codetxt$plot)
   })
   
 })

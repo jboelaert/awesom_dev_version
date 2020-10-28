@@ -491,7 +491,6 @@ getPalette <- function(pal, n, reverse= F) {
 #'
 #' @examples
 aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
-
   
   if (is.null(ok.som)) return()
   plot(ok.hclust, xlab= "", main= "")
@@ -513,7 +512,7 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #'
 #' @examples
 aweSOMscreeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
-  
+  ## TODO : adapt for PAM
   
   if (is.null(ok.som)) return()
   ncells <- nrow(ok.som$codes[[1]])
