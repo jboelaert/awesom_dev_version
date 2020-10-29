@@ -1,13 +1,4 @@
 
-
-
-
-
-
-
-
-
-
 #' Import .csv/txt data
 #'
 #'Based on data.table::fread
@@ -38,7 +29,8 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
                       "Double Quote \""= '"',
                       "Single Quote '"= "'")
   the.dec <- switch(input_dec, 'Period "."'=".", 'Comma ","'=",")
-  the.encoding <- switch(input_encoding, "unknown" = "unknown", "UTF-8" = "UTF-8", "Latin-1" = "Latin-1")
+  the.encoding <- switch(input_encoding, "unknown" = "unknown", 
+                         "UTF-8" = "UTF-8", "Latin-1" = "Latin-1")
   
   data_read_reproducible <- paste0("ok.data <- data.table::fread('", 
                                    input_dataFile$name, "', ",
@@ -46,15 +38,9 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
                                     "', sep ='", the.sep, 
                                     "', quote = '", the.quote, 
                                     "', dec = '", the.dec, 
-                                    "', stringsAsFactors = ", T, ",",
-                                    "encoding =", the.encoding,
-                                    
-                                    ")\n")
-  
-  
-  
-  
-  
+                                    "', stringsAsFactors = TRUE, encoding = '", 
+                                   the.encoding, "')\n")
+
   data <- try(data.frame(data.table::fread(input_dataFile_datapath, 
                                            header=the.header, sep=the.sep, 
                                            quote=the.quote, dec=the.dec, 
@@ -63,11 +49,6 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
   if(class(data) == "try-error"){ return(NULL)}
   return(list(data, data_read_reproducible))
 }
-
-
-
-
-
 
 
 #' Import .xlsx data

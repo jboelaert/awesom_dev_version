@@ -1,9 +1,8 @@
 ## 27/04/2016 : Shiny SOM
+library(aweSOM)
 options(shiny.maxRequestSize=2^30) # Max filesize
-source("train_panel_functions.R")
-source("graph_panel_functions.R")
-source("import_panel_functions.R")
-source("clustering_functions.R")
+
+## TODO : remove these library calls, to be replaced by package::function inline
 library(cluster)
 library(prettycode)
 library(tidyverse)
@@ -41,163 +40,57 @@ plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
 
 shinyServer(function(input, output, session) {
   
+  values <- reactiveValues()
+  
   #############################################################################
   ## Panel "Import Data"
   #############################################################################
 
   # Current imported data
   ok.data <- reactive({
-    
-
     if(input$file_type == "csv_txt"){ 
-      
-      
-      
-    imported_file_object <- ok.data.function.csv.txt(input_dataFile = input$dataFile ,input_header = input$header, input_sep = input$sep, 
-                             input_quote = input$quote, input_dec = input$dec, input_encoding = input$encoding,
-                                    input_dataFile_datapath = input$dataFile$datapath)
-    imported_file <- imported_file_object[[1]]
+      imported_file_object <- aweSOM:::ok.data.function.csv.txt(
+        input_dataFile = input$dataFile ,input_header = input$header, 
+        input_sep = input$sep, input_quote = input$quote, input_dec = input$dec,
+        input_encoding = input$encoding, 
+        input_dataFile_datapath = input$dataFile$datapath)
+    } else if(input$file_type == "excel_xlsx"){
+      imported_file <-  aweSOM:::ok.data.function.excel_xlsx(
+        input_dataFile = input$dataFile, input_column_names = input$column_names, 
+        input_trim_spaces = input$trim_spaces, 
+        input_range_specified_bol = input$range_specified_bol, 
+        input_range_specs = input$range_specs,
+        input_worksheet_specified_bol = input$worksheet_specified_bol,
+        input_worksheet_specs = input$worksheet_specs, 
+        input_dataFile_datapath = input$dataFile$datapath,
+        input_rows_to_skip = input$rows_to_skip)
+    } else if(input$file_type == "excel_xls"){
+      imported_file_object <- aweSOM:::ok.data.function.excel_xls(
+        input_dataFile = input$dataFile, 
+        input_column_names_xls = input$column_names_xls,
+        input_trim_spaces_xls = input$trim_spaces_xls,
+        input_range_specified_bol_xls = input$range_specified_bol_xls,
+        input_range_specs_xls = input$range_specs_xls,
+        input_worksheet_specified_bol_xls = input$worksheet_specified_bol_xls,
+        input_worksheet_specs_xls = input$worksheet_specs_xls,
+        input_dataFile_datapath = input$dataFile$datapath,
+        input_rows_to_skip_xls = input$rows_to_skip_xls)
+    } else if(input$file_type == "spss"){
+      imported_file_object <- aweSOM:::ok.data.function.spss(
+        input_dataFile = input$dataFile, 
+        input_dataFile_datapath = input$dataFile$datapath)
+    } else if(input$file_type == "stata"){
+      imported_file_object <- aweSOM:::ok.data.function.stata(
+        input_dataFile = input$dataFile, 
+        input_dataFile_datapath = input$dataFile$datapath)
+    } else if(input$file_type == "sas_data"){
+      imported_file_object <- aweSOM:::ok.data.function.sas.data(
+        input_dataFile = input$dataFile, 
+        input_dataFile_datapath = input$dataFile$datapath)
+    }
+    
     values$codetxt$dataread <- imported_file_object[[2]]
-    
-    
-      imported_file
-    
-    }
-
-    
-    
-    else if(input$file_type == "excel_xlsx"){
-      imported_file <-  ok.data.function.excel_xlsx(input_dataFile = input$dataFile, 
-                                                    input_column_names = input$column_names, 
-                                                    input_trim_spaces = input$trim_spaces,
-                                                    input_range_specified_bol = input$range_specified_bol, 
-                                                    input_range_specs = input$range_specs,
-                                                    input_worksheet_specified_bol = input$worksheet_specified_bol,
-                                                    input_worksheet_specs = input$worksheet_specs, 
-                                                    input_dataFile_datapath = input$dataFile$datapath,
-                                                    input_rows_to_skip = input$rows_to_skip)
-      
-      
-      
-      # values$codetxt$dataread <- paste0("# import the data as .xlsx file \n",
-      #                                   "ok.data <- ok.data.function.excel_xlsx(", 
-      #                                   "input_dataFile = '",input$dataFile$name, "', ",
-      #                                   "input_column_names = '", input$column_names, 
-      #                                   "', input_trim_spaces ='", input$trim_spaces, 
-      #                                   "', input_range_specified_bol = '", input$range_specified_bol, 
-      #                                   "', input_range_specs = '", input$range_specs, 
-      #                                   "', input_worksheet_specified_bol = '", input$worksheet_specified_bol, 
-      #                                   "', input_worksheet_specs = '", input$worksheet_specs, 
-      #                                   "', input_rows_to_skip = '", input$rows_to_skip, 
-      #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-      #                                   "')\n")
-      
-      
-      
-      
-      
-      imported_file
-      
-      
-    }
-
-
-    else if(input$file_type == "excel_xls"){
-      imported_file_object <- ok.data.function.excel_xls(input_dataFile = input$dataFile, 
-                                                  input_column_names_xls = input$column_names_xls,
-                                                  input_trim_spaces_xls = input$trim_spaces_xls,
-                                                  input_range_specified_bol_xls = input$range_specified_bol_xls,
-                                                  input_range_specs_xls = input$range_specs_xls,
-                                                  input_worksheet_specified_bol_xls = input$worksheet_specified_bol_xls,
-                                                  input_worksheet_specs_xls = input$worksheet_specs_xls,
-                                                  input_dataFile_datapath = input$dataFile$datapath,
-                                                  input_rows_to_skip_xls = input$rows_to_skip_xls)
-      
-      imported_file <- imported_file_object[[1]]
-      values$codetxt$dataread <- imported_file_object[[2]]
-      
-      
-      # values$codetxt$dataread <- paste0("# import the data as .xls file \n",
-      #                                   "ok.data <- ok.data.function.excel_xls(", 
-      #                                   "input_dataFile = '",input$dataFile$name, "', ",
-      #                                   "input_column_names_xls = '", input$column_names_xls, 
-      #                                   "', input_trim_spaces_xls ='", input$trim_spaces_xls, 
-      #                                   "', input_range_specified_bol_xls = '", input$range_specified_bol_xls, 
-      #                                   "', input_range_specs_xls = '", input$range_specs_xls, 
-      #                                   "', input_worksheet_specified_bol_xls = '", input$worksheet_specified_bol_xls, 
-      #                                   "', input_worksheet_specs_xls = '", input$worksheet_specs_xls, 
-      #                                   "', input_rows_to_skip_xls = '", input$rows_to_skip_xls, 
-      #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-      #                                   "')\n")
-      
-      
-      imported_file
-      
-      
-      
-      
-      
-    }
-
-    else if(input$file_type == "spss"){
-      imported_file_object <- ok.data.function.spss(input_dataFile = input$dataFile, 
-                                             input_dataFile_datapath = input$dataFile$datapath)
-      
-      imported_file <- imported_file_object[[1]]
-      values$codetxt$dataread <- imported_file_object[[2]]
-      
-      # values$codetxt$dataread <- paste0("# import the data as SPSS file \n",
-      #                                   "ok.data <- ok.data.function.spss(", 
-      #                                   "input_dataFile = '",input$dataFile$name, 
-      #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-      #                                   "')\n")
-      
-      imported_file
-      
-      
-      
-    }
-
-    else if(input$file_type == "stata"){
-      imported_file_object <- ok.data.function.stata(input_dataFile = input$dataFile, 
-                                              input_dataFile_datapath = input$dataFile$datapath)
-      
-      imported_file <- imported_file_object[[1]]
-      values$codetxt$dataread <- imported_file_object[[2]]
-      
-      # values$codetxt$dataread <- paste0("# import the data as STATA file \n",
-      #                                   "ok.data <- ok.data.function.stata(", 
-      #                                   "input_dataFile = '",input$dataFile$name, 
-      #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-      #                                   "')\n")
-      
-      imported_file
-      
-      
-      
-      
-      
-    }
-
-    else if(input$file_type == "sas_data"){
-       imported_file_object <- ok.data.function.sas.data(input_dataFile = input$dataFile, 
-                                                  input_dataFile_datapath = input$dataFile$datapath)
-       
-       
-       imported_file <- imported_file_object[[1]]
-       values$codetxt$dataread <- imported_file_object[[2]]
-       
-       # values$codetxt$dataread <- paste0("# import the data as SAS data file \n",
-       #                                   "ok.data <- ok.data.function.sas.data(", 
-       #                                   "input_dataFile = '",input$dataFile$name, 
-       #                                   "', input_dataFile_datapath ='", input$dataFile$datapath, 
-       #                                   "')\n")
-       
-       imported_file
-    }
-    
-    
-
+    imported_file_object[[1]]
   })
   
   
@@ -311,17 +204,10 @@ shinyServer(function(input, output, session) {
   
   
  
- 
-  
-  
 
   ok.traindat <- reactive({
-
     if (input$trainbutton == 0) return(NULL)
-    
     isolate({
-    
-      
       #to make externalized functions more useable this part is placed outside of the (Jan)
       varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())), 
                                        function(var) input[[var]]))
@@ -329,92 +215,44 @@ shinyServer(function(input, output, session) {
                            function(var) input[[var]])
       
       varSelected <- varSelected & varWeights > 0
-      
-      
-      
-    
 
-
-      
       if (sum(varSelected) < 2) 
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
       
-      
-      
-      
-      
-      return_traindat <- ok.traindat.function(input_trainscale = input$trainscale, 
-                           ok.data = ok.data(), 
-                           varSelected = varSelected,
-                           varWeights = varWeights)
-      
-      
-      values$codetxt$ok.traindat <- return_traindat[[2]]
-      
-      
-      return_traindat[[1]]
-
-      
-      })
-    
-    
-    
-    
+      return_traindat <- aweSOM:::ok.traindat.function(input_trainscale = input$trainscale, 
+                                              ok.data = ok.data(), 
+                                              varSelected = varSelected,
+                                              varWeights = varWeights)
+      values$codetxt_traindat <- return_traindat$codeTxt
+      return_traindat
+    })
   })
   
   
-  
-  values <- reactiveValues()
-  
-  ## Train SOM when button is hit
-  
-  
+  ## Train SOM when button is hit (triggered by change in ok.traindat)
+
   ok.som <- reactive({
-    
-    
-    
     dat <- ok.traindat()
     if (is.null(dat$dat)) {
       return(NULL)
-      }
+    }
     
+    res <- aweSOM:::ok.som.function(ok.traindat = dat, 
+                           input_trainSeed = input$trainSeed, 
+                           input_kohInit = input$kohInit,
+                           input_kohDimy = input$kohDimy, 
+                           input_kohDimx = input$kohDimx, 
+                           input_kohTopo = input$kohTopo, 
+                           input_trainRlen = input$trainRlen,
+                           input_trainAlpha1 = input$trainAlpha1, 
+                           input_trainAlpha2 = input$trainAlpha2, 
+                           input_trainRadius1 = input$trainRadius1, 
+                           input_trainRadius2 = input$trainRadius2)
+    values$codetxt$train <- res$codeTxt
     
-    
-    # values$codetxt$ok.som <- paste("## create ok.som object \n",
-    #                                "ok.som <- ok.som.function(",
-    #                                "ok.traindat = ok.traindat", 
-    #                                ", input_trainSeed", input$trainSeed,
-    #                                ", input_kohInit", input$kohInit,
-    #                                ", input_kohDimy", input$kohDimy,
-    #                                ", input_kohDimx", input$kohDimx,
-    #                                ", input_kohTopo", input$kohTopo,
-    #                                ", input_trainRlen", input$trainRlen,
-    #                                ", input_trainAlpha1", input$trainAlpha1,
-    #                                ", input_trainAlpha2", input$trainAlpha2,
-    #                                ", input_trainRadius1", input$trainRadius1,
-    #                                ", input_trainRadius2", input$trainRadius2,
-    #                                ")")
-    
+    ## After training, set new seed value in training panel
     updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
-    res <- ok.som.function(ok.traindat = dat, 
-                    input_trainSeed = input$trainSeed, input_kohInit = input$kohInit,
-                    input_kohDimy = input$kohDimy, input_kohDimx = input$kohDimx, 
-                    input_kohTopo = input$kohTopo, input_trainRlen = input$trainRlen,
-                    input_trainAlpha1 = input$trainAlpha1, input_trainAlpha2 = input$trainAlpha2, 
-                    input_trainRadius1 = input$trainRadius1, 
-                    input_trainRadius2 = input$trainRadius2)
-    
-    updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
-    
-    
-
-    
-    
-    
     res
-    
-    
-
   })
   
   ## Get clustering when ok.som changes
@@ -424,66 +262,43 @@ shinyServer(function(input, output, session) {
   
   
   
-  ## Compute superclasses when ok.som or superclass changes
+  ## Compute superclasses when ok.som or superclass options changes
   ok.hclust <- reactive({
     if(!is.null(ok.som())){
-      
-      values$codetxt$ok.hclust <- paste("## create hierarhical clustering \n",
-                                        "ok.hclust <- ok.hclust.function(ok.som")
-      
-      ok.hclust.function(ok.som())
-      
-      
-      
+      hclust(dist(ok.som()$codes[[1]]), "ward.D2")
     }
   })
   
-  
-
   ok.pam_clust <- reactive({
     if(!is.null(ok.som())){
-      
-      values$codetxt$ok.pam_clust <- paste("## create PAM clustering \n",
-                                           "ok.pam_clust <- ok.pam_clust.function(ok.som,",
-                                           input$kohSuperclass,
-                                           ")")
-      
-      ok.pam_clust.function(ok.som(), input$kohSuperclass)
+      cluster::pam(ok.som()$codes[[1]], input$kohSuperclass)
     }
   })
   
   
-  
+  ## Assign superclasses to cells
   ok.sc <- reactive({
 
-    if(!is.null(ok.hclust()) & !is.null(ok.pam_clust())){
+    if(is.null(ok.som())) return(NULL)
+    
+    if (input$sup_clust_method == "hierarchical") {
+      superclasses <- unname(cutree(ok.hclust(), input$kohSuperclass))
       
+      values$codetxt$sc <- paste0("## Group cells into superclasses (hierarchical clustering)\n", 
+                                  "superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')\n",
+                                  "superclasses <- unname(cutree(superclust, ", 
+                                  input$kohSuperclass, "))\n")
+    } else {
+      superclasses <- unname(ok.pam_clust()$clustering)
       
-      values$codetxt$ok.sc <- paste("## compute superclasses \n",
-                                    "ok.sc <- ok.sc.function(",
-                                    "ok.hclust = ok.hclust",
-                                    ", ok.pam_clust = ok.pam_clust",
-                                    ", input_sup_clust_method = ", input$sup_clust_method,
-                                    ", input_kohSuperclass = ", input$kohSuperclass,
-                                    ")")
-                                    
-
-    ok.sc.function(ok.hclust = ok.hclust(), ok.pam_clust = ok.pam_clust(),
-                          input_sup_clust_method = input$sup_clust_method,
-                          input_kohSuperclass = input$kohSuperclass)
-                         
-      
+      values$codetxt$sc <- paste0("## Group cells into superclasses (PAM clustering)\n", 
+                                  "superclust <- cluster::pam(ok.som$codes[[1]], ", 
+                                  input$kohSuperclass, ")\n",
+                                  "superclasses <- unname(superclust$clustering)\n")
     }
     
-    else {
-      return(NULL)
-    }
-    
-    
-    })
-  
-  
-  
+    superclasses
+  })
   
   
   ## Current training vars
@@ -499,28 +314,16 @@ shinyServer(function(input, output, session) {
     isolate(rowSums(is.na(ok.data()[, ok.trainvars()])) == 0)
   })
   
+  
+  ## Current map distances and quality measures, triggered by ok.som
   ok.dist <- reactive({
-    ok.dist.function(ok.som = ok.som())
+    somDist(ok.som = ok.som())
   })
-  
-  ## Current quality measures when ok.som changes
   ok.qual <- reactive({
-    ok.qual.function(ok.som = ok.som(), ok.traindat = ok.traindat(), ok.dist = ok.dist())
+    somQuality(ok.som = ok.som(), traindat = ok.traindat()$dat)
   })
-  
- 
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   ## Training message
-  #is this a reporudiclbe option yet, if not, make it
   output$Message <- renderPrint({
     if (!is.null(ok.traindat()$msg)) {
       cat(paste0("********** Warning: **********\n", 
@@ -536,6 +339,7 @@ shinyServer(function(input, output, session) {
                        " ; alpha = (", input$trainAlpha1, ", ", input$trainAlpha2, ") ; ",
                        "radius = (", input$trainRadius1, ", ", input$trainRadius2, "), ", 
                        "random seed = ", ok.som()$seed, ".")))
+    
     cat("\n\n## Quality measures:\n")
     cat("* Quantization error     : ", ok.qual()$err.quant, "\n")
     cat("* (% explained variance) : ", ok.qual()$err.varratio, "\n")
@@ -633,33 +437,36 @@ shinyServer(function(input, output, session) {
   #Code function important for dendogram and further plots
   ## Dendrogram
   output$plotDendrogram <- renderPlot({
-    
-    plot.dendogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+    values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
+                                  "aweSOM::aweSOMdendrogram(ok.som, superclust, ", 
+                                  input$kohSuperclass, ")\n")
+    aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
     }, width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
   
   
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
-    plot.screeplot(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+    values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
+                                  "aweSOM::aweSOMscreeplot(ok.som, superclust, ", 
+                                  input$kohSuperclass, ")\n")
+    aweSOMscreeplot(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
   },
   width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
-  ## Smooth distance plot
   
+  ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
-    plot.smoothDist(ok.som = ok.som(), ok.dist = ok.dist(), input_palplot = input$palplot, 
+    values$codetxt$plot <- paste0("\n## Plot smooth distances\n", 
+                                  "aweSOM::aweSOMsmoothdist(ok.som, superclust, ", 
+                                  input$kohSuperclass, ")\n")
+    aweSOMsmoothdist(ok.som = ok.som(), ok.dist = ok.dist(), input_palplot = input$palplot, 
                     input_plotRevPal = input$plotRevPal)
     
     },
   width = reactive({(input$plotSize + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
   height = reactive({input$plotSize + 500 }))
 
-  
-  
-  
-  
-  
   ## Abstraction plot
   output$plotAbstraction <-renderPlot({
     plot.abstraction(ok.som = ok.som(), ok.traindat = ok.traindat(),
@@ -688,31 +495,20 @@ shinyServer(function(input, output, session) {
     plot.data <- isolate(ok.data()[ok.trainrows(), ])
     if(is.null(plot.data)) return(NULL)
     
-    
-    
     # Obs names per cell for message box
     if (is.null(input$plotNames)){
       return(NULL)
     }
-    
-    
-    
-    
-    the.legend.function(plot.data = plot.data, input_plotNames = input$plotNames, ok.clust = ok.clust(), 
-                                    input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
-                                    input_plotVarOne = input$plotVarOne,
-                                    ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
-                                    input_contrast = input$contrast, input_average_format = input$average_format, 
-                                    ok.sc = ok.sc(),
-                                    input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
-                                    input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
-    
-    
-    
-    
-    
-    
-    
+
+    aweSOM:::the.legend.function(plot.data = plot.data, 
+                                 input_plotNames = input$plotNames, ok.clust = ok.clust(), 
+                                 input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
+                                 input_plotVarOne = input$plotVarOne,
+                                 ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
+                                 input_contrast = input$contrast, input_average_format = input$average_format, 
+                                 ok.sc = ok.sc(),
+                                 input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
+                                 input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
   },
   width = reactive({input$plotSize + 900}))
   
@@ -727,8 +523,6 @@ shinyServer(function(input, output, session) {
                                                      "Hitmap", "Line", 
                                                      "Names", "UMatrix")))
       return(NULL) # si on n'a pas calculé, on donne NULL à JS
-    
-    
 
     plot.data <- isolate(ok.data()[ok.trainrows(), ])
     if(is.null(plot.data)) return(NULL)
@@ -773,7 +567,6 @@ shinyServer(function(input, output, session) {
     
     options <- list(equalSize= input$plotEqualSize)
     
-    
 
     if(input$contrast == "contrast")  contrast <- "contrast"
     else if(input$contrast == "range") contrast <- "range"
@@ -783,15 +576,15 @@ shinyServer(function(input, output, session) {
                                  "median"= "median", "prototypes"= "prototypes")
     
     graphType <- ifelse(input$graphType == "UMatrix", "Color", input$graphType)
-    ok.sc <- ok.sc()
-  
-    getPlotParams(graphType, ok.som(), ok.sc,  
-                  data, input$plotSize, plotVar, contrast,
-                  input$palsc, input$palplot, cellNames,
-                  input$plotOutliers, input$plotRevPal, options, the.average_format)
-   
-
     
+    values$codetxt$plot <- paste0("\n## Plot interactive ** graph \n", 
+                                  "# aweSOM::aweSOMplot(the, arguments)")
+
+    aweSOM:::getPlotParams(graphType, ok.som(), ok.sc(),  
+                           data, input$plotSize, plotVar, contrast,
+                           input$palsc, input$palplot, cellNames,
+                           input$plotOutliers, input$plotRevPal, options, 
+                           the.average_format)
   })
   
 
@@ -799,16 +592,12 @@ shinyServer(function(input, output, session) {
   
   
   ## warning for smooth distance hex based plot
-  output$smooth_dist_warning <- renderText({
+  output$smooth_dist_warning <- renderPrint({
     if(input$kohTopo == "hexagonal"){ 
       
       print("This might be a biased version since the topology of a hexagonal grid cannnot be account
           for within this plot") #<-- prints also to the console which is rather stupid
       }
-    
-    
- 
-    
   })
   
   
@@ -819,12 +608,7 @@ shinyServer(function(input, output, session) {
                         input_sup_clust_method = input$sup_clust_method)
   })
   
-  
-  
-  
 
-  
-  
   # map cluster function -------------------------------------------------------------
   
   
@@ -912,28 +696,28 @@ shinyServer(function(input, output, session) {
   
   
   #############################################################################
-  ## Panel "Import Data"
+  ## Panel "Reproducible code"
   #############################################################################
   
-  
   output$codeTxt <- renderText({
-    paste0("## Import Data\n", 
+    paste0("\n## Import Data\n", 
            values$codetxt$dataread, 
-           "## Create ok.traindat object \n",
-           values$codetxt$varSelected, "\n",
-           values$codetxt$varWeights,"\n",
-           values$codetxt$ok.traindat.function
-           )
-           
-    
-    
-    
-   
-           
+           "\n## Build training data\n",
+           values$codetxt_traindat$traindat, 
+           "\n## Train SOM\n", 
+           values$codetxt$train, "\n",
+           values$codetxt$sc, 
+           if (!is.null(ok.som())) paste0(
+             "\n## Quality measures:\n",
+             "ok.qual <- aweSOM::somQuality(ok.som, dat)\n",
+             'cat("* Quantization error     : ", ok.qual$err.quant, "\\n",\n',
+             '    "* (% explained variance) : ", ok.qual$err.varratio, "\\n",\n',
+             '    "* Topographic error      : ", ok.qual$err.topo, "\\n",\n',
+             '    "* Kaski-Lagus error      : ", ok.qual$err.kaski, "\\n")\n',
+             '## Number of obs. per map cell:\n',
+             'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n',
+             values$codetxt$plot))
   })
-  
-  
-  
   
 })
   

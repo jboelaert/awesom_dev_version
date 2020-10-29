@@ -26,7 +26,8 @@ library(RJSONIO)
 #' @examples
 getPlotParams <- function(type, som, superclass, data, plotsize, varnames, 
                           normtype= c("range", "contrast"), palsc, palplot, 
-                          cellNames, plotOutliers, reversePal, options= NULL, the.average_format) {
+                          cellNames, plotOutliers, reversePal, options= NULL, 
+                          the.average_format) {
   
   ## Paramètres communs à tous les graphiques
   somsize <- nrow(som$grid$pts)
@@ -320,7 +321,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   #automatically creates a new .html for JS plot output
   skeleton <- readChar("export/graphs_html_export_version.html",
                    file.info("export/graphs_html_export_version.html")$size)
-  exportJson_plot_data <- toJSON(res)
+  exportJson_plot_data <- RJSONIO::toJSON(res)
   writeLines(text = paste0("<script> ", "var data = JSON.parse(`",
                                          exportJson_plot_data,   "`)",
               "</script>", skeleton), con = "export/awesom_exported_version.html", sep = "")
@@ -489,8 +490,7 @@ getPalette <- function(pal, n, reverse= F) {
 #' @return Dendogram plot of hierarchical clustering
 #'
 #' @examples
-plot.dendogram <- function(ok.som, ok.hclust, input_kohSuperclass){
-
+aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
   
   if (is.null(ok.som)) return()
   plot(ok.hclust, xlab= "", main= "")
@@ -511,8 +511,8 @@ plot.dendogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' @export
 #'
 #' @examples
-plot.screeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
-  
+aweSOMscreeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
+  ## TODO : adapt for PAM
   
   if (is.null(ok.som)) return()
   ncells <- nrow(ok.som$codes[[1]])
@@ -544,7 +544,7 @@ plot.screeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' @export
 #'
 #' @examples
-plot.smoothDist <- function(ok.som, ok.dist, input_palplot, input_plotRevPal){
+aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot, input_plotRevPal){
   if (is.null(ok.som)) return()
   
   values <- matrix(rowMeans(ok.dist$proto.data.dist.neigh, na.rm= T), 
