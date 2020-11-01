@@ -13,11 +13,11 @@ shinyUI(fluidPage(
              includeHTML("js/d3.min.js"),
              includeHTML("js/hexbin.js"),
              includeHTML("js/svg_todataurl.js"),
-             includeHTML("js/rgbcolor.js"),
-             includeHTML("js/canvg.js"),
              includeHTML("js/box.js"),
-             includeHTML("js/radar-chart-d3.js"),
-             includeHTML("js/word-cloud.js"),
+             includeHTML("js/canvg.js"),
+             includeHTML("js/rgbcolor.js"),
+             # includeHTML("js/radar-chart-d3.js"),
+             # includeHTML("js/word-cloud.js"),
              
              
              # data_import -------------------------------------------------------------
@@ -171,26 +171,6 @@ shinyUI(fluidPage(
                                          ###specs and params here
                                          
                         ),
-                                         
-                                         
-                                                  
-                                         
-                                         
-                                         
-
-                                         
-                                         
-                                        
-                                         
-                                         
-                                         
-                                         
-                        
-                        
-                        
-                        
-                        
-                        
                         )),
                column(8, 
                       uiOutput("dataImportMessage"), 
@@ -395,7 +375,8 @@ shinyUI(fluidPage(
                                              
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
                                               HTML('<h4 id="plot-message">-</h4>'),
-                                              HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
+                                              # HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
+                                              aweSOM:::aweSOMoutput("theWidget"),
                                               HTML('<br />'), 
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')),
                                               plotOutput("theLegend")

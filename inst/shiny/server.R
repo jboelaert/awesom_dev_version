@@ -514,81 +514,86 @@ shinyServer(function(input, output, session) {
   
   
   
-  ## Fancy JS Plots
-  output$thePlot <- reactive({
-    if (is.null(ok.som()) | !(input$graphType %in% c("Radar", 
-                                                     "Camembert", "CatBarplot",
-                                                     "Barplot", "Boxplot", 
-                                                     "Color", "Star", 
-                                                     "Hitmap", "Line", 
-                                                     "Names", "UMatrix")))
-      return(NULL) # si on n'a pas calculé, on donne NULL à JS
-
-    plot.data <- isolate(ok.data()[ok.trainrows(), ])
-    if(is.null(plot.data)) return(NULL)
-    # Obs names per cell for message box
-    if (is.null(input$plotNames)){
-      return(NULL)
-      
-    } 
-    if (input$plotNames == "(rownames)") {
-      plotNames.var <- rownames(plot.data)
-    } 
-    else {
-      plotNames.var <- as.character(plot.data[, input$plotNames])
-    }
-    
-    cellNames <- unname(lapply(split(plotNames.var, ok.clust()), 
-                        function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
-    
-    if (input$graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
-      if (is.null(input$plotVarMult)) return(NULL)
-      plotVar <- input$plotVarMult
-      data <- plot.data[, plotVar]
-    } else if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
-      if (is.null(input$plotVarOne)) return(NULL)
-      plotVar <- input$plotVarOne
-      data <- plot.data[, plotVar]
-    } else if (input$graphType %in% c("Hitmap")) {
-      plotVar <- NULL
-      data <- NULL
-    } else if (input$graphType %in% c("Names")) {
-      plotVar <- NULL
-      data <- as.character(plot.data[, input$plotVarOne])
-    } else if (input$graphType == "UMatrix") {
-      plotVar <- NULL
-      proto.gridspace.dist <- as.matrix(dist(ok.som()$grid$pts))
-      proto.dataspace.dist <- as.matrix(dist(ok.som()$codes[[1]]))
-      proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
-      proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
-      data <- rowMeans(proto.dataspace.dist, na.rm= T)[ok.clust()]
-      plotVar <- "Mean distance to neighbours"
-    }
-    
-    options <- list(equalSize= input$plotEqualSize)
-    
-
-    if(input$contrast == "contrast")  contrast <- "contrast"
-    else if(input$contrast == "range") contrast <- "range"
-    else if(input$contrast == "no_contrast") contrast <- "no_contrast" 
-    
-    the.average_format <- switch(input$average_format, "mean"= "mean", 
-                                 "median"= "median", "prototypes"= "prototypes")
-    
-    graphType <- ifelse(input$graphType == "UMatrix", "Color", input$graphType)
-    
-    values$codetxt$plot <- paste0("\n## Plot interactive ** graph \n", 
-                                  "# aweSOM::aweSOMplot(the, arguments)")
-
-    aweSOM:::getPlotParams(graphType, ok.som(), ok.sc(),  
-                           data, input$plotSize, plotVar, contrast,
-                           input$palsc, input$palplot, cellNames,
-                           input$plotOutliers, input$plotRevPal, options, 
-                           the.average_format)
-  })
+  # ## Fancy JS Plots
+  # output$thePlot <- reactive({
+  #   if (is.null(ok.som()) | !(input$graphType %in% c("Radar", 
+  #                                                    "Camembert", "CatBarplot",
+  #                                                    "Barplot", "Boxplot", 
+  #                                                    "Color", "Star", 
+  #                                                    "Hitmap", "Line", 
+  #                                                    "Names", "UMatrix")))
+  #     return(NULL) # si on n'a pas calculé, on donne NULL à JS
+  # 
+  #   plot.data <- isolate(ok.data()[ok.trainrows(), ])
+  #   if(is.null(plot.data)) return(NULL)
+  #   # Obs names per cell for message box
+  #   if (is.null(input$plotNames)){
+  #     return(NULL)
+  #     
+  #   } 
+  #   if (input$plotNames == "(rownames)") {
+  #     plotNames.var <- rownames(plot.data)
+  #   } 
+  #   else {
+  #     plotNames.var <- as.character(plot.data[, input$plotNames])
+  #   }
+  #   
+  #   cellNames <- unname(lapply(split(plotNames.var, ok.clust()), 
+  #                       function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
+  #   
+  #   if (input$graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
+  #     if (is.null(input$plotVarMult)) return(NULL)
+  #     plotVar <- input$plotVarMult
+  #     data <- plot.data[, plotVar]
+  #   } else if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
+  #     if (is.null(input$plotVarOne)) return(NULL)
+  #     plotVar <- input$plotVarOne
+  #     data <- plot.data[, plotVar]
+  #   } else if (input$graphType %in% c("Hitmap")) {
+  #     plotVar <- NULL
+  #     data <- NULL
+  #   } else if (input$graphType %in% c("Names")) {
+  #     plotVar <- NULL
+  #     data <- as.character(plot.data[, input$plotVarOne])
+  #   } else if (input$graphType == "UMatrix") {
+  #     plotVar <- NULL
+  #     proto.gridspace.dist <- as.matrix(dist(ok.som()$grid$pts))
+  #     proto.dataspace.dist <- as.matrix(dist(ok.som()$codes[[1]]))
+  #     proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
+  #     proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
+  #     data <- rowMeans(proto.dataspace.dist, na.rm= T)[ok.clust()]
+  #     plotVar <- "Mean distance to neighbours"
+  #   }
+  #   
+  #   options <- list(equalSize= input$plotEqualSize)
+  #   
+  # 
+  #   if(input$contrast == "contrast")  contrast <- "contrast"
+  #   else if(input$contrast == "range") contrast <- "range"
+  #   else if(input$contrast == "no_contrast") contrast <- "no_contrast" 
+  #   
+  #   the.average_format <- switch(input$average_format, "mean"= "mean", 
+  #                                "median"= "median", "prototypes"= "prototypes")
+  #   
+  #   graphType <- ifelse(input$graphType == "UMatrix", "Color", input$graphType)
+  #   
+  #   values$codetxt$plot <- paste0("\n## Plot interactive ** graph \n", 
+  #                                 "# aweSOM::aweSOMplot(the, arguments)")
+  # 
+  #   aweSOM:::getPlotParams(graphType, ok.som(), ok.sc(),  
+  #                          data, input$plotSize, plotVar, contrast,
+  #                          input$palsc, input$palplot, cellNames,
+  #                          input$plotOutliers, input$plotRevPal, options, 
+  #                          the.average_format)
+  # })
   
-
   
+  ## Fancy JS plots through widget
+  output$theWidget <- aweSOM:::renderaweSOM(
+    aweSOM:::aweSOMwidget(ok.som= ok.som(), ok.sc= ok.sc(), ok.clust= ok.clust(), 
+                          ok.data= ok.data(), ok.trainrows= ok.trainrows(), 
+                          input= input, width = NULL, height = NULL)
+  )
   
   
   ## warning for smooth distance hex based plot
