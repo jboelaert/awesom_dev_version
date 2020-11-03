@@ -397,8 +397,8 @@ shinyUI(fluidPage(
                                               HTML('<h4 id="plot-message">-</h4>'),
                                               HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
                                               HTML('<br />'), 
-                                              wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')),
-                                              plotOutput("theLegend")
+                                              wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>'))#, plotOutput("theLegend")
+                                              
                                               
                                               
                                               )
