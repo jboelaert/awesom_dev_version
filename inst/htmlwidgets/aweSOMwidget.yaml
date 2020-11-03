@@ -1,0 +1,16 @@
+dependencies:
+  - name: aweSOMwidget
+    version: 0.1
+    src: shiny/js
+    script: 
+      - box.js
+      - canvg.js
+      - d3.min.js
+      - d3.js
+      - hexbin.js
+      - lodash.min.js
+      - radar-chart-d3.js
+      - rgbcolor.js
+      - svg_todataurl.js
+      - word-cloud.js
+

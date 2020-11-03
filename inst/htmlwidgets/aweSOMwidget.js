@@ -4,7 +4,7 @@ HTMLWidgets.widget({
 
   type: 'output',
 
-  factory: function(el, data, width, height) {
+  factory: function(el, width, height) {
 
     return {
            renderValue: function(data) {

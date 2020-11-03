@@ -589,11 +589,40 @@ shinyServer(function(input, output, session) {
   
   
   ## Fancy JS plots through widget
-  output$theWidget <- aweSOM:::renderaweSOM(
-    aweSOM:::aweSOMwidget(ok.som= ok.som(), ok.sc= ok.sc(), ok.clust= ok.clust(), 
-                          ok.data= ok.data(), ok.trainrows= ok.trainrows(), 
-                          input= input, width = NULL, height = NULL)
-  )
+  output$theWidget <- aweSOM:::renderaweSOM({
+    values$codetxt$plot <- paste0(
+      "\n## Interactive plot\n", 
+      "aweSOM:::aweSOMwidget(ok.som = ok.som, ok.sc = superclasses, \n",
+      "                      ok.clust = superclust, ok.data = ok.data,\n", 
+      "                      ok.trainrows = c(", paste(ok.trainrows(), collapse= ", "), "),\n", 
+      "                      graphType = '", input$graphType, 
+      "', # plotNames = '", input$plotNames, "',\n",
+      "                      plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), 
+      "'), plotVarOne = '", input$plotVarOne, "',\n",
+      "                      plotEqualSize = ", input$plotEqualSize, 
+      ", contrast = '", input$contrast, "',\n",
+      "                      average_format = '", input$average_format,
+      "', plotSize = ", input$plotSize, ",\n",
+      "                      palsc = '", input$palsc, 
+      "', palplot = '", input$palplot, "', plotRevPal = ", input$plotRevPal, ")\n")
+    
+    aweSOM:::aweSOMwidget(ok.som= ok.som(), 
+                          ok.sc= ok.sc(), 
+                          ok.clust= ok.clust(), 
+                          ok.data= ok.data(), 
+                          ok.trainrows= ok.trainrows(), 
+                          graphType= input$graphType, 
+                          plotNames= input$plotNames, 
+                          plotVarMult= input$plotVarMult, 
+                          plotVarOne= input$plotVarOne, 
+                          plotEqualSize= input$plotEqualSize,
+                          contrast= input$contrast, 
+                          average_format= input$average_format,
+                          plotSize= input$plotSize, 
+                          palsc= input$palsc, 
+                          palplot= input$palplot, 
+                          plotRevPal= input$plotRevPal)
+  })
   
   
   ## warning for smooth distance hex based plot
@@ -723,6 +752,34 @@ shinyServer(function(input, output, session) {
              'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n',
              values$codetxt$plot))
   })
+  
+  ## Trying to make the code more pretty with RMarkdown, failed (works, but not more pretty and messes with the css)
+  # output$codeTxt2 <- shiny::renderUI({
+  #   tmp <- paste0("\n## Import Data\n", 
+  #          values$codetxt$dataread, 
+  #          "\n## Build training data\n",
+  #          values$codetxt_traindat$traindat, 
+  #          "\n## Train SOM\n", 
+  #          values$codetxt$train, "\n",
+  #          values$codetxt$sc, 
+  #          if (!is.null(ok.som())) paste0(
+  #            "\n## Quality measures:\n",
+  #            "ok.qual <- aweSOM::somQuality(ok.som, dat)\n",
+  #            'cat("* Quantization error     : ", ok.qual$err.quant, "\\n",\n',
+  #            '    "* (% explained variance) : ", ok.qual$err.varratio, "\\n",\n',
+  #            '    "* Topographic error      : ", ok.qual$err.topo, "\\n",\n',
+  #            '    "* Kaski-Lagus error      : ", ok.qual$err.kaski, "\\n")\n',
+  #            '## Number of obs. per map cell:\n',
+  #            'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n',
+  #            values$codetxt$plot))
+  #   HTML(markdown::markdownToHTML(text= knitr::knit(text= paste0("---\n", 
+  #                                                           "title: 'aweSOMcode'\n", 
+  #                                                           "output: hmtl_document\n", 
+  #                                                           "---\n", 
+  #                                                           "```{r eval=FALSE}\n", 
+  #                                                           tmp, "\n```\n"), 
+  #                                              quiet= T)))
+  # })
   
 })
   

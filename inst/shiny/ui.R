@@ -16,8 +16,8 @@ shinyUI(fluidPage(
              includeHTML("js/box.js"),
              includeHTML("js/canvg.js"),
              includeHTML("js/rgbcolor.js"),
-             # includeHTML("js/radar-chart-d3.js"),
-             # includeHTML("js/word-cloud.js"),
+             includeHTML("js/radar-chart-d3.js"),
+             includeHTML("js/word-cloud.js"),
              
              
              # data_import -------------------------------------------------------------
@@ -371,8 +371,8 @@ shinyUI(fluidPage(
                              
                              #for all other JS based plots refer to graphs.html
                              conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              includeHTML("graphs.html"), 
-                                             
+                                              includeHTML("graphs.html"),
+                                              
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
                                               HTML('<h4 id="plot-message">-</h4>'),
                                               # HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
@@ -401,12 +401,8 @@ shinyUI(fluidPage(
                column(8, DT::dataTableOutput("clustTable")))),
     
     tabPanel("Reproducible Scripts",
-            
-             
-             verbatimTextOutput("codeTxt")
-             
-
-             
+             verbatimTextOutput("codeTxt") #,
+             # htmlOutput("codeTxt2")
              )
     
     
