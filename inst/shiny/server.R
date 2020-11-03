@@ -7,7 +7,7 @@ library(cluster)
 library(prettycode)
 library(tidyverse)
 library(jsonify) #to get the getPlotParams object in JSON format
-#library(GGally) #for the legend
+library(GGally) #for the legend
 
 
 
