@@ -796,15 +796,16 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
                        palsc= "Set3", palplot= "viridis", plotRevPal= F) {
   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
                       ok.trainrows = ok.trainrows, graphType = graphType, 
-                      plotNames = plotNames, 
+                      plotNames = plotNames,
+                      plotVarMult= plotVarMult, plotVarOne= plotVarOne, 
                       plotOutliers = plotOutliers, plotEqualSize = plotEqualSize, 
                       contrast = contrast, average_format = average_format, 
                       plotSize = plotSize, 
                       palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
   res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadLink")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
-  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget")))
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
   res
 }

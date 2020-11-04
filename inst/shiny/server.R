@@ -595,7 +595,7 @@ shinyServer(function(input, output, session) {
       "aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
       "                   ok.trainrows = c(", paste(ok.trainrows(), collapse= ", "), "),\n", 
       "                   graphType = '", input$graphType, 
-      "', # plotNames = '", input$plotNames, "',\n",
+      "', plotNames = '", input$plotNames, "',\n",
       "                   plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), 
       "'), plotVarOne = '", input$plotVarOne, "',\n",
       "                   plotEqualSize = ", input$plotEqualSize, 
