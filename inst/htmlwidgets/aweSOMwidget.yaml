@@ -1,16 +1,12 @@
 dependencies:
-  - name: aweSOMwidget
+  - name: d3
     version: 0.1
-    src: shiny/js
+    src: htmlwidgets/js
     script: 
-      - box.js
-      - canvg.js
       - d3.min.js
       - d3.js
-      - hexbin.js
+  - name: lodash
+    version: 0.1
+    src: htmlwidgets/js
+    script: 
       - lodash.min.js
-      - radar-chart-d3.js
-      - rgbcolor.js
-      - svg_todataurl.js
-      - word-cloud.js
-

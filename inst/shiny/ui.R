@@ -9,9 +9,9 @@ shinyUI(fluidPage(
     #### Panel 'Welcome, Import Data'
     #########################################################################
     tabPanel("Import Data", 
-             includeHTML("js/lodash.min.js"), # to what extent are these used? are they providing the functions for graphs.html?
-             includeHTML("js/d3.min.js"),
              includeHTML("js/hexbin.js"),
+             # includeHTML("js/lodash.min.js"), 
+             # includeHTML("js/d3.min.js"),
              includeHTML("js/svg_todataurl.js"),
              includeHTML("js/box.js"),
              includeHTML("js/canvg.js"),
@@ -371,8 +371,8 @@ shinyUI(fluidPage(
                              
                              #for all other JS based plots refer to graphs.html
                              conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              includeHTML("graphs.html"),
-                                              
+                                              HTML('<a id="downloadLink">Download</a>'),
+                                              HTML('<img id="fromcanvasPlot" />'),
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
                                               HTML('<h4 id="plot-message">-</h4>'),
                                               # HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!

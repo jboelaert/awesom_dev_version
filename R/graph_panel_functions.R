@@ -317,14 +317,14 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   if (type == "CatBarplot")
     res$plotType <- "Barplot"
   
-  #only do this once the button is hit
-  #automatically creates a new .html for JS plot output
-  skeleton <- readChar("export/graphs_html_export_version.html",
-                   file.info("export/graphs_html_export_version.html")$size)
-  exportJson_plot_data <- RJSONIO::toJSON(res)
-  writeLines(text = paste0("<script> ", "var data = JSON.parse(`",
-                                         exportJson_plot_data,   "`)",
-              "</script>", skeleton), con = "export/awesom_exported_version.html", sep = "")
+  # #only do this once the button is hit
+  # #automatically creates a new .html for JS plot output
+  # skeleton <- readChar("export/graphs_html_export_version.html",
+  #                  file.info("export/graphs_html_export_version.html")$size)
+  # exportJson_plot_data <- RJSONIO::toJSON(res)
+  # writeLines(text = paste0("<script> ", "var data = JSON.parse(`",
+  #                                        exportJson_plot_data,   "`)",
+  #             "</script>", skeleton), con = "export/awesom_exported_version.html", sep = "")
   res
 }
 
@@ -717,8 +717,8 @@ json_edits <- function(test){
 #' @export
 aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows, 
                          graphType= "Hitmap", 
-                         plotNames= NULL, plotVarMult= NULL, plotVarOne= NULL, 
-                         plotEqualSize= F,
+                         plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
+                         plotOutliers= T, plotEqualSize= F,
                          contrast= "contrast", average_format= "mean",
                          plotSize= 100, 
                          palsc= "Set3", palplot= "viridis", plotRevPal= F,
@@ -731,6 +731,7 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                                            "Names", "UMatrix")))
     return(NULL) # si on n'a pas calculé, on donne NULL à JS
   
+  ok.clust <- ok.som$unit.classif
   plot.data <- ok.data[ok.trainrows, ]
   if(is.null(plot.data)) return(NULL)
   # Obs names per cell for message box
@@ -783,7 +784,29 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                                        average_format)
   
   # create the widget
-  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = width, height = height)
+  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = width, height = height, package = "aweSOM")
+}
+
+aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows, 
+                       graphType= "Hitmap", 
+                       plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
+                       plotOutliers= T, plotEqualSize= F,
+                       contrast= "contrast", average_format= "mean",
+                       plotSize= 100, 
+                       palsc= "Set3", palplot= "viridis", plotRevPal= F) {
+  res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
+                      ok.trainrows = ok.trainrows, graphType = graphType, 
+                      plotNames = plotNames, 
+                      plotOutliers = plotOutliers, plotEqualSize = plotEqualSize, 
+                      contrast = contrast, average_format = average_format, 
+                      plotSize = plotSize, 
+                      palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
+  res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadLink")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget")))
+  res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
+  res
 }
 
 
