@@ -282,7 +282,12 @@ somQuality <- function(ok.som, traindat){
     err.kaski <- e1071::allShortestPaths(ok.dist$proto.data.dist.neigh)$length[cbind(bmu, bmu2)]
     err.kaski <- mean(err.kaski + sqrt(sqdist))
     
-    list(err.quant= err.quant, err.varratio= err.varratio, 
-         err.topo= err.topo, err.kaski= err.kaski)
+    ## Distribution of individuals in cells
+    cellpop <- table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))
+    
+    res <- list(err.quant= err.quant, err.varratio= err.varratio, 
+                err.topo= err.topo, err.kaski= err.kaski, cellpop= cellpop)
+    class(res) <- "somQual"
+    res
   }
 }

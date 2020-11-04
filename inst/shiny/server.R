@@ -338,16 +338,17 @@ shinyServer(function(input, output, session) {
     isolate(cat(paste0("Training options: rlen = ", input$trainRlen, 
                        " ; alpha = (", input$trainAlpha1, ", ", input$trainAlpha2, ") ; ",
                        "radius = (", input$trainRadius1, ", ", input$trainRadius2, "), ", 
-                       "random seed = ", ok.som()$seed, ".")))
+                       "random seed = ", ok.som()$seed, ".\n")))
     
-    cat("\n\n## Quality measures:\n")
-    cat("* Quantization error     : ", ok.qual()$err.quant, "\n")
-    cat("* (% explained variance) : ", ok.qual()$err.varratio, "\n")
-    cat("* Topographic error      : ", ok.qual()$err.topo, "\n")
-    cat("* Kaski-Lagus error      : ", ok.qual()$err.kaski, "\n")
-    cat("\n## Number of obs. per map cell:")
-    table(factor(ok.som()$unit.classif, 
-                 levels= 1:nrow(ok.som()$grid$pts)))
+    # cat("\n\n## Quality measures:\n")
+    # cat("* Quantization error     : ", ok.qual()$err.quant, "\n")
+    # cat("* (% explained variance) : ", ok.qual()$err.varratio, "\n")
+    # cat("* Topographic error      : ", ok.qual()$err.topo, "\n")
+    # cat("* Kaski-Lagus error      : ", ok.qual()$err.kaski, "\n")
+    # cat("\n## Number of obs. per map cell:")
+    # table(factor(ok.som()$unit.classif, 
+    #              levels= 1:nrow(ok.som()$grid$pts)))
+    ok.qual()
   })
   
  
@@ -742,13 +743,7 @@ shinyServer(function(input, output, session) {
            values$codetxt$sc, 
            if (!is.null(ok.som())) paste0(
              "\n## Quality measures:\n",
-             "ok.qual <- aweSOM::somQuality(ok.som, dat)\n",
-             'cat("* Quantization error     : ", ok.qual$err.quant, "\\n",\n',
-             '    "* (% explained variance) : ", ok.qual$err.varratio, "\\n",\n',
-             '    "* Topographic error      : ", ok.qual$err.topo, "\\n",\n',
-             '    "* Kaski-Lagus error      : ", ok.qual$err.kaski, "\\n")\n',
-             '## Number of obs. per map cell:\n',
-             'table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))\n',
+             "aweSOM::somQuality(ok.som, dat)\n",
              values$codetxt$plot))
   })
   
