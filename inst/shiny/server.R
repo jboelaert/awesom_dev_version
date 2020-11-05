@@ -89,7 +89,7 @@ shinyServer(function(input, output, session) {
         input_dataFile_datapath = input$dataFile$datapath)
     }
     
-    values$codetxt$dataread <- imported_file_object[[2]]
+    isolate({values$codetxt$dataread <- imported_file_object[[2]]})
     imported_file_object[[1]]
   })
   
