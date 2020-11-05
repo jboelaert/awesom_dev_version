@@ -236,18 +236,19 @@ shinyServer(function(input, output, session) {
     if (is.null(dat$dat)) {
       return(NULL)
     }
-    
-    res <- aweSOM:::ok.som.function(ok.traindat = dat, 
-                           input_trainSeed = input$trainSeed, 
-                           input_kohInit = input$kohInit,
-                           input_kohDimy = input$kohDimy, 
-                           input_kohDimx = input$kohDimx, 
-                           input_kohTopo = input$kohTopo, 
-                           input_trainRlen = input$trainRlen,
-                           input_trainAlpha1 = input$trainAlpha1, 
-                           input_trainAlpha2 = input$trainAlpha2, 
-                           input_trainRadius1 = input$trainRadius1, 
-                           input_trainRadius2 = input$trainRadius2)
+    isolate({
+      res <- aweSOM:::ok.som.function(ok.traindat = dat, 
+                                      input_trainSeed = input$trainSeed, 
+                                      input_kohInit = input$kohInit,
+                                      input_kohDimy = input$kohDimy, 
+                                      input_kohDimx = input$kohDimx, 
+                                      input_kohTopo = input$kohTopo, 
+                                      input_trainRlen = input$trainRlen,
+                                      input_trainAlpha1 = input$trainAlpha1, 
+                                      input_trainAlpha2 = input$trainAlpha2, 
+                                      input_trainRadius1 = input$trainRadius1, 
+                                      input_trainRadius2 = input$trainRadius2)
+    })
     values$codetxt$train <- res$codeTxt
     
     ## After training, set new seed value in training panel
@@ -265,7 +266,7 @@ shinyServer(function(input, output, session) {
   ## Compute superclasses when ok.som or superclass options changes
   ok.hclust <- reactive({
     if(!is.null(ok.som())){
-      hclust(dist(ok.som()$codes[[1]]), "ward.D2")
+      hclust(dist(ok.som()$codes[[1]]), input$sup_clust_hcmethod)
     }
   })
   

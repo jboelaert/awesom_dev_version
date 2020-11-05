@@ -254,7 +254,9 @@ shinyUI(fluidPage(
              fluidRow(column(4, 
                              ## Sélection du graphique et des variables
                              h4("Graph options"),
-                             downloadLink('downloadData_interactive', 'Download as interactive'),
+                             downloadButton('downloadData_interactive', 'Download interactive'),
+                             fluidRow(column(4, p("Plot size:")), 
+                                      column(8, sliderInput("plotSize", NULL, 10, 1000, value= 100))),
                              fluidRow(column(4, p("Plot:")), 
                                       column(8, selectInput("graphWhat", NULL, 
                                                             choices= c("Map Information"= "MapInfo",
@@ -283,9 +285,6 @@ shinyUI(fluidPage(
                                               uiOutput("plotVarMult")),
                              conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
                                               uiOutput("plotNames")),
-                             fluidRow(column(4, p("Clustering Method")), 
-                                      column(8, selectInput('sup_clust_method', NULL, 
-                                                            c("hierarchical", "pam")))),
                              checkboxInput("plotAdvanced", "Advanced options", F),
                              conditionalPanel("input.plotAdvanced", 
                                               h4("Advanced options"),
@@ -344,10 +343,16 @@ shinyUI(fluidPage(
                       
                              
                       column(8, 
-                             fluidRow(column(2, p("Plot size:")), 
-                                      column(4, sliderInput("plotSize", NULL, 10, 1000, value= 100)), 
-                                      column(2, p("Nb. superclasses:")), 
-                                      column(4, numericInput('kohSuperclass', NULL, 2, min= 1))),
+                             fluidRow(column(2, p("Superclasses:")), 
+                                      column(2, numericInput('kohSuperclass', NULL, 2, min= 1)), 
+                                      column(2, p("Clustering Method")), 
+                                      column(2, selectInput('sup_clust_method', NULL, 
+                                                            c("hierarchical", "pam"))), 
+                                      column(2, conditionalPanel('input.sup_clust_method == "hierarchical"', 
+                                                                 selectInput("sup_clust_hcmethod", NULL, 
+                                                                             c("ward.D2", "ward.D", "single", "complete", 
+                                                                               "average", "mcquitty", 
+                                                                               "median", "centroid"))))),
                              ## Pour afficher seulement le graphique choisi :
                              conditionalPanel('input.graphType == "Dendrogram"', 
                                               plotOutput("plotDendrogram")),
@@ -387,7 +392,6 @@ shinyUI(fluidPage(
     tabPanel("Clustered data", 
              
              fluidRow(
-               
                column(4,
                       h3("Download full map"),
                       downloadButton("somDownload", "Download SOM (rds file)"),
@@ -401,8 +405,7 @@ shinyUI(fluidPage(
                column(8, DT::dataTableOutput("clustTable")))),
     
     tabPanel("Reproducible Scripts",
-             verbatimTextOutput("codeTxt") #,
-             # htmlOutput("codeTxt2")
+             verbatimTextOutput("codeTxt") #, htmlOutput("codeTxt2")
              )
     
     
