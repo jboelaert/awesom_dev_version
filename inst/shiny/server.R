@@ -248,8 +248,8 @@ shinyServer(function(input, output, session) {
                                       input_trainAlpha2 = input$trainAlpha2, 
                                       input_trainRadius1 = input$trainRadius1, 
                                       input_trainRadius2 = input$trainRadius2)
+      values$codetxt$train <- res$codeTxt
     })
-    values$codetxt$train <- res$codeTxt
     
     ## After training, set new seed value in training panel
     updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
