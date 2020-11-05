@@ -119,17 +119,30 @@ shinyServer(function(input, output, session) {
   
   
   
-  ### check placement in server.R for this element
-  output$downloadData_interactive <- downloadHandler(
-       filename = function() {
-         paste0("interactive_download", gsub(pattern = " ", replacement = "_", Sys.time()),  ".html")
-       },
-       content = 
-         function(file) {
-           file.copy("export/awesom_exported_version.html", file)
-       }
-     )
-  
+  ## Download interactive plot (download widget)
+  output$downloadInteractive <- downloadHandler(
+    filename= paste0(Sys.Date(), "-aweSOM.html"), 
+    content= function(file) {
+      if (is.null(ok.som())) return(NULL)
+      widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
+                                 ok.sc= ok.sc(), 
+                                 ok.data= ok.data(), 
+                                 ok.trainrows= ok.trainrows(), 
+                                 graphType= input$graphType, 
+                                 plotNames= input$plotNames, 
+                                 plotVarMult= input$plotVarMult, 
+                                 plotVarOne= input$plotVarOne, 
+                                 plotOutliers= input$plotOutliers,
+                                 plotEqualSize= input$plotEqualSize,
+                                 contrast= input$contrast, 
+                                 average_format= input$average_format,
+                                 plotSize= input$plotSize, 
+                                 palsc= input$palsc, 
+                                 palplot= input$palplot, 
+                                 plotRevPal= input$plotRevPal)
+      htmlwidgets::saveWidget(widg, file = file)
+    }) 
+
   
   
   

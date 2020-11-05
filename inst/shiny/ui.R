@@ -371,7 +371,7 @@ shinyUI(fluidPage(
                              hr(),
                              fluidRow(column(4, h4("Save:")),
                                       column(4, downloadButton('downloadLink', 'Static Map')), 
-                                      column(4, downloadButton('downloadData_interactive', 'Interactive Map'))),
+                                      column(4, downloadButton('downloadInteractive', "Interactive Map"))),
                              hr(),
                              fluidRow(column(4, h4("Roll the dice:")), 
                                       column(8, actionButton('retrainButton', "Train new SOM"))),
