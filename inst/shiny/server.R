@@ -207,6 +207,7 @@ shinyServer(function(input, output, session) {
 
   ok.traindat <- reactive({
     if (input$trainbutton == 0) return(NULL)
+    input$retrainButton
     isolate({
       #to make externalized functions more useable this part is placed outside of the (Jan)
       varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())), 

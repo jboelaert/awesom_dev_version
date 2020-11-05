@@ -358,6 +358,7 @@ shinyUI(fluidPage(
                              #                                                 c("ward.D2", "ward.D", "single", "complete", 
                              #                                                   "average", "mcquitty", 
                              #                                                   "median", "centroid"))))),
+                             hr(),
                              h4("Superclasses:"),
                              fluidRow(column(3, numericInput('kohSuperclass', NULL, 2, min= 1)), 
                                       column(5, selectInput('sup_clust_method', NULL, 
@@ -367,9 +368,13 @@ shinyUI(fluidPage(
                                                                              c("ward.D2", "ward.D", "single", "complete", 
                                                                                "average", "mcquitty", 
                                                                                "median", "centroid"))))),
-                             fluidRow(column(4, h4("Download:")),
+                             hr(),
+                             fluidRow(column(4, h4("Save:")),
                                       column(4, downloadButton('downloadLink', 'Static Map')), 
                                       column(4, downloadButton('downloadData_interactive', 'Interactive Map'))),
+                             hr(),
+                             fluidRow(column(4, h4("Roll the dice:")), 
+                                      column(8, actionButton('retrainButton', "Train new SOM"))),
                              uiOutput("plotWarning")),
                       
                       
