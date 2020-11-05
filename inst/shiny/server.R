@@ -354,15 +354,7 @@ shinyServer(function(input, output, session) {
                        " ; alpha = (", input$trainAlpha1, ", ", input$trainAlpha2, ") ; ",
                        "radius = (", input$trainRadius1, ", ", input$trainRadius2, "), ", 
                        "random seed = ", ok.som()$seed, ".\n")))
-    
-    # cat("\n\n## Quality measures:\n")
-    # cat("* Quantization error     : ", ok.qual()$err.quant, "\n")
-    # cat("* (% explained variance) : ", ok.qual()$err.varratio, "\n")
-    # cat("* Topographic error      : ", ok.qual()$err.topo, "\n")
-    # cat("* Kaski-Lagus error      : ", ok.qual()$err.kaski, "\n")
-    # cat("\n## Number of obs. per map cell:")
-    # table(factor(ok.som()$unit.classif, 
-    #              levels= 1:nrow(ok.som()$grid$pts)))
+
     ok.qual()
   })
   
@@ -395,6 +387,7 @@ shinyServer(function(input, output, session) {
     })
   })
   
+
   ## Update max nb superclasses
  
   
@@ -453,6 +446,7 @@ shinyServer(function(input, output, session) {
   #Code function important for dendogram and further plots
   ## Dendrogram
   output$plotDendrogram <- renderPlot({
+    if (input$sup_clust_method != "hierarchical") return(NULL)
     values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
                                   "aweSOM::aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
