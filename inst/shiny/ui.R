@@ -193,11 +193,26 @@ shinyUI(fluidPage(
              # map training -------------------------------------------------------------
              
              fluidRow(column(4, wellPanel( 
-                 h3("Train new map:"),
-                 actionButton("trainbutton", "Train Self-organizing Map"), 
-                 fluidRow(column(4, p("Map size (rows,columns)")), 
-                          column(4, numericInput('kohDimx', NULL, 4, min= 1)), 
-                          column(4, numericInput('kohDimy', NULL, 4, min= 1))),
+                 h3("Train new map:"), 
+                 actionButton("trainbutton", "Train SOM"),
+                 # h3("Train new map:"),
+                 # actionButton("trainbutton", "Train Self-organizing Map"), 
+                 # fluidRow(column(4, p("Map size (rows,columns)")), 
+                 #          column(4, numericInput('kohDimx', NULL, 4, min= 1)), 
+                 #          column(4, numericInput('kohDimy', NULL, 4, min= 1))),
+                 # fluidRow(column(4, p("Topology")), 
+                 #          column(8, selectInput('kohTopo', NULL, 
+                 #                                c("hexagonal", "rectangular")))),
+                 # fluidRow(column(3, p("Map layout (rows, columns, topology)")), 
+                 #          column(3, numericInput('kohDimx', NULL, 4, min= 1)), 
+                 #          column(3, numericInput('kohDimy', NULL, 4, min= 1)), 
+                 #          column(3, selectInput('kohTopo', NULL, 
+                 #                                c("hexagonal", "rectangular")))),
+                 fluidRow(column(4, numericInput('kohDimx', "Rows", 4, min= 1)),
+                          column(4, numericInput('kohDimy', "Cols", 4, min= 1)),
+                          column(4, selectInput('kohTopo', "Topology",
+                                                c("hexagonal", "rectangular")))),
+
                  checkboxInput("trainscale", "Scale training data", T), 
                  
                  
@@ -208,9 +223,6 @@ shinyUI(fluidPage(
 
 
                  conditionalPanel("input.trainAdvanced", 
-                                  fluidRow(column(4, p("Topology")), 
-                                           column(8, selectInput('kohTopo', NULL, 
-                                                                 c("hexagonal", "rectangular")))),
                                   fluidRow(column(4, p("Initialization")), 
                                            column(8, selectInput("kohInit", NULL, 
                                                                  c("PCA"= "pca", "PCA Obs"= "pca.sample", 
@@ -345,7 +357,7 @@ shinyUI(fluidPage(
                       column(8, 
                              fluidRow(column(2, p("Superclasses:")), 
                                       column(2, numericInput('kohSuperclass', NULL, 2, min= 1)), 
-                                      column(2, p("Clustering Method")), 
+                                      column(2, p("Clustering method:")), 
                                       column(2, selectInput('sup_clust_method', NULL, 
                                                             c("hierarchical", "pam"))), 
                                       column(2, conditionalPanel('input.sup_clust_method == "hierarchical"', 
