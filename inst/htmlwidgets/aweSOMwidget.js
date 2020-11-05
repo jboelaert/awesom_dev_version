@@ -770,8 +770,7 @@ console.log("Enter aweSOMwidget\n");
 
     // Plot download handler
     function downloadCanvas(link, filename) {
-      var division = document.select(el);
-      var svg = division.children[0];
+      var svg = el.children[0];
       var img = document.getElementById("fromcanvasPlot");
 
       if(saveToPng){

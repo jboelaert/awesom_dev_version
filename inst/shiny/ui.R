@@ -265,8 +265,11 @@ shinyUI(fluidPage(
     tabPanel("Graph", 
              fluidRow(column(4, 
                              ## Sélection du graphique et des variables
+                             # downloadButton('downloadData_interactive', 'Download interactive'),
+                             fluidRow(column(4, h4("Download:")),
+                                      column(4, downloadButton('downloadLink', 'Static Map')), 
+                                      column(4, downloadButton('downloadData_interactive', 'Interactive Map'))),
                              h4("Graph options"),
-                             downloadButton('downloadData_interactive', 'Download interactive'),
                              fluidRow(column(4, p("Plot size:")), 
                                       column(8, sliderInput("plotSize", NULL, 10, 1000, value= 100))),
                              fluidRow(column(4, p("Plot:")), 
@@ -354,7 +357,7 @@ shinyUI(fluidPage(
                       
                       
                              
-                      column(8, 
+                      column(8, wellPanel(
                              fluidRow(column(2, p("Superclasses:")), 
                                       column(2, numericInput('kohSuperclass', NULL, 2, min= 1)), 
                                       column(2, p("Clustering method:")), 
@@ -364,7 +367,7 @@ shinyUI(fluidPage(
                                                                  selectInput("sup_clust_hcmethod", NULL, 
                                                                              c("ward.D2", "ward.D", "single", "complete", 
                                                                                "average", "mcquitty", 
-                                                                               "median", "centroid"))))),
+                                                                               "median", "centroid")))))),
                              ## Pour afficher seulement le graphique choisi :
                              conditionalPanel('input.graphType == "Dendrogram"', 
                                               plotOutput("plotDendrogram")),
@@ -388,7 +391,7 @@ shinyUI(fluidPage(
                              
                              #for all other JS based plots refer to graphs.html
                              conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              HTML('<a id="downloadLink">Download</a>'),
+                                              # HTML('<a id="downloadLink">Download Image</a>'),
                                               HTML('<img id="fromcanvasPlot" />'),
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
                                               HTML('<h4 id="plot-message">-</h4>'),
