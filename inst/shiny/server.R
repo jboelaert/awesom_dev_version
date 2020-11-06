@@ -762,7 +762,7 @@ shinyServer(function(input, output, session) {
   
   output$report <- downloadHandler(
     # For PDF output, change this to "report.pdf"
-    filename = "reproducible_code.Rmd",
+    filename = "reproducible_code.html",
     content = function(file) {
       # Copy the report file to a temporary directory before processing it, in
       # case we don't have write permissions to the current working dir (which
