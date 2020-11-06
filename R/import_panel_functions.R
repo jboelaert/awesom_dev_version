@@ -73,7 +73,6 @@ ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, inpu
   if (is.null((input_dataFile))){ 
     return(NULL)
   }
-  library(readxl)
   the.header <- switch(input_column_names, "TRUE"= TRUE, 
                        "FALSE" = FALSE)
   the.trim_spaces <- switch(input_trim_spaces, "TRUE"= TRUE, 
@@ -100,7 +99,7 @@ ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, inpu
   
   
   
-  data <- try(data.frame(read_xlsx(input_dataFile_datapath,
+  data <- try(data.frame(readxl::read_xlsx(input_dataFile_datapath,
                                    col_names = the.header,
                                    range = the.range,
                                    sheet= the.sheet,
@@ -160,7 +159,7 @@ ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, i
   
   
   
-  data <- try(data.frame(read_xls(input_dataFile_datapath,
+  data <- try(data.frame(readxl::read_xls(input_dataFile_datapath,
                                   col_names = the.header,
                                   range = the.range,
                                   sheet= the.sheet,
@@ -197,7 +196,7 @@ ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath){
                                    ")\n")
   
   
-  data <- try(data.frame(read_spss(file = input_dataFile_datapath))) #<- encoding as an argument cannot be matched for some reason
+  data <- try(data.frame(haven::read_spss(file = input_dataFile_datapath))) #<- encoding as an argument cannot be matched for some reason
   if(class(data) == "try-error") return(NULL)
   return(list(data, data_read_reproducible))
   
@@ -224,7 +223,7 @@ ok.data.function.stata <- function(input_dataFile, input_dataFile_datapath){
                                    ")\n")
   
   
-  data <- try(data.frame(read.dta(file = input_dataFile_datapath)))
+  data <- try(data.frame(haven::read.dta(file = input_dataFile_datapath)))
   if(class(data) == "try-error") return(NULL)
   return(list(data, data_read_reproducible))
   
@@ -252,7 +251,7 @@ ok.data.function.sas.data <- function(input_dataFile, input_dataFile_datapath ){
                                    ")\n")
   
     
-    data <- try(data.frame(read_sas(data_file = input_dataFile_datapath)))
+    data <- try(data.frame(haven::read_sas(data_file = input_dataFile_datapath)))
     if(class(data) == "try-error") return(NULL)
     return(list(data, data_read_reproducible))
   
