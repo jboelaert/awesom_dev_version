@@ -351,7 +351,7 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                                 ok.som, input_plotEqualSize, input_contrast, input_average_format, ok.sc,
                                 input_plotSize, input_palsc, input_palplot,
                                 input_plotOutliers, input_plotRevPal){
-  
+  print(input_graphType)
   if(input_graphType == "Line"){
     return(NULL)
   }
