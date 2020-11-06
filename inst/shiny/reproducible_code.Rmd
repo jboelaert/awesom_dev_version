@@ -5,6 +5,8 @@ params:
   code: NA
 ---
 
-```{r, code = params$code}
-# The `params` object is available in the document.
+```{r, code = params$code$dataread}
 ```
+
+
+
