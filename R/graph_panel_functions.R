@@ -352,6 +352,11 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                                 input_plotSize, input_palsc, input_palplot,
                                 input_plotOutliers, input_plotRevPal){
   
+  if(input_graphType == "Line"){
+    return(NULL)
+  }
+  
+  
   
   if (input_plotNames == "(rownames)") {
     plotNames.var <- rownames(plot.data)
