@@ -1,0 +1,11 @@
+---
+title: "Reproducible Code"
+output: html_document
+params:
+  code: NA
+---
+
+```{r}
+# The `params` object is available in the document.
+params$code
+```

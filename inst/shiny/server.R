@@ -149,6 +149,9 @@ shinyServer(function(input, output, session) {
   
   
   
+  
+  
+  
 
   #############################################################################
   ## Panel "Train"
@@ -756,6 +759,31 @@ shinyServer(function(input, output, session) {
              values$codetxt$plot))
   })
   
+  
+  output$report <- downloadHandler(
+    # For PDF output, change this to "report.pdf"
+    filename = "reproducible_code.html",
+    content = function(file) {
+      # Copy the report file to a temporary directory before processing it, in
+      # case we don't have write permissions to the current working dir (which
+      # can happen when deployed).
+      tempReport <- file.path(tempdir(), "reproducible_code.Rmd")
+      file.copy("reproducible_code.Rmd", tempReport, overwrite = TRUE)
+      
+      # Set up parameters to pass to Rmd document
+      params <- list(code = values$codetxt)
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
+  
+  
   ## Trying to make the code more pretty with RMarkdown, failed (works, but not more pretty and messes with the css)
   # output$codeTxt2 <- shiny::renderUI({
   #   tmp <- paste0("\n## Import Data\n", 
@@ -785,5 +813,8 @@ shinyServer(function(input, output, session) {
   # })
   
 })
+
+
+
   
 

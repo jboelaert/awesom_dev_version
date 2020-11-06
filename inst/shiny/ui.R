@@ -422,7 +422,8 @@ shinyUI(fluidPage(
                column(8, DT::dataTableOutput("clustTable")))),
     
     tabPanel("Reproducible Scripts",
-             verbatimTextOutput("codeTxt") #, htmlOutput("codeTxt2")
+             verbatimTextOutput("codeTxt"),
+             downloadButton("report", "Generate report")#, htmlOutput("codeTxt2")
              )
     
     
