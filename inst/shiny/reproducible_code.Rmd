@@ -36,8 +36,19 @@ Train SOM
 ```
 
 
+Quality measures
+```{r}
+map_trained <- ifelse(!is.null(ok.som), TRUE, FALSE)
+```
 
-Plot
+```{r, code = "aweSOM::somQuality(ok.som, dat)", eval=map_trained}
+
+```
+
+
+
+
+Visualize 
 ```{r, code = params$code$codetxt$plot}
 
 ```
