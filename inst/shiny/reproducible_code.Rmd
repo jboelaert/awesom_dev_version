@@ -13,6 +13,9 @@ Import the Data
 
 
 
+```{r}
+ok.data <- params$ok.data
+```
 
 
 ```{r, code = params$code$codetxt_traindat$traindat}
