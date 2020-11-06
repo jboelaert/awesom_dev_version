@@ -15,8 +15,8 @@ Import the Data
 
 
 
-```{r, code = params$code$codetxt_traindat$traindat}
-```
+#```{r, code = params$code$codetxt_traindat$traindat}
+#```
 
 
 
