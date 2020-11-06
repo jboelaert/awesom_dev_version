@@ -9,14 +9,14 @@ shinyUI(fluidPage(
     #### Panel 'Welcome, Import Data'
     #########################################################################
     tabPanel("Import Data", 
-             includeHTML("js/lodash.min.js"), # to what extent are these used? are they providing the functions for graphs.html?
-             includeHTML("js/d3.min.js"),
-             includeHTML("js/hexbin.js"),
+             # includeHTML("js/hexbin.js"),
+             # includeHTML("js/lodash.min.js"), 
+             # includeHTML("js/d3.min.js"),
              includeHTML("js/svg_todataurl.js"),
-             includeHTML("js/rgbcolor.js"),
+             # includeHTML("js/box.js"),
              includeHTML("js/canvg.js"),
-             includeHTML("js/box.js"),
-             includeHTML("js/radar-chart-d3.js"),
+             includeHTML("js/rgbcolor.js"),
+             # includeHTML("js/radar-chart-d3.js"),
              includeHTML("js/word-cloud.js"),
              
              
@@ -171,26 +171,6 @@ shinyUI(fluidPage(
                                          ###specs and params here
                                          
                         ),
-                                         
-                                         
-                                                  
-                                         
-                                         
-                                         
-
-                                         
-                                         
-                                        
-                                         
-                                         
-                                         
-                                         
-                        
-                        
-                        
-                        
-                        
-                        
                         )),
                column(8, 
                       uiOutput("dataImportMessage"), 
@@ -213,11 +193,26 @@ shinyUI(fluidPage(
              # map training -------------------------------------------------------------
              
              fluidRow(column(4, wellPanel( 
-                 h3("Train new map:"),
-                 actionButton("trainbutton", "Train Self-organizing Map"), 
-                 fluidRow(column(4, p("Map size (rows,columns)")), 
-                          column(4, numericInput('kohDimx', NULL, 4, min= 1)), 
-                          column(4, numericInput('kohDimy', NULL, 4, min= 1))),
+                 h3("Train new map:"), 
+                 actionButton("trainbutton", "Train SOM"),
+                 # h3("Train new map:"),
+                 # actionButton("trainbutton", "Train Self-organizing Map"), 
+                 # fluidRow(column(4, p("Map size (rows,columns)")), 
+                 #          column(4, numericInput('kohDimx', NULL, 4, min= 1)), 
+                 #          column(4, numericInput('kohDimy', NULL, 4, min= 1))),
+                 # fluidRow(column(4, p("Topology")), 
+                 #          column(8, selectInput('kohTopo', NULL, 
+                 #                                c("hexagonal", "rectangular")))),
+                 # fluidRow(column(3, p("Map layout (rows, columns, topology)")), 
+                 #          column(3, numericInput('kohDimx', NULL, 4, min= 1)), 
+                 #          column(3, numericInput('kohDimy', NULL, 4, min= 1)), 
+                 #          column(3, selectInput('kohTopo', NULL, 
+                 #                                c("hexagonal", "rectangular")))),
+                 fluidRow(column(4, numericInput('kohDimx', "Rows", 4, min= 1)),
+                          column(4, numericInput('kohDimy', "Cols", 4, min= 1)),
+                          column(4, selectInput('kohTopo', "Topology",
+                                                c("hexagonal", "rectangular")))),
+
                  checkboxInput("trainscale", "Scale training data", T), 
                  
                  
@@ -228,9 +223,6 @@ shinyUI(fluidPage(
 
 
                  conditionalPanel("input.trainAdvanced", 
-                                  fluidRow(column(4, p("Topology")), 
-                                           column(8, selectInput('kohTopo', NULL, 
-                                                                 c("hexagonal", "rectangular")))),
                                   fluidRow(column(4, p("Initialization")), 
                                            column(8, selectInput("kohInit", NULL, 
                                                                  c("PCA"= "pca", "PCA Obs"= "pca.sample", 
@@ -273,16 +265,13 @@ shinyUI(fluidPage(
     tabPanel("Graph", 
              fluidRow(column(4, 
                              ## Sélection du graphique et des variables
-                             h4("Graph options"),
-                             downloadLink('downloadData_interactive', 'Download as interactive'),
-                             fluidRow(column(4, p("Plot:")), 
-                                      column(8, selectInput("graphWhat", NULL, 
-                                                            choices= c("Map Information"= "MapInfo",
+                             h4("Plot options:"),
+                             fluidRow(column(6, selectInput("graphWhat", NULL, 
+                                                            choices= c("General Information"= "MapInfo",
                                                                        "Numeric Variables"= "Numeric",
                                                                        "Categorical Variables"= "Categorical"), 
-                                                            selected= "MapInfo"))),
-                             fluidRow(column(4, p("Graph type:")), 
-                                      column(8, selectInput("graphType", NULL, 
+                                                            selected= "MapInfo")),
+                                      column(6, selectInput("graphType", NULL, 
                                                             choices= c("Population map"= "Hitmap",
                                                                        "Superclass Dendrogram"= "Dendrogram",
                                                                        "Superclass Scree plot"= "Screeplot",
@@ -290,8 +279,9 @@ shinyUI(fluidPage(
                                                                        "Neighbour distance"= "UMatrix", 
                                                                        "Smooth distance"= "SmoothDist", 
                                                                        "Abstraction"= "Abstraction"
-                                                                      ), 
+                                                            ), 
                                                             selected= "Hitmap"))),
+                             
                              #question about that panel below
                              conditionalPanel('input.graphType == "Camembert" | input.graphType == "CatBarplot" | input.graphType == "Color" | input.graphType == "Names"', 
                                               uiOutput("plotVarOne")),
@@ -303,9 +293,6 @@ shinyUI(fluidPage(
                                               uiOutput("plotVarMult")),
                              conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
                                               uiOutput("plotNames")),
-                             fluidRow(column(4, p("Clustering Method")), 
-                                      column(8, selectInput('sup_clust_method', NULL, 
-                                                            c("hierarchical", "pam")))),
                              checkboxInput("plotAdvanced", "Advanced options", F),
                              conditionalPanel("input.plotAdvanced", 
                                               h4("Advanced options"),
@@ -359,15 +346,40 @@ shinyUI(fluidPage(
                                               conditionalPanel('input.graphType == "Abstraction"', 
                                                                numericInput("plotAbstrCutoff", "Links cut-off", 
                                                                             min= 0, max= 1, step = .01, value= 0))),
+                             fluidRow(column(4, h4("Plot size:")), 
+                                      column(8, sliderInput("plotSize", NULL, 10, 1000, value= 100))),
+                             # fluidRow(column(4, h4("Superclasses:")), 
+                             #          column(3, numericInput('kohSuperclass', NULL, 2, min= 1)), 
+                             #          column(5, selectInput('sup_clust_method', NULL, 
+                             #                                c("hierarchical", "pam")))),
+                             # conditionalPanel('input.sup_clust_method == "hierarchical"', 
+                             #                  fluidRow(column(7), 
+                             #                           column(5, selectInput("sup_clust_hcmethod", NULL, 
+                             #                                                 c("ward.D2", "ward.D", "single", "complete", 
+                             #                                                   "average", "mcquitty", 
+                             #                                                   "median", "centroid"))))),
+                             hr(),
+                             h4("Superclasses:"),
+                             fluidRow(column(3, numericInput('kohSuperclass', NULL, 2, min= 1)), 
+                                      column(5, selectInput('sup_clust_method', NULL, 
+                                                            c("hierarchical", "pam"))), 
+                                      conditionalPanel('input.sup_clust_method == "hierarchical"', 
+                                                       column(4, selectInput("sup_clust_hcmethod", NULL, 
+                                                                             c("ward.D2", "ward.D", "single", "complete", 
+                                                                               "average", "mcquitty", 
+                                                                               "median", "centroid"))))),
+                             hr(),
+                             fluidRow(column(4, h4("Save:")),
+                                      column(4, downloadButton('downloadLink', 'Static Map')), 
+                                      column(4, downloadButton('downloadData_interactive', 'Interactive Map'))),
+                             hr(),
+                             fluidRow(column(4, h4("Roll the dice:")), 
+                                      column(8, actionButton('retrainButton', "Train new SOM"))),
                              uiOutput("plotWarning")),
                       
                       
                              
                       column(8, 
-                             fluidRow(column(2, p("Plot size:")), 
-                                      column(4, sliderInput("plotSize", NULL, 10, 1000, value= 100)), 
-                                      column(2, p("Nb. superclasses:")), 
-                                      column(4, numericInput('kohSuperclass', NULL, 2, min= 1))),
                              ## Pour afficher seulement le graphique choisi :
                              conditionalPanel('input.graphType == "Dendrogram"', 
                                               plotOutput("plotDendrogram")),
@@ -391,11 +403,12 @@ shinyUI(fluidPage(
                              
                              #for all other JS based plots refer to graphs.html
                              conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              includeHTML("graphs.html"), 
-                                             
+                                              # HTML('<a id="downloadLink">Download Image</a>'),
+                                              HTML('<img id="fromcanvasPlot" />'),
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
                                               HTML('<h4 id="plot-message">-</h4>'),
-                                              HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
+                                              # HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
+                                              aweSOM:::aweSOMoutput("theWidget"),
                                               HTML('<br />'), 
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), plotOutput("theLegend")
                                               
@@ -406,7 +419,6 @@ shinyUI(fluidPage(
     tabPanel("Clustered data", 
              
              fluidRow(
-               
                column(4,
                       h3("Download full map"),
                       downloadButton("somDownload", "Download SOM (rds file)"),
@@ -420,12 +432,7 @@ shinyUI(fluidPage(
                column(8, DT::dataTableOutput("clustTable")))),
     
     tabPanel("Reproducible Scripts",
-            
-             
-             verbatimTextOutput("codeTxt")
-             
-
-             
+             verbatimTextOutput("codeTxt") #, htmlOutput("codeTxt2")
              )
     
     

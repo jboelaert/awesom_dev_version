@@ -163,36 +163,34 @@ ok.som.function <- function(ok.traindat,  input_trainSeed, input_kohInit,
       }
       # perform PCA (TODO: make hex grid on pca ?) --> HOW/WHAT?
       data.pca <- prcomp(dat, center= F, scale.= F)
-      x <- seq(from= quantile(data.pca$x[,x.ev], .025), 
-               to= quantile(data.pca$x[,x.ev], .975),
-               length.out= input_kohDimx)
-      y <- seq(from= quantile(data.pca$x[,y.ev], .025), 
-               to= quantile(data.pca$x[,y.ev], .975),
-               length.out= input_kohDimy)
-      base <- as.matrix(expand.grid(x=x, y=y)) #here a hex variant could be created instead if hex topology
+      init.x <- seq(from= quantile(data.pca$x[,x.ev], .025), 
+                    to= quantile(data.pca$x[,x.ev], .975),
+                    length.out= input_kohDimx)
+      init.y <- seq(from= quantile(data.pca$x[,y.ev], .025), 
+                    to= quantile(data.pca$x[,y.ev], .975),
+                    length.out= input_kohDimy)
+      init.base <- as.matrix(expand.grid(x= init.x, y= init.y)) #here a hex variant could be created instead if hex topology
       codeTxt$init <- paste0(codeTxt$init, 
                              ifelse(input_kohInit == "pca.sample", 
                                     "(observations closest to PCA grid)\n",
                                     "(PCA grid)\n"),
                              "data.pca <- prcomp(dat, center= F, scale.= F)\n",
-                             "x <- seq(from= quantile(data.pca$x[,", x.ev, "], .025), to= quantile(data.pca$x[,", x.ev, "], .975), length.out= ", input_kohDimx, ")\n",
-                             "y <- seq(from= quantile(data.pca$x[,", y.ev, "], .025), to= quantile(data.pca$x[,", y.ev, "], .975), length.out= ", input_kohDimy, ")\n",
-                             "base <- as.matrix(expand.grid(x=x, y=y))\n")
+                             "init.x <- seq(from= quantile(data.pca$x[,", x.ev, "], .025), to= quantile(data.pca$x[,", x.ev, "], .975), length.out= ", input_kohDimx, ")\n",
+                             "init.y <- seq(from= quantile(data.pca$x[,", y.ev, "], .025), to= quantile(data.pca$x[,", y.ev, "], .975), length.out= ", input_kohDimy, ")\n",
+                             "init.base <- as.matrix(expand.grid(x= init.x, y= init.y))\n")
       if (input_kohInit == "pca.sample") {
         ## As in SOMbrero, init to observations closest to a 2D PCA grid
-        closest.obs <- apply(base, 1, function(point) 
+        closest.obs <- apply(init.base, 1, function(point) 
           which.min(colSums((t(data.pca$x[,c(x.ev,y.ev)])-point)^2)))
         init <- dat[closest.obs,]
         codeTxt$init <- paste0(codeTxt$init, 
-                               "closest.obs <- apply(base, 1, function(point) which.min(colSums((t(data.pca$x[,c(", x.ev, ", ", y.ev, ")])-point)^2)))\n",
+                               "closest.obs <- apply(init.base, 1, function(point) which.min(colSums((t(data.pca$x[,c(", x.ev, ", ", y.ev, ")])-point)^2)))\n",
                                "init <- dat[closest.obs,]\n")
       } else if (input_kohInit == "pca") {
         ## Pure PCA grid
-        base <- cbind(base, matrix(0, nrow(base))[, rep(1, ncol(data.pca$x) - 2)])
-        init <- base %*% t(data.pca$rotation)
+        init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
         codeTxt$init <- paste0(codeTxt$init, 
-                               "base <- cbind(base, matrix(0, nrow(base))[, rep(1, ncol(data.pca$x) - 2)])\n", 
-                               "init <- base %*% t(data.pca$rotation)\n")
+                               "init <- tcrossprod(init.base, data.pca$rotation[, 1:2])\n")
       }
     } 
     
@@ -282,7 +280,12 @@ somQuality <- function(ok.som, traindat){
     err.kaski <- e1071::allShortestPaths(ok.dist$proto.data.dist.neigh)$length[cbind(bmu, bmu2)]
     err.kaski <- mean(err.kaski + sqrt(sqdist))
     
-    list(err.quant= err.quant, err.varratio= err.varratio, 
-         err.topo= err.topo, err.kaski= err.kaski)
+    ## Distribution of individuals in cells
+    cellpop <- table(factor(ok.som$unit.classif, levels= 1:nrow(ok.som$grid$pts)))
+    
+    res <- list(err.quant= err.quant, err.varratio= err.varratio, 
+                err.topo= err.topo, err.kaski= err.kaski, cellpop= cellpop)
+    class(res) <- "somQual"
+    res
   }
 }

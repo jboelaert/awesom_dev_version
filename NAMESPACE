@@ -11,5 +11,6 @@ export(aweSOMscreeplot)
 export(aweSOMsmoothdist)
 export(plot.abstraction)
 export(plot.pam_silhouette)
+export(aweSOMplot)
 
-#store the other console level functions here too
+S3method(print, somQual)

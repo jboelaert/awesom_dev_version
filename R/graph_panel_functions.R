@@ -317,14 +317,14 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   if (type == "CatBarplot")
     res$plotType <- "Barplot"
   
-  #only do this once the button is hit
-  #automatically creates a new .html for JS plot output
-  skeleton <- readChar("export/graphs_html_export_version.html",
-                   file.info("export/graphs_html_export_version.html")$size)
-  exportJson_plot_data <- RJSONIO::toJSON(res)
-  writeLines(text = paste0("<script> ", "var data = JSON.parse(`",
-                                         exportJson_plot_data,   "`)",
-              "</script>", skeleton), con = "export/awesom_exported_version.html", sep = "")
+  # #only do this once the button is hit
+  # #automatically creates a new .html for JS plot output
+  # skeleton <- readChar("export/graphs_html_export_version.html",
+  #                  file.info("export/graphs_html_export_version.html")$size)
+  # exportJson_plot_data <- RJSONIO::toJSON(res)
+  # writeLines(text = paste0("<script> ", "var data = JSON.parse(`",
+  #                                        exportJson_plot_data,   "`)",
+  #             "</script>", skeleton), con = "export/awesom_exported_version.html", sep = "")
   res
 }
 
@@ -712,9 +712,116 @@ json_edits <- function(test){
 
 
 
+## htmlwidgets binding
+#' @import htmlwidgets
+#' @export
+aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows, 
+                         graphType= "Hitmap", 
+                         plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
+                         plotOutliers= T, plotEqualSize= F,
+                         contrast= "contrast", average_format= "mean",
+                         plotSize= 100, 
+                         palsc= "Set3", palplot= "viridis", plotRevPal= F,
+                         width = NULL, height = NULL) {
+  
+  if (is.null(ok.som) | !(graphType %in% c("Radar", "Camembert", "CatBarplot",
+                                           "Barplot", "Boxplot", 
+                                           "Color", "Star", 
+                                           "Hitmap", "Line", 
+                                           "Names", "UMatrix")))
+    return(NULL) # si on n'a pas calculé, on donne NULL à JS
+  
+  ok.clust <- ok.som$unit.classif
+  plot.data <- ok.data[ok.trainrows, ]
+  if(is.null(plot.data)) return(NULL)
+  # Obs names per cell for message box
+  if (is.null(plotNames)){
+    return(NULL)
+    
+  } 
+  if (plotNames == "(rownames)") {
+    plotNames.var <- rownames(plot.data)
+  } 
+  else {
+    plotNames.var <- as.character(plot.data[, plotNames])
+  }
+  
+  cellNames <- unname(lapply(split(plotNames.var, ok.clust), 
+                             function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
+  
+  if (graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
+    if (is.null(plotVarMult)) return(NULL)
+    plotVar <- plotVarMult
+    data <- plot.data[, plotVar]
+  } else if (graphType %in% c("Color", "Camembert", "CatBarplot")) {
+    if (is.null(plotVarOne)) return(NULL)
+    plotVar <- plotVarOne
+    data <- plot.data[, plotVar]
+  } else if (graphType %in% c("Hitmap")) {
+    plotVar <- NULL
+    data <- NULL
+  } else if (graphType %in% c("Names")) {
+    plotVar <- NULL
+    data <- as.character(plot.data[, plotVarOne])
+  } else if (graphType == "UMatrix") {
+    plotVar <- NULL
+    proto.gridspace.dist <- as.matrix(dist(ok.som$grid$pts))
+    proto.dataspace.dist <- as.matrix(dist(ok.som$codes[[1]]))
+    proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
+    proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
+    data <- rowMeans(proto.dataspace.dist, na.rm= T)[ok.clust]
+    plotVar <- "Mean distance to neighbours"
+  }
+  
+  options <- list(equalSize= plotEqualSize)
+  
+  graphType <- ifelse(graphType == "UMatrix", "Color", graphType)
+  
+  plotParams <- aweSOM:::getPlotParams(graphType, ok.som, ok.sc,  
+                                       data, plotSize, plotVar, contrast,
+                                       palsc, palplot, cellNames,
+                                       plotOutliers, plotRevPal, options, 
+                                       average_format)
+  
+  # create the widget
+  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = width, height = height, package = "aweSOM")
+}
+
+aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows, 
+                       graphType= "Hitmap", 
+                       plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
+                       plotOutliers= T, plotEqualSize= F,
+                       contrast= "contrast", average_format= "mean",
+                       plotSize= 100, 
+                       palsc= "Set3", palplot= "viridis", plotRevPal= F) {
+  res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
+                      ok.trainrows = ok.trainrows, graphType = graphType, 
+                      plotNames = plotNames,
+                      plotVarMult= plotVarMult, plotVarOne= plotVarOne, 
+                      plotOutliers = plotOutliers, plotEqualSize = plotEqualSize, 
+                      contrast = contrast, average_format = average_format, 
+                      plotSize = plotSize, 
+                      palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
+  res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadLink")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
+  res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
+  res
+}
 
 
-
+## htmlwidgets - shiny binding
+#' @export
+aweSOMoutput <- function(outputId, width = "100%", height = "400px") {
+  htmlwidgets::shinyWidgetOutput(outputId, "aweSOMwidget", width, height, package = "aweSOM")
+}
+#' @export
+renderaweSOM <- function(expr, env = parent.frame(), quoted = FALSE) {
+  if (!quoted) { expr <- substitute(expr) } # force quoted
+  htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = TRUE)
+  # htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = F)
+}
 
 
 
