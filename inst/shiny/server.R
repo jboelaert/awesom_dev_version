@@ -119,17 +119,30 @@ shinyServer(function(input, output, session) {
   
   
   
-  ### check placement in server.R for this element
-  output$downloadData_interactive <- downloadHandler(
-       filename = function() {
-         paste0("interactive_download", gsub(pattern = " ", replacement = "_", Sys.time()),  ".html")
-       },
-       content = 
-         function(file) {
-           file.copy("export/awesom_exported_version.html", file)
-       }
-     )
-  
+  ## Download interactive plot (download widget)
+  output$downloadInteractive <- downloadHandler(
+    filename= paste0(Sys.Date(), "-aweSOM.html"), 
+    content= function(file) {
+      if (is.null(ok.som())) return(NULL)
+      widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
+                                 ok.sc= ok.sc(), 
+                                 ok.data= ok.data(), 
+                                 ok.trainrows= ok.trainrows(), 
+                                 graphType= input$graphType, 
+                                 plotNames= input$plotNames, 
+                                 plotVarMult= input$plotVarMult, 
+                                 plotVarOne= input$plotVarOne, 
+                                 plotOutliers= input$plotOutliers,
+                                 plotEqualSize= input$plotEqualSize,
+                                 contrast= input$contrast, 
+                                 average_format= input$average_format,
+                                 plotSize= input$plotSize, 
+                                 palsc= input$palsc, 
+                                 palplot= input$palplot, 
+                                 plotRevPal= input$plotRevPal)
+      htmlwidgets::saveWidget(widg, file = file)
+    }) 
+
   
   
   
@@ -341,15 +354,7 @@ shinyServer(function(input, output, session) {
                        " ; alpha = (", input$trainAlpha1, ", ", input$trainAlpha2, ") ; ",
                        "radius = (", input$trainRadius1, ", ", input$trainRadius2, "), ", 
                        "random seed = ", ok.som()$seed, ".\n")))
-    
-    # cat("\n\n## Quality measures:\n")
-    # cat("* Quantization error     : ", ok.qual()$err.quant, "\n")
-    # cat("* (% explained variance) : ", ok.qual()$err.varratio, "\n")
-    # cat("* Topographic error      : ", ok.qual()$err.topo, "\n")
-    # cat("* Kaski-Lagus error      : ", ok.qual()$err.kaski, "\n")
-    # cat("\n## Number of obs. per map cell:")
-    # table(factor(ok.som()$unit.classif, 
-    #              levels= 1:nrow(ok.som()$grid$pts)))
+
     ok.qual()
   })
   
@@ -382,6 +387,7 @@ shinyServer(function(input, output, session) {
     })
   })
   
+
   ## Update max nb superclasses
  
   
@@ -440,6 +446,7 @@ shinyServer(function(input, output, session) {
   #Code function important for dendogram and further plots
   ## Dendrogram
   output$plotDendrogram <- renderPlot({
+    if (input$sup_clust_method != "hierarchical") return(NULL)
     values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
                                   "aweSOM::aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")

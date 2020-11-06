@@ -317,14 +317,6 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   if (type == "CatBarplot")
     res$plotType <- "Barplot"
   
-  # #only do this once the button is hit
-  # #automatically creates a new .html for JS plot output
-  # skeleton <- readChar("export/graphs_html_export_version.html",
-  #                  file.info("export/graphs_html_export_version.html")$size)
-  # exportJson_plot_data <- RJSONIO::toJSON(res)
-  # writeLines(text = paste0("<script> ", "var data = JSON.parse(`",
-  #                                        exportJson_plot_data,   "`)",
-  #             "</script>", skeleton), con = "export/awesom_exported_version.html", sep = "")
   res
 }
 
@@ -405,18 +397,12 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
   
   options <- list(equalSize= input_plotEqualSize)
   
-  if(input_contrast == "contrast")  contrast <- "contrast"
-  else if(input_contrast == "range") contrast <- "range"
-  else if(input_contrast == "no_contrast") contrast <- "no_contrast" 
-  
-  the.average_format <-      switch(input_average_format, "mean"= "mean", 
-                                    "median"= "median", "prototypes"= "prototypes")
   graphType <- ifelse(input_graphType == "UMatrix", "Color", input_graphType)
   res <- getPlotParams(graphType, ok.som, ok.sc,  
-                       data, input_plotSize, plotVar, contrast,
+                       data, input_plotSize, plotVar, input_contrast,
                        input_palsc, input_palplot, cellNames,
                        input_plotOutliers, input_plotRevPal, 
-                       options, the.average_format)
+                       options, input_average_format)
   
   legend_data <- data.frame(cbind(res$label, res$labelColor, seq(1,length(res$label))))
   grab_legend(ggplot(data = legend_data, aes(x = X3, y = X3))+

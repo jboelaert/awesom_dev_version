@@ -348,16 +348,6 @@ shinyUI(fluidPage(
                                                                             min= 0, max= 1, step = .01, value= 0))),
                              fluidRow(column(4, h4("Plot size:")), 
                                       column(8, sliderInput("plotSize", NULL, 10, 1000, value= 100))),
-                             # fluidRow(column(4, h4("Superclasses:")), 
-                             #          column(3, numericInput('kohSuperclass', NULL, 2, min= 1)), 
-                             #          column(5, selectInput('sup_clust_method', NULL, 
-                             #                                c("hierarchical", "pam")))),
-                             # conditionalPanel('input.sup_clust_method == "hierarchical"', 
-                             #                  fluidRow(column(7), 
-                             #                           column(5, selectInput("sup_clust_hcmethod", NULL, 
-                             #                                                 c("ward.D2", "ward.D", "single", "complete", 
-                             #                                                   "average", "mcquitty", 
-                             #                                                   "median", "centroid"))))),
                              hr(),
                              h4("Superclasses:"),
                              fluidRow(column(3, numericInput('kohSuperclass', NULL, 2, min= 1)), 
@@ -371,7 +361,7 @@ shinyUI(fluidPage(
                              hr(),
                              fluidRow(column(4, h4("Save:")),
                                       column(4, downloadButton('downloadLink', 'Static Map')), 
-                                      column(4, downloadButton('downloadData_interactive', 'Interactive Map'))),
+                                      column(4, downloadButton('downloadInteractive', "Interactive Map"))),
                              hr(),
                              fluidRow(column(4, h4("Roll the dice:")), 
                                       column(8, actionButton('retrainButton', "Train new SOM"))),
@@ -380,7 +370,7 @@ shinyUI(fluidPage(
                       
                              
                       column(8, 
-                             ## Pour afficher seulement le graphique choisi :
+                             ## Display only the chosen graph
                              conditionalPanel('input.graphType == "Dendrogram"', 
                                               plotOutput("plotDendrogram")),
                              conditionalPanel('input.graphType == "Screeplot"', 
