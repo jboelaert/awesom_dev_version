@@ -771,7 +771,7 @@ shinyServer(function(input, output, session) {
       file.copy("reproducible_code.Rmd", tempReport, overwrite = TRUE)
       
       # Set up parameters to pass to Rmd document
-      params <- list(code = values$codetxt)
+      params <- list(code = values, ok.data = ok.data())
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
