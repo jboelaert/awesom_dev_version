@@ -18,11 +18,27 @@ ok.data <- params$ok.data
 ```
 
 
+
+
+Build training data
 ```{r, code = params$code$codetxt_traindat$traindat}
 ```
 
 
 
+Train SOM
+```{r, code = params$code$codetxt$train}
+
+```
+
+```{r, code = params$code$codetxt$sc}
+
+```
 
 
+
+Plot
+```{r, code = params$code$codetxt$plot}
+
+```
 
