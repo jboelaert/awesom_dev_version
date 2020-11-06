@@ -351,7 +351,8 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                                 ok.som, input_plotEqualSize, input_contrast, input_average_format, ok.sc,
                                 input_plotSize, input_palsc, input_palplot,
                                 input_plotOutliers, input_plotRevPal){
-  print(input_graphType)
+  
+  
   if(input_graphType == "Line"){
     return(NULL)
   }
@@ -410,13 +411,13 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                        options, input_average_format)
   
   legend_data <- data.frame(cbind(res$label, res$labelColor, seq(1,length(res$label))))
-  grab_legend(ggplot(data = legend_data, aes(x = X3, y = X3))+
+  try(grab_legend(ggplot(data = legend_data, aes(x = X3, y = X3))+
                 geom_tile(aes(fill = X2))+
                 scale_fill_identity(guide = "legend", labels = res$label)+
                 theme(legend.position = "bottom",
                       legend.title = element_blank(),
                       legend.key.size = unit(2,"line"),
-                      legend.text = element_text(size = 20)))
+                      legend.text = element_text(size = 20))))
   
 }
 
