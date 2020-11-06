@@ -1331,7 +1331,7 @@ console.log("Enter aweSOMwidget\n");
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1 + (n*nbColumns)+i) + ', Superclass ' +
+      				return 'Cell ' + (1+ ((nbRows-n-1)*nbColumns) + i) + ', Superclass ' + //fixed
       				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
       				});
       			d3.select('#plot-names').text(function () {
