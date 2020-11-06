@@ -413,7 +413,7 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                 theme(legend.position = "bottom",
                       legend.title = element_blank(),
                       legend.key.size = unit(2,"line"),
-                      legend.text = element_text(size = 20))))
+                      legend.text = element_text(size = 20))), silent = TRUE)
   
 }
 
