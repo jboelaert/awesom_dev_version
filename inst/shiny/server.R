@@ -635,10 +635,10 @@ shinyServer(function(input, output, session) {
   
   
   ## warning for smooth distance hex based plot
-  output$smooth_dist_warning <- renderPrint({
+  output$smooth_dist_warning <- renderText({
     if(input$kohTopo == "hexagonal"){ 
       
-      print("This might be a biased version since the topology of a hexagonal grid cannnot be account
+      return("This might be a biased version since the topology of a hexagonal grid cannnot be account
           for within this plot") #<-- prints also to the console which is rather stupid
       }
   })
