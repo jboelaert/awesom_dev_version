@@ -639,7 +639,7 @@ shinyServer(function(input, output, session) {
     if(input$kohTopo == "hexagonal"){ 
       
       return("This might be a biased version since the topology of a hexagonal grid cannnot be account
-          for within this plot") #<-- prints also to the console which is rather stupid
+          for within this plot") 
       }
   })
   
