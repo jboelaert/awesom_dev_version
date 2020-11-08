@@ -1,5 +1,4 @@
 library(matrixStats)
-library(FIACH)
 library(RJSONIO)
 
 
@@ -173,12 +172,12 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
           normValues <- unname(lapply(split(normDat, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(colMedian(x))
+                                        unname(col_median(x))
                                       }))
           realValues <- do.call(rbind, lapply(split(data, clustering), 
                                               function(x) {
                                                 if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(colMedian(x), 3))
+                                                unname(round(col_median(x), 3))
                                               }))
         }
         
@@ -321,6 +320,18 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
 }
 
 
+
+
+col_median <- function(data){
+  medians <- c()
+  for(index in seq(1,ncol(data))){
+    medians <- append(medians, median(iris[,index]))
+
+
+}
+ return(medians) 
+  
+}
 
 
 
