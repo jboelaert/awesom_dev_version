@@ -401,6 +401,7 @@ shinyUI(fluidPage(
                                               aweSOM:::aweSOMoutput("theWidget"),
                                               HTML('<br />'), 
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
+                                              HTML('<br />'),
                                               plotOutput("theLegend")
                                               
                                               
