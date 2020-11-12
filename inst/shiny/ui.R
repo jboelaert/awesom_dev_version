@@ -398,9 +398,11 @@ shinyUI(fluidPage(
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
                                               HTML('<h4 id="plot-message">-</h4>'),
                                               # HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
-                                              #aweSOM:::aweSOMoutput("theWidget"),
+                                              aweSOM:::aweSOMoutput("theWidget"),
                                               HTML('<br />'), 
-                                              wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
+                                              aweSOM:::aweSOMoutput("plot-names"),
+                                              
+                                              #wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
                                               HTML('<br />'),
                                               plotOutput("theLegend")
                                               
