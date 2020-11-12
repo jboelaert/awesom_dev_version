@@ -675,7 +675,7 @@ console.log("Enter aweSOMwidget\n");
     // remove old plot messages
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
-    document.getElementById("plot-names").style.margin-top = "50%";
+    //document.getElementById("plot-names").style.margin-top = "50%";
 
     document.getElementById("plot-names").innerHTML = "-";
 
