@@ -607,13 +607,13 @@ var RadarChart = {
 						.attr('y', newY)
 						.text(d.realValue)
 						.transition(200)*/
-						
+
 					d3.select(this).style("fill", "#C9E5FC");
-						
+
 					d3.select('#plot-message').text(function () {
 						var ch = d.axis+': ' + d.realValue;
 						return ch;
-					}); 
+					});
 
 					z = "polygon."+d3.select(this).attr("class");
 					g.selectAll("polygon")
@@ -627,9 +627,9 @@ var RadarChart = {
 					/*tooltip
 						.transition(200)
 						.style('opacity', 0);*/
-					
+
 					d3.select(this).style("fill", "#112E45");
-					
+
 					g.selectAll("polygon")
 						.transition(200)
 						.style("fill-opacity", cfg.opacityArea);
@@ -676,6 +676,8 @@ console.log("Enter aweSOMwidget\n");
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
     document.getElementById("plot-names").innerHTML = "-";
+    document.getElementById("plot-names").style.marginTop = "50%";
+
 
     // Import common data
     if(data == null ) {return;}
