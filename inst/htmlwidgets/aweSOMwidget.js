@@ -671,7 +671,7 @@ console.log("Enter aweSOMwidget\n");
 
     //remove the old graph
     document.getElementById("theWidget").innerHTML = "";
-    document.getElementById("theWidget").style.marginBottom = "50%";
+    //document.getElementById("theWidget").style.marginBottom = "50%";
     // remove old plot messages
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
