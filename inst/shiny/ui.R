@@ -400,7 +400,8 @@ shinyUI(fluidPage(
                                               # HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
                                               aweSOM:::aweSOMoutput("theWidget"),
                                               HTML('<br />'), 
-                                              wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), plotOutput("theLegend")
+                                              wellPanel(HTML('<p id="plot-names" style="margin-to:50%;padding-top:50%">Observation names will appear here.</p>')), 
+                                              plotOutput("theLegend")
                                               
                                               
                                               
