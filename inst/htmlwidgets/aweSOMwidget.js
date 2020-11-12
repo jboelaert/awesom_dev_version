@@ -676,7 +676,6 @@ console.log("Enter aweSOMwidget\n");
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
     document.getElementById("plot-names").innerHTML = "-";
-    //document.getElementById("plot-names").style.marginTop = "50%";
 
 
     // Import common data
