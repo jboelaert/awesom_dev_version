@@ -696,6 +696,11 @@ console.log("Enter aweSOMwidget\n");
     var superclassColor = data.superclassColor;
   	var cellNames = data.cellNames;
   	var cellPop = data.cellPop;
+  	
+  	
+    window.value = cellSize*nbRows;
+    document.getElementsByClassName('aweSOMwidget html-widget')[0].style.paddingBottom = ((window.value/2) + "px");
+
 
     // Plot-specific data
     if(plotType.localeCompare("Radar")==0) {
