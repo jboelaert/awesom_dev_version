@@ -275,10 +275,8 @@ shinyServer(function(input, output, session) {
   
   
   output$plot_legend_margin <- htmlOutput({
-    
-    htmltools::tag("p", list(style = 
-                               paste0("padding-bottom:",input$kohDimy*50 ,"px")))
-    
+    return(htmltools::tag("p", list(style = 
+                               paste0("padding-bottom:",input$kohDimy*50 ,"px"))))
   })
   
   
