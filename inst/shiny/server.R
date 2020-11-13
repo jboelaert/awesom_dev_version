@@ -273,6 +273,12 @@ shinyServer(function(input, output, session) {
     res
   })
   
+  
+  output$plot_legend_argin <- reactive({
+    input$kohDimy*50
+  })
+  
+  
   ## Get clustering when ok.som changes
   ok.clust <- reactive({
     factor(ok.som()$unit.classif, 1:nrow(ok.som()$grid$pts))
