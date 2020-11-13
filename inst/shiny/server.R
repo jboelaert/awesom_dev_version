@@ -276,7 +276,7 @@ shinyServer(function(input, output, session) {
   
   output$plot_legend_margin <- renderUI({
     
-    tags$p(style = paste0("padding-bottom:",input$kohDimx*50 ,"px"))
+    tags$p(style = paste0("padding-bottom:",input$kohDimx*60 ,"px"))
     
   })
   
