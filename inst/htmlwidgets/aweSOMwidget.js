@@ -680,6 +680,13 @@ console.log("Enter aweSOMwidget\n");
     
     //document.getElementById("plot-names").style.paddingTop = ((data.sizeInfo*data.gridInfo.nbLines) + "px"); 
     document.getElementById("plot-names").innerHTML = "-";
+    
+    
+    document.getElementById("plot_names_margin").innerHTML = "-";
+
+
+
+
 
 
     // Import common data
