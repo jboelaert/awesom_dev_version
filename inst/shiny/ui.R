@@ -400,7 +400,7 @@ shinyUI(fluidPage(
                                               # HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
                                               aweSOM:::aweSOMoutput("theWidget"),
                                               htmltools::tag("p", list(style = 
-                                                                         paste0("padding-bottom:",output.plot_legend_argin ,"px"))),
+                                                                         paste0("padding-bottom:",output.plot_legend_margin ,"px"))),
                                               HTML('<br />'), 
                                               #aweSOM:::aweSOMoutput("plot-names"),
                                               

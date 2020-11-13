@@ -274,7 +274,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$plot_legend_argin <- reactive({
+  output$plot_legend_margin <- reactive({
     input$kohDimy*50
   })
   
