@@ -811,7 +811,7 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
                                                                    style = "padding-bottom:0px")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
-  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(style = "padding-bottom:500px")))
+  res <- htmlwidgets::prependContent(res, tags$p(style = paste0("padding-bottom:",60 ,"px")))
   
   
   
