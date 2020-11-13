@@ -676,7 +676,9 @@ console.log("Enter aweSOMwidget\n");
     // remove old plot messages
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
-
+    
+    
+    document.getElementById("plot-names").style.paddingTop = ((data.sizeInfo*data.gridInfo.nbLines) + "px"); 
     document.getElementById("plot-names").innerHTML = "-";
 
 
