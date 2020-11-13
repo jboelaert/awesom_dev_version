@@ -274,9 +274,15 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$plot_legend_margin <- reactive({
-    input$kohDimy*50
+  output$plot_legend_margin <- htmlOutput({
+    
+    htmltools::tag("p", list(style = 
+                               paste0("padding-bottom:",input$kohDimy*50 ,"px")))
+    
   })
+  
+  
+  
   
   
   ## Get clustering when ok.som changes
