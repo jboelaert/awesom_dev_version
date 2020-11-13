@@ -671,7 +671,8 @@ console.log("Enter aweSOMwidget\n");
 
     //remove the old graph
     document.getElementById("theWidget").innerHTML = "";
-    document.getElementById("theWidget").style.paddingBottom = ((data.sizeInfo*data.gridInfo.nbLines) + "px");
+    document.getElementById("theWidget").style.marginBottom = ((data.sizeInfo*data.gridInfo.nbLines) + "px"); 
+    //the line above is responsible for having a clean layout in the shiny UI
     // remove old plot messages
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
