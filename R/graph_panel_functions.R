@@ -793,6 +793,9 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
                        contrast= "contrast", average_format= "mean",
                        plotSize= 100, 
                        palsc= "Set3", palplot= "viridis", plotRevPal= F) {
+  
+  browser()
+  
   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
                       ok.trainrows = ok.trainrows, graphType = graphType, 
                       plotNames = plotNames,
@@ -811,9 +814,7 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
   
-  #check if this is responsible for DOM
-  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget",
-                                                                   style = "padding-bottom:0px")))
+ 
 
   
   res
