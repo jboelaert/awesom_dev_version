@@ -671,11 +671,10 @@ console.log("Enter aweSOMwidget\n");
 
     //remove the old graph
     document.getElementById("theWidget").innerHTML = "";
-    document.getElementById("theWidget").style.paddingBottom = ((data.sizeInfo*data.gridInfo.nbLines) + "px");
+    //document.getElementById("theWidget").style.paddingBottom = ((data.sizeInfo*data.gridInfo.nbLines) + "px");
     // remove old plot messages
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
-    //document.getElementById("plot-names").style.margin-top = "50%";
 
     document.getElementById("plot-names").innerHTML = "-";
 
