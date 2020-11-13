@@ -699,7 +699,7 @@ console.log("Enter aweSOMwidget\n");
   	
   	
     window.value = cellSize*nbRows;
-    document.getElementsByClassName('aweSOMwidget html-widget')[0].style.paddingBottom = ((window.value/2) + "px");
+    //document.getElementsByClassName('aweSOMwidget html-widget')[0].style.paddingBottom = ((window.value/2) + "px");
 
 
     // Plot-specific data
