@@ -698,7 +698,7 @@ console.log("Enter aweSOMwidget\n");
   	var cellPop = data.cellPop;
   	
   	
-    window.value = cellSize*nbRows;
+    //window.value = cellSize*nbRows;
     //document.getElementsByClassName('aweSOMwidget html-widget')[0].style.paddingBottom = ((window.value/2) + "px");
 
 
@@ -775,6 +775,51 @@ console.log("Enter aweSOMwidget\n");
       var nbWord = data.nbWord;
       var wordClouds = data.wordClouds;
     }
+    
+    
+    
+    
+    // select the svg area
+      var Svg = d3.select("#my_dataviz2")
+
+      // create a list of keys
+      var keys = data.label;
+      var  colors  = data.labelColor;
+
+      Svg.selectAll("mydots")
+        .data(keys)
+        .enter()
+        .append("circle")
+          .attr("cx", function(d,i){
+            //return 100
+            return (Math.floor(i/5) * 200 + 100)
+          })
+          .attr("cy", function(d,i){
+
+            return i % 5 * 20 + 10
+          }) // 100 is where the first dot appears. 25 is the distance between dots
+          .attr("r", 7)
+          .style("fill", function(d,i){return colors[i]})
+
+
+
+          Svg.selectAll("mylabels")
+          .data(keys)
+          .enter()
+          .append("text")
+            .attr("x", function(d,i){
+
+              return (Math.floor(i/5) * 200 + 115)
+            })
+            .attr("y", function(d,i){
+              return i % 5 * 20 + 15
+            }) // 100 is where the first dot appears. 25 is the distance between dots
+            .style("fill", "black")
+            .text(function(d){ return d})
+            .attr("text-anchor", "left")
+            .style("alignment-baseline", "middle")
+
+    
 
     // Plot download handler
     function downloadCanvas(link, filename) {
