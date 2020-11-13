@@ -810,8 +810,11 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
-  res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= "#my_dataviz2")))
   
+  #check if this is responsible for DOM
+  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget",
+                                                                   style = "padding-bottom:0px")))
+
   
   res
 }
