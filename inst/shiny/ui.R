@@ -403,11 +403,11 @@ shinyUI(fluidPage(
                                               
                                               uiOutput("plot_legend_margin"),
                                               
-                                              HTML('<br />'), 
+                                              #HTML('<br />'), 
                                               #aweSOM:::aweSOMoutput("plot-names"),
                                               
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
-                                              HTML('<br />'),
+                                              #HTML('<br />'),
                                               plotOutput("theLegend")
                                               
                                               
