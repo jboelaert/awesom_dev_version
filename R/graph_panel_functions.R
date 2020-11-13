@@ -802,7 +802,8 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
                       plotSize = plotSize, 
                       palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
   res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadLink")))
-  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget",
+                                                                   style = "margin-bottom:0%;")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
