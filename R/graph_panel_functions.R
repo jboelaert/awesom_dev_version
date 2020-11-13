@@ -794,8 +794,7 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
                        plotSize= 100, 
                        palsc= "Set3", palplot= "viridis", plotRevPal= F) {
   
-  browser()
-  
+
   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
                       ok.trainrows = ok.trainrows, graphType = graphType, 
                       plotNames = plotNames,
