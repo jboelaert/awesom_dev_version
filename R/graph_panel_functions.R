@@ -812,13 +812,7 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
-  
-  #this does not seem to appear in the DOM of the exported graphics from shiny
-  
-  #res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "plot_names_margin",
-  #                                                                 style = paste0("padding-bottom:",60 ,"px"))))
-                                     
-                                    
+     
   
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
