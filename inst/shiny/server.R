@@ -3,11 +3,7 @@ library(aweSOM)
 options(shiny.maxRequestSize=2^30) # Max filesize
 
 ## TODO : remove these library calls, to be replaced by package::function inline
-library(cluster)
-library(prettycode)
-library(tidyverse)
-library(jsonify) #to get the getPlotParams object in JSON format
-library(GGally) #for the legend
+
 
 
 
