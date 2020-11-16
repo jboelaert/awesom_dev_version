@@ -431,7 +431,7 @@ shinyUI(fluidPage(
     
     tabPanel("Reproducible Scripts",
              verbatimTextOutput("codeTxt"),
-             downloadButton("report", "Generate report")#, htmlOutput("codeTxt2")
+             downloadButton("report", "Generate as Markdown")
              )
     
     
