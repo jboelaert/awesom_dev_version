@@ -816,7 +816,8 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names",
-                                                                  style = paste0("padding-top:",40 ,"%"))))
+                                                                  style = paste0("padding-top:"
+                                                                                 ,2+(4*ok.som$grid$xdim) ,"%")))) #not sure if it's not ydim
   
  
 
