@@ -816,7 +816,7 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names",
-                                                                  style = paste0("padding-bottom:",60 ,"%"))))
+                                                                  style = paste0("padding-top:",40 ,"%"))))
   
  
 
