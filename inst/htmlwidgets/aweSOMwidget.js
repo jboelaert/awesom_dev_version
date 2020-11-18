@@ -706,6 +706,11 @@ console.log("Enter aweSOMwidget\n");
   	var cellNames = data.cellNames;
   	var cellPop = data.cellPop;
   	
+  	// Implement these changes
+  	// w = similar yep
+  	// h  = width that is argument to factory function
+  	// cellsize = height /number if cells
+  	
   	
     //window.value = cellSize*nbRows;
     //document.getElementsByClassName('aweSOMwidget html-widget')[0].style.paddingBottom = ((window.value/2) + "px");
@@ -1089,8 +1094,8 @@ console.log("Enter aweSOMwidget\n");
     				y: n * cellSize,
     				fill: function(d, i) {
               return colorNormalizedValues[(n*nbColumns)+i];
-    				},
-    				stroke: '#FDBB30'
+    				}//, get rid of the color dividing the maps
+    				//stroke: '#FDBB30'
     			});
       		if(activate){ // Superclass numbers on cells for Color plot
       			rows.append("text")
@@ -1149,12 +1154,12 @@ console.log("Enter aweSOMwidget\n");
     					},
     					y: n * cellSize,
     					fill: function(d, i) {
-    						var indice = superclass[(n*nbColumns)+i];
+    						var indice = superclass[(n*nbColumns)+i]; 
     						return superclassColor[indice-1];
     					},
     					stroke: '#FDBB30'
     				});
-    			var inside = svg.selectAll('rect' + ' .row-' + (n + 1))
+    			var inside = svg.selectAll('rect' + ' .row-' + (n + 1)) //to this object add the mouseover effect
     				.data(d3.range(nbColumns))
     				.enter().append('rect')
     				.attr("class", "squareIn")
@@ -1279,9 +1284,8 @@ console.log("Enter aweSOMwidget\n");
     				})
     				//.attr("r", 4) //.attr("r", 4)
             .attr("r", function(d,i){
-              if(lineNormalizedValues[(n*nbColumns)+i][i] != null &&  lineNormalizedValues[(n*nbColumns)+i][i] != 0){ //what I edited
+              if(lineNormalizedValues[(n*nbColumns)+i][i] != null &&  lineNormalizedValues[(n*nbColumns)+i][i] != 0){ 
 
-                //console.log(lineNormalizedValues[(n*nbColumns)+i][1])
                 return 4;
               }
               else{
@@ -2046,13 +2050,14 @@ console.log("Enter aweSOMwidget\n");
 
            el_enter = d3.select(this);
 
+
            el_enter
     				.transition()
     				.duration(10)
     				.style("fill-opacity", 0.5);
 
 
-
+          //from here copy these to the inner_hex on functions (Julien) --> Same for square hitmpa
     			d3.select('#cell-info').text(function () {
     				var ch = 'Cell ' + parseInt(i+1,10) + ', Superclass ' +
               superclass[i] + ', N= ' + cellPop[i];
@@ -2528,7 +2533,7 @@ console.log("Enter aweSOMwidget\n");
       		}
         } else if(plotType.localeCompare("Line")==0) {
           //////////////////////////////////////////////////////////////////////////
-          // Hexagonal Line
+          // Hexagonal Line // to fix bug think of flipping the hovering effect on the x axis --> y top becomes y bottom row
           //////////////////////////////////////////////////////////////////////////
         	for (var indice = 0; indice < nbRows*nbColumns; indice++) {
         	  if (cellPop[indice] == 0) { continue; }

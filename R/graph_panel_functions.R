@@ -813,7 +813,7 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
      
-  
+  # div with wll similar to ui.R to get grey-ish box
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names",
                                                                   style = paste0("padding-top:"
