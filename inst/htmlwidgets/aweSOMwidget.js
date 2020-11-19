@@ -664,25 +664,20 @@ HTMLWidgets.widget({
 
 console.log("Enter aweSOMwidget\n");
 
-    //var svg = d3.select(el).append("svg").style("width", width).style("height", height);
 
     document.getElementById("cell-info").style.textAlign = "center";
     document.getElementById("plot-message").style.textAlign = "center";
 
     //remove the old graph
     document.getElementById("theWidget").innerHTML = "";
-    //document.getElementById("theWidget").style.paddingBottom = ((data.sizeInfo*data.gridInfo.nbLines) + "px"); 
-    //the line above is responsible for having a clean layout in the shiny UI
-    // remove old plot messages
+ 
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
     
     
-    //document.getElementById("plot-names").style.paddingTop = ((data.sizeInfo*data.gridInfo.nbLines) + "px"); 
     document.getElementById("plot-names").innerHTML = "-";
     
     
-    //document.getElementById("plot_names_margin").innerHTML = "-";
 
 
 
