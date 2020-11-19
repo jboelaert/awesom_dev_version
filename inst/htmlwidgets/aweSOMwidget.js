@@ -698,13 +698,18 @@ console.log("Enter aweSOMwidget\n");
     var nbColumns= data.gridInfo.nbColumns;
     var topology= data.gridInfo.topology;
     var saveToPng=data.saveToPng;
-    var cellSize=data.sizeInfo;
-    var w = cellSize*nbColumns;
-    var h = cellSize*nbRows;
+    //var cellSize=data.sizeInfo;
+    //var w = cellSize*nbColumns;
+    //var h = cellSize*nbRows;
     var superclass = data.superclass;
     var superclassColor = data.superclassColor;
   	var cellNames = data.cellNames;
   	var cellPop = data.cellPop;
+  	
+  	var h = height; 
+  	var cellsize = height / nbRows;
+  	var w = width;
+  	
   	
   	// Implement these changes
   	// w = similar yep
