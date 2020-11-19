@@ -707,7 +707,7 @@ console.log("Enter aweSOMwidget\n");
   	var cellPop = data.cellPop;
   	
   	var h = height; 
-  	var cellsize = height / nbRows;
+  	var cellSize = height / nbRows;
   	var w = width;
   	
   	
