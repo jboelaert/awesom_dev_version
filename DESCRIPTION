@@ -6,6 +6,12 @@ Author: Julien Boelaert, Mohamed Megdoud, Otmane Naji, Samuel Hym, Etienne Ollio
 Maintainer: Julien Boelaert <jubo.stats@gmail.com>
 Description: Interactive interface and plots for Kohonen self-organizing maps.
 Depends: R (>= 3.0)
-Imports: kohonen, shiny, RColorBrewer, viridis, e1071, data.table, DT, class, igraph, ggplot2, ggforce, ggrepel, haven, readxl, cluster, prettycode, tidyverse, jsonify, GGally   
+Imports: kohonen, shiny, RColorBrewer, viridis, e1071, data.table, DT, class, igraph, ggplot2, ggforce, ggrepel, haven, readxl, cluster, prettycode, tidyverse, jsonify, GGally, matrixStats, factoextra, RJSONIO   
 License: GPL (>= 2)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+
+
 
