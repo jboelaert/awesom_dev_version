@@ -808,7 +808,8 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget",
                                                                    style = "padding-bottom:10%")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
-  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message",
+                                                                    style = "padding-top:10%")))
   
      
   # div with wll similar to ui.R to get grey-ish box
