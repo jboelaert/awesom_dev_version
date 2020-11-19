@@ -808,13 +808,14 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget",
                                                                    style = "padding-bottom:10%")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
-  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message",
-                                                                    style = "padding-top:10%")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
      
   # div with wll similar to ui.R to get grey-ish box
   
-  res <- htmlwidgets::appendContent(res, shiny::wellPanel(htmltools::tag("p", list(id= "plot-names")))) #not sure if it's not ydim
+  res <- htmlwidgets::appendContent(res, 
+                                    shiny::wellPanel(htmltools::tag("p", list(id= "plot-names",
+                                                                                   style = "padding-top:10%")))) 
   
  
 
