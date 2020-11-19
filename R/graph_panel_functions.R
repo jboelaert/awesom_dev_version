@@ -814,8 +814,8 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows,
   # div with wll similar to ui.R to get grey-ish box
   
   res <- htmlwidgets::appendContent(res, 
-                                    shiny::wellPanel(htmltools::tag("p", list(id= "plot-names",
-                                                                                   style = "padding-top:10%")))) 
+                                    (htmltools::tag("p", list(id= "plot-names",
+                                                                                   style = "padding-top:10%"))))
   
  
 
