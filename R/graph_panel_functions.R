@@ -1,5 +1,4 @@
-library(matrixStats)
-library(RJSONIO)
+
 
 
 
@@ -676,8 +675,7 @@ plot.pam_silhouette <- function(ok.som, ok.pam_clust, input_sup_clust_method){
   if(input_sup_clust_method == "hierarchical") return()
   
   
-  library(factoextra)
-  
+
   fviz_silhouette(ok.pam_clust, palette = "jco",
                   ggtheme = theme_classic(), title="PAM-Clusters")
   
