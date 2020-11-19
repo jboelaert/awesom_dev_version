@@ -113,7 +113,7 @@ aweSOM::aweSOMdendrogram(ok.som, superclust_hiearchical, 5)
 The aweSOMplot function creates interactive SOM maps visualizations as these are displayed within the aweSOM graphical user interface...  
 
 ```{r}
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses_hierarchical, ok.data = ok.data,
+aweSOMplot(ok.som = ok.som, ok.sc = superclasses_hierarchical, ok.data = ok.data,
                    ok.trainrows = rep(TRUE, 150),
                    graphType = 'Barplot', plotNames = '(rownames)',
                    plotVarMult = c('Sepal.Length', 'Sepal.Width', 'Petal.Length', 'Petal.Width'), plotVarOne = '',
