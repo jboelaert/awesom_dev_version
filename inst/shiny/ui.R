@@ -401,7 +401,8 @@ shinyUI(fluidPage(
                                               aweSOM:::aweSOMoutput("theWidget"),
                                              
                                               
-
+                                              uiOutput("plot_legend_margin"),
+                                              
                                               #HTML('<br />'), 
                                               #aweSOM:::aweSOMoutput("plot-names"),
                                               
