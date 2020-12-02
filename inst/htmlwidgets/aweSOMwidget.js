@@ -2616,8 +2616,12 @@ console.log("Enter aweSOMwidget\n");
       							}
       							d = d0;
 
-      						svg.select("circle.y"+((k*nbColumns)+l))
-      							.attr("transform", "translate(" + (d.px-cellSize*20/100) + "," + (d.py-arrayValues[0].py+(cellSize-cellSize*75/100)+k*cellSize*75/100) + ")");
+
+
+
+      						//svg.select("circle.y"+((k*nbColumns)+l))
+      						svg.select("circle.y"+(((((nbRows-1)* nbColumns)-(nbRows-k-1)*(nbColumns)))+l))
+      							.attr("transform", "translate(" + (d.px-cellSize*20/100) + "," + (d.py-arrayValues[0].py+(cellSize-cellSize*75/100)+(nbRows-k)*cellSize*75/100) + ")");
 
       						if(l==parseInt((i%nbRows),10) && k==parseInt((i/nbRows),10)){
       							d3.select('#plot-message').text(function () {
