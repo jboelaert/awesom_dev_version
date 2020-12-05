@@ -1,0 +1,39 @@
+A to-do-list based on past conversations on what is remaining for the first, stable release
+
+
+Data Import
+.
+
+Train
+.
+
+
+Plots
+* Reverse-order issue for rectangular grid
+* Silhouette Plot creates console output. 
+* Hierarchical Clustered Silhouette Plot (display some message for non-existing plots)
+* For neighbor distance plot: 'Error: object 'input' not found' displayed below plot'
+* Plot size setting does not impact SOM sizes anymore
+* Hitmap Quick hover effect (Jan)
+
+
+Clustered Data
+.
+
+Reproducible Scripts: 
+* Silhouette Plot is missing
+* Abstraction Plot is missing
+* Copy to Clipboard Function
+* Shorten ok.trainrows argument
+
+
+
+
+Vignette
+* Describing what the functions do and how the package works (Jan: I can create a first draft)
+
+
+Other: 
+* Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?)
+* UI Panel Element for Meta Information?
+* Roxygen Skeletons functions
