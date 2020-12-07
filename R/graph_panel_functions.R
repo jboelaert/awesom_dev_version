@@ -92,12 +92,12 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
           normValues <- unname(lapply(split(normDat, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(colMedian(x))
+                                        unname(apply(x, 2, median))
                                       }))
           realValues <- unname(lapply(split(data, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(round(colMedian(x), 3)) #is this what is supposed to be edited to pass other data?
+                                        unname(round(apply(x, 2, median), 3)) #is this what is supposed to be edited to pass other data?
                                       }))
         }
         
@@ -116,7 +116,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
         realValues <- do.call(rbind, lapply(split(data, clustering), 
                                             function(x) {
                                               if (!nrow(x)) return(rep(NA, nvar))
-                                              unname(round(colMeans(x), 3)) # matrixStats for colMedians
+                                              unname(round(colMeans(x), 3))
                                             }))
         normValues <- apply(realValues, 2, function(x) 
           .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
@@ -128,7 +128,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
           realValues <- do.call(rbind, lapply(split(data, clustering), 
                                               function(x) {
                                                 if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(colMedian(x), 3)) # matrixStats for colMedians
+                                                unname(round(apply(x, 2, median), 3))
                                               }))
           normValues <- apply(realValues, 2, function(x) 
             .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
@@ -171,12 +171,12 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
           normValues <- unname(lapply(split(normDat, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(col_median(x))
+                                        unname(apply(x, 2, median))
                                       }))
           realValues <- do.call(rbind, lapply(split(data, clustering), 
                                               function(x) {
                                                 if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(col_median(x), 3))
+                                                unname(round(apply(x, 2, median), 3))
                                               }))
         }
         
@@ -316,20 +316,6 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     res$plotType <- "Barplot"
   
   res
-}
-
-
-
-
-col_median <- function(data){
-  medians <- c()
-  for(index in seq(1,ncol(data))){
-    medians <- append(medians, median(iris[,index]))
-
-
-}
- return(medians) 
-  
 }
 
 
