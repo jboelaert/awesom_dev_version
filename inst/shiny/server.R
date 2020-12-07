@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
         input_encoding = input$encoding, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "excel_xlsx"){
-      imported_file <-  aweSOM:::ok.data.function.excel_xlsx(
+      imported_file_object <-  aweSOM:::ok.data.function.excel_xlsx(
         input_dataFile = input$dataFile, input_column_names = input$column_names, 
         input_trim_spaces = input$trim_spaces, 
         input_range_specified_bol = input$range_specified_bol, 

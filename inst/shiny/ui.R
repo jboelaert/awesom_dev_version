@@ -129,13 +129,13 @@ shinyUI(fluidPage(
                                                                         selected = TRUE ))),
                                          
                                          fluidRow(column(4, checkboxInput("worksheet_specified_bol_xls", "Specify Worksheet", F))),
-                                         conditionalPanel("input.worksheet_specified_bol",
+                                         conditionalPanel("input.worksheet_specified_bol_xls",
                                                           textInput("worksheet_specs_xls", NULL, "")
                                          ),
                                          
                                          
                                          fluidRow(column(4, checkboxInput("range_specified_bol_xls", "Specify Range", F))),
-                                         conditionalPanel("input.range_specified_bol",
+                                         conditionalPanel("input.range_specified_bol_xls",
                                                           textInput("range_specs_xls", NULL, "")
                                          )),
                         
