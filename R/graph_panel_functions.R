@@ -784,13 +784,15 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
   htmlwidgets::createWidget("aweSOMwidget", plotParams, width = width, height = height, package = "aweSOM")
 }
 
-aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows, 
+aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL, 
                        graphType= "Hitmap", 
                        plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
                        plotOutliers= T, plotEqualSize= F,
                        contrast= "contrast", average_format= "mean",
                        plotSize= 100, 
                        palsc= "Set3", palplot= "viridis", plotRevPal= F) {
+  ok.trainrows <- rep(T, nrow(ok.data))
+  if (length(omitRows) > 0) ok.trainrows[omitRows] <- F
   
 
   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
