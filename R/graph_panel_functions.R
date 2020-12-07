@@ -533,7 +533,7 @@ aweSOMscreeplot <- function(ok.som, nclass= 2, method= hierarchical, hmethod= "w
 #' @export
 #'
 #' @examples
-aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot, input_plotRevPal){
+aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot= "Set3", input_plotRevPal= F){
   if (is.null(ok.som)) return()
   
   values <- matrix(rowMeans(ok.dist$proto.data.dist.neigh, na.rm= T), 
@@ -553,37 +553,38 @@ aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot, input_plotRevPal){
 #' Abstraction plot
 #'
 #' @param ok.som 
-#' @param ok.traindat 
-#' @param input_plotAbstrCutoff 
-#' @param input_palplot 
-#' @param input_plotRevPal 
+#' @param dat 
+#' @param cutoff 
+#' @param pal 
+#' @param reversePal 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_palplot, input_plotRevPal){
+aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F){
   if (is.null(ok.som)) return()
   
   somcodes <- ok.som$codes[[1]]
-  nsomvars <- ncol(somcodes)
+  nsomvars <- ncol(somcodes) * 2
   nsomnodes <- nrow(somcodes)
   gridpoints <- ok.som$grid$pts
   
   nodeweights <- apply(somcodes, 2, function(x) {
-    y <- (x - min(x)) / (max(x) - min(x))
-    y^2 / sum(y^2)
-  })
+      y <- (x - min(x)) / (max(x) - min(x))
+      y^2 / sum(y^2)
+    })
+
   varcoords <- t(nodeweights) %*% gridpoints
   
   adjweights <- aggregate(.~somcell, FUN = function(x) sum(x - min(0, min(x))),
                           na.action= na.pass,
-                          data.frame(ok.traindat$dat, 
+                          data.frame(dat, 
                                      somcell= ok.som$unit.classif))
   if (any(! 1:nrow(gridpoints) %in% ok.som$unit.classif)) {
     losers <- which(!(1:nrow(gridpoints) %in% ok.som$unit.classif))
     for (ilose in losers) {
-      darow <- as.data.frame(t(c(ilose, rep(0, ncol(ok.traindat$dat)))))
+      darow <- as.data.frame(t(c(ilose, rep(0, ncol(dat)))))
       colnames(darow) <- colnames(adjweights)
       if (ilose == 1) {
         adjweights <- rbind(darow, adjweights)
@@ -596,7 +597,7 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
   adjweights <- as.matrix(apply(adjweights[, -1], 2, function(y) y^2 / sum(y^2)))
   adjcoords <- t(adjweights) %*% gridpoints
   adjweightscut <- adjweights
-  adjweightscut[adjweights < input_plotAbstrCutoff] <- 0
+  adjweightscut[adjweights < cutoff] <- 0
   
   vargraph <- igraph::graph_from_adjacency_matrix(crossprod(nodeweights),
                                                   "undirected", diag= F, weighted= T)
@@ -604,15 +605,13 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
   varclust <- sapply(colnames(nodeweights),
                      function(x) for (i in 1:length(vargraph.louvain))
                        if (x %in% vargraph.louvain[[i]]) return(i))
-  dacolors <- unlist(getPalette(input_palplot, length(unique(varclust)), input_plotRevPal)[varclust])
+  dacolors <- unlist(getPalette(pal, length(unique(varclust)), reversePal)[varclust])
   
-  
-  #ggplot scheme to generate the code
   
   gg <- ggplot2::ggplot(data.frame(as.data.frame(gridpoints),
                                    pop= as.vector(table(factor(ok.som$unit.classif,
                                                                levels = 1:nsomnodes)))),
-                        ggplot2::aes(x, y)) + ggplot2::scale_y_reverse() +
+                        ggplot2::aes(x, y)) +
     ggplot2::theme_void() + 
     ggforce::geom_circle(ggplot2::aes(r= .1 + .4 * (sqrt(pop) - min(sqrt(pop))) / (max(sqrt(pop)) - min(sqrt(pop))), 
                                       x0= x, y0= y), fill= "white", 
@@ -637,7 +636,7 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
                               data= data.frame(adjcoords, dacolors,
                                                activite= rownames(adjcoords),
                                                taille= 2* (1 - colSums(adjweights^2)))) +
-    ggplot2::coord_fixed()
+    ggplot2::coord_fixed() 
   print(gg)
 }
 

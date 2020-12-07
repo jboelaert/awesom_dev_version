@@ -515,10 +515,16 @@ shinyServer(function(input, output, session) {
   
   ## Abstraction plot
   output$plotAbstraction <-renderPlot({
-    plot.abstraction(ok.som = ok.som(), ok.traindat = ok.traindat(),
-                     input_plotAbstrCutoff = input$plotAbstrCutoff,
-                     input_palplot = input$palplot,
-                     input_plotRevPal = input$plotRevPal)
+    values$codetxt$plot <- paste0("\n## Plot Abstraction plot (experimental)\n", 
+                                  "aweSOM::aweSOMabstraction(ok.som, dat, ",
+                                  "cutoff = ", input$plotAbstrCutoff, ", ", 
+                                  "pal = '", input$palplot, "', ",
+                                  "reversePal = ", input$plotRevPal, ")\n")
+    
+    aweSOMabstraction(ok.som = ok.som(), dat = ok.traindat()$dat,
+                      cutoff = input$plotAbstrCutoff,
+                      pal = input$palplot,
+                      reversePal = input$plotRevPal)
   },
   width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))

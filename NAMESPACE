@@ -10,7 +10,7 @@ export(aweSOMdendrogram)
 export(aweSOMscreeplot)
 export(aweSOMsilhouette)
 export(aweSOMsmoothdist)
-export(plot.abstraction)
+export(aweSOMabstraction)
 export(aweSOMplot)
 
 S3method(print, somQual)
