@@ -590,8 +590,8 @@ aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot= "Set3", input_plotR
 
 #' Abstraction plot
 #'
-#' @param ok.som 
-#' @param dat 
+#' @param ok.som SOM data object
+#' @param dat data object
 #' @param cutoff 
 #' @param pal 
 #' @param reversePal 
@@ -600,6 +600,22 @@ aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot= "Set3", input_plotR
 #' @export
 #'
 #' @examples
+#' ok.data <- iris
+#' ## Build training data
+#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' ### Scale training data
+#' dat <- scale(dat)
+#' ## Train SOM
+#' ### RNG Seed (for reproducibility)
+#' set.seed(2581)
+#' ### Initialization (PCA grid)
+#' data.pca <- prcomp(dat, center= F, scale.= F)
+#' init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 4)
+#' init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 4)
+#' init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
+#' init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' aweSOMabstraction(ok.som, dat, cutoff = 0)
 aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F){
   if (is.null(ok.som)) return()
   
