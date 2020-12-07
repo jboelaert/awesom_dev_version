@@ -469,9 +469,13 @@ shinyServer(function(input, output, session) {
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
-                                  "aweSOM::aweSOMscreeplot(ok.som, superclust, ", 
-                                  input$kohSuperclass, ")\n")
-    aweSOMscreeplot(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+                                  "aweSOM::aweSOMscreeplot(ok.som, method = '", 
+                                  input$sup_clust_method, "', ", 
+                                  if (input$sup_clust_method == "hierarchical") {
+                                    paste0("hmethod = '", input$sup_clust_hcmethod, "', ")
+                                  },
+                                  "nclass = ", input$kohSuperclass, ")\n")
+    aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
   },
   width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))

@@ -495,14 +495,19 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' @export
 #'
 #' @examples
-aweSOMscreeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
-  ## TODO : adapt for PAM
-  
+aweSOMscreeplot <- function(ok.som, nclass= 2, method= hierarchical, hmethod= "ward.D2"){
   if (is.null(ok.som)) return()
+  
+  if (method == "hierarchical")
+    ok.hclust <- hclust(dist(ok.som$codes[[1]]), hmethod)
+  
   ncells <- nrow(ok.som$codes[[1]])
-  nvalues <- max(input_kohSuperclass, min(ncells, max(ceiling(sqrt(ncells)), 10)))
+  nvalues <- max(nclass, min(ncells, max(ceiling(sqrt(ncells)), 10)))
   clust.var <- sapply(1:nvalues, function(k) {
-    clust <- cutree(ok.hclust, k)
+    if (method == "hierarchical") {
+      clust <- cutree(ok.hclust, k)
+    } else if (method == "pam") 
+      clust <- cluster::pam(ok.som$codes[[1]], k)$clustering
     clust.means <- do.call(rbind, by(ok.som$codes[[1]], clust, colMeans))[clust, ]
     mean(rowSums((ok.som$codes[[1]] - clust.means)^2))
   })
@@ -511,7 +516,7 @@ aweSOMscreeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
   plot(unexpl, t= "b", ylim= c(0, 100),
        xlab= "Nb. Superclasses", ylab= "% Unexpl. Variance")
   grid()                      
-  abline(h= unexpl[input_kohSuperclass], col= 2)
+  abline(h= unexpl[nclass], col= 2)
   
 }
 
