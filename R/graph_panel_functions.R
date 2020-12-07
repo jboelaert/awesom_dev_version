@@ -513,6 +513,26 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' @export
 #'
 #' @examples
+#' ok.data <- iris
+#' ## Build training data
+#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' ### Scale training data
+#' dat <- scale(dat)
+#' ## Train SOM
+#' ### RNG Seed (for reproducibility)
+#' set.seed(2581)
+#' ### Initialization (PCA grid)
+#' data.pca <- prcomp(dat, center= F, scale.= F)
+#' init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 4)
+#' init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 4)
+#' init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
+#' init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' ## Group cells into superclasses (PAM clustering)
+#' superclust <- cluster::pam(ok.som$codes[[1]], 2)
+#' superclasses <- unname(superclust$clustering)
+#' aweSOM::aweSOMsilhouette(ok.som, superclasses)
+#' 
 aweSOMscreeplot <- function(ok.som, nclass= 2, method= hierarchical, hmethod= "ward.D2"){
   if (is.null(ok.som)) return()
   
