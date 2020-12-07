@@ -464,7 +464,6 @@ getPalette <- function(pal, n, reverse= F) {
 
 
 
-
 #' Plot dendogram for hierarchical clustering of SOM cells
 #'
 #' @param ok.som SOM data object
@@ -473,7 +472,26 @@ getPalette <- function(pal, n, reverse= F) {
 #'
 #' @return Dendogram plot of hierarchical clustering
 #'
-#' @examples
+#' @examples 
+#' ok.data <- iris
+#' ## Build training data
+#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' ### Scale training data
+#' dat <- scale(dat)
+#' ## Train SOM
+#' ### RNG Seed (for reproducibility)
+#' set.seed(2581)
+#' ### Initialization (PCA grid)
+#' data.pca <- prcomp(dat, center= F, scale.= F)
+#' init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 4)
+#' init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 4)
+#' init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
+#' init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' ## Group cells into superclasses (hierarchical clustering)
+#' superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
+#' ## Plot superclasses dendrogram
+#' aweSOM::aweSOMdendrogram(ok.som, superclust, 2)
 aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
   
   if (is.null(ok.som)) return()

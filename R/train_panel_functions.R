@@ -253,6 +253,7 @@ somDist <- function(ok.som){
 #' @return list with quality measures
 #'
 #' @examples somQuality(ok.som  = ok.som, traindat = traindat)
+#' 
 somQuality <- function(ok.som, traindat){
   if(!is.null(ok.som)) {
     ok.dist <- somDist(ok.som)
@@ -289,3 +290,6 @@ somQuality <- function(ok.som, traindat){
     res
   }
 }
+
+
+
