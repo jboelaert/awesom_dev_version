@@ -752,8 +752,9 @@ shinyServer(function(input, output, session) {
   ## Panel "Reproducible code"
   #############################################################################
   
-  output$codeTxt <- renderText({
+  reprocode <- reactive({
     paste0("\n## Import Data\n", 
+           "# setwd('/path/to/datafile/directory') ## Uncomment this line and set the path to the datafile's directory\n",
            values$codetxt$dataread, 
            "\n## Build training data\n",
            values$codetxt_traindat$traindat, 
@@ -764,6 +765,12 @@ shinyServer(function(input, output, session) {
              "\n## Quality measures:\n",
              "aweSOM::somQuality(ok.som, dat)\n",
              values$codetxt$plot))
+  })
+  
+  output$codeTxt <- renderText(reprocode())
+  
+  output$copycode <- renderUI({
+    rclipboard::rclipButton("copycodebtn", "Copy to clipboard", reprocode())
   })
   
   

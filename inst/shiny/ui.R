@@ -3,6 +3,8 @@
 
 ## Organisation de la page
 shinyUI(fluidPage(
+  rclipboard::rclipboardSetup(),
+  
   headerPanel(HTML("aweSOM")),
   
   tabsetPanel(
@@ -430,9 +432,10 @@ shinyUI(fluidPage(
                column(8, DT::dataTableOutput("clustTable")))),
     
     tabPanel("Reproducible Scripts",
-             verbatimTextOutput("codeTxt"),
-             downloadButton("report", "Generate as Markdown")
-             )
+             fluidRow(column(6, h4("Run this script in R to reproduce the results.")),
+                      column(3, uiOutput("copycode")), 
+                      column(3, downloadButton("report", "Save html report"))),
+             verbatimTextOutput("codeTxt"))
     
     
   )
