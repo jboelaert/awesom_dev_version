@@ -264,7 +264,7 @@ shinyUI(fluidPage(
                                                                        "Superclass Silhouette"= "Silhouette",
                                                                        "Neighbour distance"= "UMatrix", 
                                                                        "Smooth distance"= "SmoothDist", 
-                                                                       "Abstraction"= "Abstraction"
+                                                                       "Abstraction (experimental)"= "Abstraction"
                                                             ), 
                                                             selected= "Hitmap"))),
                              

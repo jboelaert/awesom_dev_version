@@ -8,25 +8,19 @@ Train
 .
 
 
+
 Plots
 * Reverse-order issue for rectangular grid
-* Silhouette Plot creates console output. 
-* Hierarchical Clustered Silhouette Plot (display some message for non-existing plots)
-* For neighbor distance plot: 'Error: object 'input' not found' displayed below plot'
 * Plot size setting does not impact SOM sizes anymore
-* Hitmap Quick hover effect (Jan)
+* Julien : check "contrast" options for boxplot (doesn't seem to change anything)
+* Julien : prototype value rescale ; probably linked to black "Color" plot for prototypes
 
 
 Clustered Data
 .
 
 Reproducible Scripts: 
-* Silhouette Plot is missing
 * Abstraction Plot is missing
-* Copy to Clipboard Function
-* Shorten ok.trainrows argument
-
-
 
 
 Vignette

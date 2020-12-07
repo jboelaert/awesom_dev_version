@@ -378,7 +378,7 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
     data <- NULL
   } 
   
-  else if (input$graphType %in% c("Names")) {
+  else if (input_graphType %in% c("Names")) {
     plotVar <- NULL
     data <- as.character(plot.data[, input_plotVarOne])
   } 
@@ -573,7 +573,6 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
   nodeweights <- apply(somcodes, 2, function(x) {
     y <- (x - min(x)) / (max(x) - min(x))
     y^2 / sum(y^2)
-    # exp(3 * y) / sum(exp(3 * y))
   })
   varcoords <- t(nodeweights) %*% gridpoints
   
