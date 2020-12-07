@@ -277,11 +277,10 @@ shinyUI(fluidPage(
                                                      'input.graphType == "Boxplot" | ', 
                                                      'input.graphType == "Star"'), 
                                               uiOutput("plotVarMult")),
-                             conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
+                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
                                               uiOutput("plotNames")),
                              checkboxInput("plotAdvanced", "Advanced options", F),
                              conditionalPanel("input.plotAdvanced", 
-                                              h4("Advanced options"),
                                               conditionalPanel(paste0('input.graphType == "CatBarplot" | ', 
                                                                       'input.graphType == "Radar" | ', 
                                                                       'input.graphType == "Line" | ', 
@@ -290,49 +289,54 @@ shinyUI(fluidPage(
                                                                       'input.graphType == "Color" | ', 
                                                                       'input.graphType == "UMatrix" | ', 
                                                                       'input.graphType == "Star"'), 
-                                                               
-                                                               
-                                                               fluidRow(#column(4, checkboxInput("contrast", "Enhanced contrast", value= T)),
-                                                                 column(4, selectInput("contrast", NULL,
-                                                                                       choices = c("contrast" = "contrast",
-                                                                                                   "range" = "range",
-                                                                                                   "no_contrast" = "no_contrast"),
+                                                               fluidRow(
+                                                                 column(4, p("Variables scales")),
+                                                                 column(7, selectInput("contrast", NULL,
+                                                                                       choices = c("Contrast" = "contrast",
+                                                                                                   "Observations Range" = "range",
+                                                                                                   "Same scale" = "no_contrast"),
                                                                                        selected = "contrast")),
-                                                                 
-                                                                 
-                                                                 column(4, actionButton("help_message_2", "", icon = icon("question"), width = NULL)))),     
+                                                                 column(1, actionButton("help_contrast", "", icon = icon("question"), width = NULL)))), 
                                               
-                                              
-                                              fluidRow(column(8, selectInput("average_format", NULL, 
-                                                                             choices = c("mean" = "mean",
-                                                                                         "median" = "median",
-                                                                                         "prototypes" = "prototypes"),
-                                                                             selected = "mean"))),
-                                              
-                                              
-                                              
-                                              
-                                              
-                                              
+                                              conditionalPanel(paste0('input.graphType == "Radar" | ', 
+                                                                      'input.graphType == "Line" | ', 
+                                                                      'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "Color" | ', 
+                                                                      'input.graphType == "Star"'), 
+                                                               fluidRow(
+                                                                 column(4, p("Values")),
+                                                                 column(7, selectInput("average_format", NULL, 
+                                                                                       choices = c("Observation means" = "mean",
+                                                                                                   "Observation medians" = "median",
+                                                                                                   "Prototypes" = "prototypes"),
+                                                                                       selected = "mean")), 
+                                                                 column(1, actionButton("help_average_format", "", icon = icon("question"), width = NULL)))),
+
                                               conditionalPanel('input.graphType == "Boxplot"', 
                                                                checkboxInput("plotOutliers", "Plot outliers", value= T)),
-                                              conditionalPanel('input.graphType != "Color" & input.graphType != "UMatrix" & input.graphType != "SmoothDist"', 
+                                              
+                                              conditionalPanel('input.graphType == "Camembert"', 
+                                                               checkboxInput("plotEqualSize", "Equal pie sizes", F)), 
+                                              
+                                              conditionalPanel('input.graphType == "Abstraction"', 
+                                                               numericInput("plotAbstrCutoff", "Links cut-off", 
+                                                                            min= 0, max= 1, step = .01, value= 0)),
+                                              
+                                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "Color" & input.graphType != "UMatrix" & input.graphType != "SmoothDist"', 
                                                                fluidRow(column(4, p("Superclass palette")),
                                                                         column(8, selectInput("palsc", NULL, 
                                                                            c("viridis", "grey", "rainbow", "heat", "terrain", 
                                                                              "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
-                                                                           "Set3")))),
-                                              fluidRow(column(4, p("Plots palette")),
-                                                       column(8,selectInput("palplot", NULL, 
-                                                          c("viridis", "grey", "rainbow", "heat", "terrain", 
-                                                            "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
-                                                          "viridis"))), 
-                                              checkboxInput("plotRevPal", "Reverse palette"), 
-                                              conditionalPanel('input.graphType == "Camembert"', 
-                                                               checkboxInput("plotEqualSize", "Equal pie sizes", F)), 
-                                              conditionalPanel('input.graphType == "Abstraction"', 
-                                                               numericInput("plotAbstrCutoff", "Links cut-off", 
-                                                                            min= 0, max= 1, step = .01, value= 0))),
+                                                                           "Set3")))), 
+                                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot"', 
+                                                               fluidRow(column(4, p("Plots palette")),
+                                                                        column(8,selectInput("palplot", NULL, 
+                                                                                             c("viridis", "grey", "rainbow", "heat", "terrain", 
+                                                                                               "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
+                                                                                             "viridis"))), 
+                                                               checkboxInput("plotRevPal", "Reverse palette"))
+                                              ),
+                             
                              fluidRow(column(4, h4("Plot size:")), 
                                       column(8, sliderInput("plotSize", NULL, 10, 1000, value= 100))),
                              hr(),
