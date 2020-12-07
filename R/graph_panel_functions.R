@@ -642,30 +642,19 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
 
 
 
-#' Silhouette plot for PAM clustering
+#' Silhouette plot
 #'
 #' @param ok.som 
-#' @param ok.pam_clust 
-#' @param input_sup_clust_method 
+#' @param ok.sc
 #'
 #' @return
 #' @export
 #'
 #' @examples
-plot.pam_silhouette <- function(ok.som, ok.pam_clust, input_sup_clust_method){
+aweSOMsilhouette <- function(ok.som, ok.sc){
   if (is.null(ok.som)) return()
-  
-  
-  #browser()
-  #since the silhouette only works out for pam
-  if(input_sup_clust_method == "hierarchical") return()
-  
-  
-
-  fviz_silhouette(ok.pam_clust, palette = "jco",
-                  ggtheme = theme_classic(), title="PAM-Clusters")
-  
-  
+  cluster:::plot.silhouette(cluster::silhouette(ok.sc, dist(ok.som$codes[[1]])), 
+       main= "Silhouette of Cell Superclasses")
 }
 
 

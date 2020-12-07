@@ -476,6 +476,17 @@ shinyServer(function(input, output, session) {
   width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
   
+
+  ## Silhouette plot
+  output$plotSilhouette <- renderPlot({
+    values$codetxt$plot <- paste0("\n## Plot superclasses silhouette plot\n", 
+                                  "aweSOM::aweSOMsilhouette(ok.som, superclass)\n")
+    aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
+  },
+  width = reactive({input$plotSize + 500}),
+  height = reactive({input$plotSize + 500}))
+  
+  
   ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot smooth distances\n", 
@@ -487,7 +498,17 @@ shinyServer(function(input, output, session) {
     },
   width = reactive({(input$plotSize + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
   height = reactive({input$plotSize + 500 }))
-
+  
+  ## warning for smooth distance hex based plot
+  output$smooth_dist_warning <- renderText({
+    if(input$kohTopo == "hexagonal"){ 
+      
+      return("This might be a biased version since the topology of a hexagonal grid cannnot be account
+          for within this plot") 
+    }
+  })
+  
+  
   ## Abstraction plot
   output$plotAbstraction <-renderPlot({
     plot.abstraction(ok.som = ok.som(), ok.traindat = ok.traindat(),
@@ -497,41 +518,6 @@ shinyServer(function(input, output, session) {
   },
   width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
-  
-  
-  
-  ## R-Based legend
-  
-  output$theLegend <- renderPlot({
-    
-    
-    if (is.null(ok.som()) | !(input$graphType %in% c("Radar",
-                                                             "Camembert", "CatBarplot",
-                                                             "Barplot", "Boxplot",
-                                                             "Color", "Star",
-                                                            "Line",
-                                                             "Names", "UMatrix")))
-      return(NULL) # si on n'a pas calculé, on donne NULL à JS
-
-    plot.data <- isolate(ok.data()[ok.trainrows(), ])
-    if(is.null(plot.data)) return(NULL)
-    
-    # Obs names per cell for message box
-    if (is.null(input$plotNames)){
-      return(NULL)
-    }
-
-    aweSOM:::the.legend.function(plot.data = plot.data, 
-                                 input_plotNames = input$plotNames, ok.clust = ok.clust(), 
-                                 input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
-                                 input_plotVarOne = input$plotVarOne,
-                                 ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
-                                 input_contrast = input$contrast, input_average_format = input$average_format, 
-                                 ok.sc = ok.sc(),
-                                 input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
-                                 input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
-  },
-  width = reactive({input$plotSize + 900}))
   
   
   
@@ -595,23 +581,38 @@ shinyServer(function(input, output, session) {
                           plotRevPal= input$plotRevPal)
   })
   
+  ## R-Based legend
   
-  ## warning for smooth distance hex based plot
-  output$smooth_dist_warning <- renderText({
-    if(input$kohTopo == "hexagonal"){ 
-      
-      return("This might be a biased version since the topology of a hexagonal grid cannnot be account
-          for within this plot") 
-      }
-  })
-  
-  
-  
-  ## Visualize Silhouette Information from Clustering
-  output$pam_silhouette <- renderPlot({
-    plot.pam_silhouette(ok.som = ok.som(), ok.pam_clust = ok.pam_clust(), 
-                        input_sup_clust_method = input$sup_clust_method)
-  })
+  output$theLegend <- renderPlot({
+    
+    
+    if (is.null(ok.som()) | !(input$graphType %in% c("Radar",
+                                                     "Camembert", "CatBarplot",
+                                                     "Barplot", "Boxplot",
+                                                     "Color", "Star",
+                                                     "Line",
+                                                     "Names", "UMatrix")))
+      return(NULL) # si on n'a pas calculé, on donne NULL à JS
+    
+    plot.data <- isolate(ok.data()[ok.trainrows(), ])
+    if(is.null(plot.data)) return(NULL)
+    
+    # Obs names per cell for message box
+    if (is.null(input$plotNames)){
+      return(NULL)
+    }
+    
+    aweSOM:::the.legend.function(plot.data = plot.data, 
+                                 input_plotNames = input$plotNames, ok.clust = ok.clust(), 
+                                 input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
+                                 input_plotVarOne = input$plotVarOne,
+                                 ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
+                                 input_contrast = input$contrast, input_average_format = input$average_format, 
+                                 ok.sc = ok.sc(),
+                                 input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
+                                 input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
+  },
+  width = reactive({input$plotSize + 900}))
   
 
   # map cluster function -------------------------------------------------------------

@@ -261,7 +261,7 @@ shinyUI(fluidPage(
                                                             choices= c("Population map"= "Hitmap",
                                                                        "Superclass Dendrogram"= "Dendrogram",
                                                                        "Superclass Scree plot"= "Screeplot",
-                                                                       "Silhouette"= "Silhouette",
+                                                                       "Superclass Silhouette"= "Silhouette",
                                                                        "Neighbour distance"= "UMatrix", 
                                                                        "Smooth distance"= "SmoothDist", 
                                                                        "Abstraction"= "Abstraction"
@@ -366,24 +366,16 @@ shinyUI(fluidPage(
                                               plotOutput("plotDendrogram")),
                              conditionalPanel('input.graphType == "Screeplot"', 
                                               plotOutput("plotScreeplot")),
+                             conditionalPanel('input.graphType == "Silhouette"', 
+                                              plotOutput("plotSilhouette")),
                              conditionalPanel('input.graphType == "SmoothDist"',
-                                              #maybe here insert the hex-based grid warning
                                               uiOutput("smooth_dist_warning"),
                                               plotOutput("plotSmoothDist")),
                              conditionalPanel('input.graphType == "Abstraction"', 
                                               plotOutput("plotAbstraction")),
-                             conditionalPanel('input.graphType == "Silhouette"', 
-                                              plotOutput("pam_silhouette")),
-                             
-                             
-                             
-                             
-                             
-                             
-                                              # plotly::plotlyOutput("plotAbstraction")),
                              
                              #for all other JS based plots refer to graphs.html
-                             conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
+                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
                                               # HTML('<a id="downloadLink">Download Image</a>'),
                                               HTML('<img id="fromcanvasPlot" />'),
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
@@ -400,9 +392,7 @@ shinyUI(fluidPage(
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
                                               #HTML('<br />'),
                                               plotOutput("theLegend")
-                                              
-                                              
-                                              
+
                                               )
                              ))), 
     tabPanel("Clustered data", 
