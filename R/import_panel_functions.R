@@ -73,31 +73,26 @@ ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, inpu
   if (is.null((input_dataFile))){ 
     return(NULL)
   }
-  the.header <- switch(input_column_names, "TRUE"= TRUE, 
-                       "FALSE" = FALSE)
-  the.trim_spaces <- switch(input_trim_spaces, "TRUE"= TRUE, 
-                            "FALSE" = FALSE)
+  the.header <- switch(input_column_names, "TRUE"= TRUE, "FALSE" = FALSE)
+  the.trim_spaces <- switch(input_trim_spaces, "TRUE"= TRUE, "FALSE" = FALSE)
   the.range <- NULL
   if(input_range_specified_bol == TRUE & input_range_specs != "") the.range <- input_range_specs
   the.sheet <- NULL
   if(input_worksheet_specified_bol == TRUE & input_worksheet_specs != "") the.sheet <- input_worksheet_specs
   
   
-  data_read_reproducible <- paste0("ok.data <- data.frame(read_xlsx('", 
-                                    input$dataFile$name, "', ",
-                                    "col_names = '", the.header, 
-                                    "', range ='", the.range, 
-                                    "', sheet = '", the.sheet, 
-                                    "', trim_ws = '", the.trim_spaces, 
-                                  
-                                    "skip =", input_rows_to_skip,
-                                    
-                                    ")\n")
-  
-  
-  
-  
-  
+  data_read_reproducible <- paste0("ok.data <- data.frame(readxl::read_xlsx('", 
+                                   input_dataFile$name, "', ",
+                                   "col_names = ", the.header, ", ",
+                                   if (! is.null(the.range)) {
+                                     paste0("range = '", the.range, "', ")
+                                   },
+                                   if (! is.null(the.sheet)) {
+                                     paste0("sheet = '", the.sheet, "', ")
+                                   },
+                                   "trim_ws = ", the.trim_spaces, ", ",
+                                   "skip = ", input_rows_to_skip,
+                                   "))\n")
   
   data <- try(data.frame(readxl::read_xlsx(input_dataFile_datapath,
                                    col_names = the.header,
@@ -134,27 +129,26 @@ ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, i
   if (is.null((input_dataFile))){ 
     return(NULL)
   }
-  library(readxl)
-  the.header <- switch(input_column_names_xls, "TRUE"= TRUE, 
-                       "FALSE" = FALSE)
-  the.trim_spaces <- switch(input_trim_spaces_xls, "TRUE"= TRUE, 
-                            "FALSE" = FALSE)
+  the.header <- switch(input_column_names_xls, "TRUE"= TRUE, "FALSE" = FALSE)
+  the.trim_spaces <- switch(input_trim_spaces_xls, "TRUE"= TRUE, "FALSE" = FALSE)
   the.range <- NULL
   if(input_range_specified_bol_xls == TRUE & input_range_specs_xls != "") the.range <- input_range_specs_xls
   the.sheet <- NULL
   if(input_worksheet_specified_bol_xls == TRUE & input_worksheet_specs_xls != "") the.sheet <- input_worksheet_specs_xls
   
   
-  data_read_reproducible <- paste0("ok.data <- data.frame(read_xls('", 
-                                   input$dataFile$name, "', ",
-                                   "col_names = '", the.header, 
-                                   "', range ='", the.range, 
-                                   "', sheet = '", the.sheet, 
-                                   "', trim_ws = '", the.trim_spaces, 
-                                   
-                                   "skip =", input_rows_to_skip_xls,
-                                   
-                                   ")\n")
+  data_read_reproducible <- paste0("ok.data <- data.frame(readxl::read_xls('", 
+                                   input_dataFile$name, "', ",
+                                   "col_names = ", the.header, ", ",
+                                   if (! is.null(the.range)) {
+                                     paste0("range = '", the.range, "', ")
+                                   },
+                                   if (! is.null(the.sheet)) {
+                                     paste0("sheet = '", the.sheet, "', ")
+                                   },
+                                   "trim_ws = ", the.trim_spaces, ", ",
+                                   "skip = ", input_rows_to_skip_xls,
+                                   "))\n")
   
   
   
@@ -175,38 +169,36 @@ ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, i
 
 
 #' Import SPSS data
-#'based on read_spss
+#'based on haven::read_spss
 #' @param input_dataFile shiny-related dataFile object 
 #' @param input_dataFile_datapath datapath
 #'
 #' @return
 #'
 #' @examples
-ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath){
-  if (is.null((input_dataFile))){ 
-    return(NULL)
-  }
-  library(haven)
-  the.spss.encoding <- NULL
+ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath, input_skip_spss){
+  if (is.null((input_dataFile))) return(NULL)
+
+  data_read_reproducible <- paste0("ok.data <- data.frame(haven::read_spss('", 
+                                   input_dataFile$name, "', skip = ", 
+                                   input_skip_spss, "))\n")
   
-  
-  data_read_reproducible <- paste0("ok.data <- data.frame(read_spss('", 
-                                   input$dataFile$name, "'",
-                                   
-                                   ")\n")
-  
-  
-  data <- try(data.frame(haven::read_spss(file = input_dataFile_datapath))) #<- encoding as an argument cannot be matched for some reason
+  data <- try(data.frame(haven::read_spss(file = input_dataFile_datapath, 
+                                          skip= input_skip_spss))) 
+  data <- data.frame(lapply(data, function(x) {
+    attr(x, "format.spss") <- NULL
+    if ("haven_labelled" %in% class(x)) 
+      x <- haven:::as_factor.haven_labelled(x, levels= "labels")
+    x
+  }))
   if(class(data) == "try-error") return(NULL)
   return(list(data, data_read_reproducible))
   
 }
 
 
-
-
 #' Import Stata data
-#' bvased on read.dta
+#' based on haven::read.dta
 #' @param input_dataFile   shiny-related dataFile object 
 #' @param input_dataFile_datapath datapath
 #'
@@ -218,43 +210,32 @@ ok.data.function.stata <- function(input_dataFile, input_dataFile_datapath){
     return(NULL)
   }
   
-  data_read_reproducible <- paste0("ok.data <- data.frame(read.dta('", 
-                                   input$dataFile$name, "'",
-                                   ")\n")
-  
-  
-  data <- try(data.frame(haven::read.dta(file = input_dataFile_datapath)))
+  data_read_reproducible <- paste0("ok.data <- data.frame(foreign::read.dta('", 
+                                   input_dataFile$name, "'))\n")
+
+  data <- try(data.frame(foreign::read.dta(file = input_dataFile_datapath)))
   if(class(data) == "try-error") return(NULL)
   return(list(data, data_read_reproducible))
-  
-  
-  
 }
 
 
 #' Import SAS data
-#'based on read_sas
+#'based on haven::read_sas
 #' @param input_dataFile 
 #' @param input_dataFile_datapath 
 #' @return
 #'
 #' @examples
 ok.data.function.sas.data <- function(input_dataFile, input_dataFile_datapath ){
-                                     
-  if (is.null((input_dataFile))){ 
-    return(NULL)
-  }
-    
+  if (is.null((input_dataFile))) return(NULL)
   
-    data_read_reproducible <- paste0("ok.data <- data.frame(read_sas('", 
-                                   input$dataFile$name, "'",
-                                   ")\n")
+  data_read_reproducible <- paste0("ok.data <- data.frame(haven::read_sas('", 
+                                   input_dataFile$name, "'))\n")
   
-    
-    data <- try(data.frame(haven::read_sas(data_file = input_dataFile_datapath)))
-    if(class(data) == "try-error") return(NULL)
-    return(list(data, data_read_reproducible))
+  data <- try(data.frame(haven::read_sas(data_file = input_dataFile_datapath)))
+  if(class(data) == "try-error") return(NULL)
   
+  return(list(data, data_read_reproducible))
 }
 
 

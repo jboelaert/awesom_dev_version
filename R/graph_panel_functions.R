@@ -92,12 +92,12 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
           normValues <- unname(lapply(split(normDat, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(colMedian(x))
+                                        unname(apply(x, 2, median))
                                       }))
           realValues <- unname(lapply(split(data, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(round(colMedian(x), 3)) #is this what is supposed to be edited to pass other data?
+                                        unname(round(apply(x, 2, median), 3)) #is this what is supposed to be edited to pass other data?
                                       }))
         }
         
@@ -116,7 +116,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
         realValues <- do.call(rbind, lapply(split(data, clustering), 
                                             function(x) {
                                               if (!nrow(x)) return(rep(NA, nvar))
-                                              unname(round(colMeans(x), 3)) # matrixStats for colMedians
+                                              unname(round(colMeans(x), 3))
                                             }))
         normValues <- apply(realValues, 2, function(x) 
           .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
@@ -128,7 +128,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
           realValues <- do.call(rbind, lapply(split(data, clustering), 
                                               function(x) {
                                                 if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(colMedian(x), 3)) # matrixStats for colMedians
+                                                unname(round(apply(x, 2, median), 3))
                                               }))
           normValues <- apply(realValues, 2, function(x) 
             .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
@@ -171,12 +171,12 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
           normValues <- unname(lapply(split(normDat, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(col_median(x))
+                                        unname(apply(x, 2, median))
                                       }))
           realValues <- do.call(rbind, lapply(split(data, clustering), 
                                               function(x) {
                                                 if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(col_median(x), 3))
+                                                unname(round(apply(x, 2, median), 3))
                                               }))
         }
         
@@ -320,20 +320,6 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
 
 
 
-
-col_median <- function(data){
-  medians <- c()
-  for(index in seq(1,ncol(data))){
-    medians <- append(medians, median(iris[,index]))
-
-
-}
- return(medians) 
-  
-}
-
-
-
 #' Generate R-based legend
 #'
 #' @param plot.data 
@@ -392,7 +378,7 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
     data <- NULL
   } 
   
-  else if (input$graphType %in% c("Names")) {
+  else if (input_graphType %in% c("Names")) {
     plotVar <- NULL
     data <- as.character(plot.data[, input_plotVarOne])
   } 
@@ -509,14 +495,19 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' @export
 #'
 #' @examples
-aweSOMscreeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
-  ## TODO : adapt for PAM
-  
+aweSOMscreeplot <- function(ok.som, nclass= 2, method= hierarchical, hmethod= "ward.D2"){
   if (is.null(ok.som)) return()
+  
+  if (method == "hierarchical")
+    ok.hclust <- hclust(dist(ok.som$codes[[1]]), hmethod)
+  
   ncells <- nrow(ok.som$codes[[1]])
-  nvalues <- max(input_kohSuperclass, min(ncells, max(ceiling(sqrt(ncells)), 10)))
+  nvalues <- max(nclass, min(ncells, max(ceiling(sqrt(ncells)), 10)))
   clust.var <- sapply(1:nvalues, function(k) {
-    clust <- cutree(ok.hclust, k)
+    if (method == "hierarchical") {
+      clust <- cutree(ok.hclust, k)
+    } else if (method == "pam") 
+      clust <- cluster::pam(ok.som$codes[[1]], k)$clustering
     clust.means <- do.call(rbind, by(ok.som$codes[[1]], clust, colMeans))[clust, ]
     mean(rowSums((ok.som$codes[[1]] - clust.means)^2))
   })
@@ -525,7 +516,7 @@ aweSOMscreeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
   plot(unexpl, t= "b", ylim= c(0, 100),
        xlab= "Nb. Superclasses", ylab= "% Unexpl. Variance")
   grid()                      
-  abline(h= unexpl[input_kohSuperclass], col= 2)
+  abline(h= unexpl[nclass], col= 2)
   
 }
 
@@ -542,7 +533,7 @@ aweSOMscreeplot <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' @export
 #'
 #' @examples
-aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot, input_plotRevPal){
+aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot= "Set3", input_plotRevPal= F){
   if (is.null(ok.som)) return()
   
   values <- matrix(rowMeans(ok.dist$proto.data.dist.neigh, na.rm= T), 
@@ -562,38 +553,38 @@ aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot, input_plotRevPal){
 #' Abstraction plot
 #'
 #' @param ok.som 
-#' @param ok.traindat 
-#' @param input_plotAbstrCutoff 
-#' @param input_palplot 
-#' @param input_plotRevPal 
+#' @param dat 
+#' @param cutoff 
+#' @param pal 
+#' @param reversePal 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_palplot, input_plotRevPal){
+aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F){
   if (is.null(ok.som)) return()
   
   somcodes <- ok.som$codes[[1]]
-  nsomvars <- ncol(somcodes)
+  nsomvars <- ncol(somcodes) * 2
   nsomnodes <- nrow(somcodes)
   gridpoints <- ok.som$grid$pts
   
   nodeweights <- apply(somcodes, 2, function(x) {
-    y <- (x - min(x)) / (max(x) - min(x))
-    y^2 / sum(y^2)
-    # exp(3 * y) / sum(exp(3 * y))
-  })
+      y <- (x - min(x)) / (max(x) - min(x))
+      y^2 / sum(y^2)
+    })
+
   varcoords <- t(nodeweights) %*% gridpoints
   
   adjweights <- aggregate(.~somcell, FUN = function(x) sum(x - min(0, min(x))),
                           na.action= na.pass,
-                          data.frame(ok.traindat$dat, 
+                          data.frame(dat, 
                                      somcell= ok.som$unit.classif))
   if (any(! 1:nrow(gridpoints) %in% ok.som$unit.classif)) {
     losers <- which(!(1:nrow(gridpoints) %in% ok.som$unit.classif))
     for (ilose in losers) {
-      darow <- as.data.frame(t(c(ilose, rep(0, ncol(ok.traindat$dat)))))
+      darow <- as.data.frame(t(c(ilose, rep(0, ncol(dat)))))
       colnames(darow) <- colnames(adjweights)
       if (ilose == 1) {
         adjweights <- rbind(darow, adjweights)
@@ -606,7 +597,7 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
   adjweights <- as.matrix(apply(adjweights[, -1], 2, function(y) y^2 / sum(y^2)))
   adjcoords <- t(adjweights) %*% gridpoints
   adjweightscut <- adjweights
-  adjweightscut[adjweights < input_plotAbstrCutoff] <- 0
+  adjweightscut[adjweights < cutoff] <- 0
   
   vargraph <- igraph::graph_from_adjacency_matrix(crossprod(nodeweights),
                                                   "undirected", diag= F, weighted= T)
@@ -614,15 +605,13 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
   varclust <- sapply(colnames(nodeweights),
                      function(x) for (i in 1:length(vargraph.louvain))
                        if (x %in% vargraph.louvain[[i]]) return(i))
-  dacolors <- unlist(getPalette(input_palplot, length(unique(varclust)), input_plotRevPal)[varclust])
+  dacolors <- unlist(getPalette(pal, length(unique(varclust)), reversePal)[varclust])
   
-  
-  #ggplot scheme to generate the code
   
   gg <- ggplot2::ggplot(data.frame(as.data.frame(gridpoints),
                                    pop= as.vector(table(factor(ok.som$unit.classif,
                                                                levels = 1:nsomnodes)))),
-                        ggplot2::aes(x, y)) + ggplot2::scale_y_reverse() +
+                        ggplot2::aes(x, y)) +
     ggplot2::theme_void() + 
     ggforce::geom_circle(ggplot2::aes(r= .1 + .4 * (sqrt(pop) - min(sqrt(pop))) / (max(sqrt(pop)) - min(sqrt(pop))), 
                                       x0= x, y0= y), fill= "white", 
@@ -647,7 +636,7 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
                               data= data.frame(adjcoords, dacolors,
                                                activite= rownames(adjcoords),
                                                taille= 2* (1 - colSums(adjweights^2)))) +
-    ggplot2::coord_fixed()
+    ggplot2::coord_fixed() 
   print(gg)
 }
 
@@ -656,30 +645,19 @@ plot.abstraction <- function(ok.som, ok.traindat, input_plotAbstrCutoff, input_p
 
 
 
-#' Silhouette plot for PAM clustering
+#' Silhouette plot
 #'
 #' @param ok.som 
-#' @param ok.pam_clust 
-#' @param input_sup_clust_method 
+#' @param ok.sc
 #'
 #' @return
 #' @export
 #'
 #' @examples
-plot.pam_silhouette <- function(ok.som, ok.pam_clust, input_sup_clust_method){
+aweSOMsilhouette <- function(ok.som, ok.sc){
   if (is.null(ok.som)) return()
-  
-  
-  #browser()
-  #since the silhouette only works out for pam
-  if(input_sup_clust_method == "hierarchical") return()
-  
-  
-
-  fviz_silhouette(ok.pam_clust, palette = "jco",
-                  ggtheme = theme_classic(), title="PAM-Clusters")
-  
-  
+  cluster:::plot.silhouette(cluster::silhouette(ok.sc, dist(ok.som$codes[[1]])), 
+       main= "Silhouette of Cell Superclasses")
 }
 
 
@@ -784,13 +762,15 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
   htmlwidgets::createWidget("aweSOMwidget", plotParams, width = width, height = height, package = "aweSOM")
 }
 
-aweSOMplot <- function(ok.som, ok.sc, ok.data, ok.trainrows, 
+aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL, 
                        graphType= "Hitmap", 
                        plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
                        plotOutliers= T, plotEqualSize= F,
                        contrast= "contrast", average_format= "mean",
                        plotSize= 100, 
                        palsc= "Set3", palplot= "viridis", plotRevPal= F) {
+  ok.trainrows <- rep(T, nrow(ok.data))
+  if (length(omitRows) > 0) ok.trainrows[omitRows] <- F
   
 
   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 

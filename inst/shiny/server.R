@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
         input_encoding = input$encoding, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "excel_xlsx"){
-      imported_file <-  aweSOM:::ok.data.function.excel_xlsx(
+      imported_file_object <-  aweSOM:::ok.data.function.excel_xlsx(
         input_dataFile = input$dataFile, input_column_names = input$column_names, 
         input_trim_spaces = input$trim_spaces, 
         input_range_specified_bol = input$range_specified_bol, 
@@ -74,7 +74,8 @@ shinyServer(function(input, output, session) {
     } else if(input$file_type == "spss"){
       imported_file_object <- aweSOM:::ok.data.function.spss(
         input_dataFile = input$dataFile, 
-        input_dataFile_datapath = input$dataFile$datapath)
+        input_dataFile_datapath = input$dataFile$datapath, 
+        input_skip_spss = input$skip_spss)
     } else if(input$file_type == "stata"){
       imported_file_object <- aweSOM:::ok.data.function.stata(
         input_dataFile = input$dataFile, 
@@ -123,7 +124,7 @@ shinyServer(function(input, output, session) {
       widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
                                  ok.sc= ok.sc(), 
                                  ok.data= ok.data(), 
-                                 ok.trainrows= ok.trainrows(), 
+                                 omitRows= which(!ok.trainrows()), 
                                  graphType= input$graphType, 
                                  plotNames= input$plotNames, 
                                  plotVarMult= input$plotVarMult, 
@@ -468,12 +469,27 @@ shinyServer(function(input, output, session) {
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
-                                  "aweSOM::aweSOMscreeplot(ok.som, superclust, ", 
-                                  input$kohSuperclass, ")\n")
-    aweSOMscreeplot(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+                                  "aweSOM::aweSOMscreeplot(ok.som, method = '", 
+                                  input$sup_clust_method, "', ", 
+                                  if (input$sup_clust_method == "hierarchical") {
+                                    paste0("hmethod = '", input$sup_clust_hcmethod, "', ")
+                                  },
+                                  "nclass = ", input$kohSuperclass, ")\n")
+    aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
   },
   width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
+  
+
+  ## Silhouette plot
+  output$plotSilhouette <- renderPlot({
+    values$codetxt$plot <- paste0("\n## Plot superclasses silhouette plot\n", 
+                                  "aweSOM::aweSOMsilhouette(ok.som, superclass)\n")
+    aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
+  },
+  width = reactive({input$plotSize + 500}),
+  height = reactive({input$plotSize + 500}))
+  
   
   ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
@@ -486,144 +502,76 @@ shinyServer(function(input, output, session) {
     },
   width = reactive({(input$plotSize + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
   height = reactive({input$plotSize + 500 }))
-
+  
+  ## warning for smooth distance hex based plot
+  output$smooth_dist_warning <- renderText({
+    if(input$kohTopo == "hexagonal"){ 
+      
+      return("This might be a biased version since the topology of a hexagonal grid cannnot be account
+          for within this plot") 
+    }
+  })
+  
+  
   ## Abstraction plot
   output$plotAbstraction <-renderPlot({
-    plot.abstraction(ok.som = ok.som(), ok.traindat = ok.traindat(),
-                     input_plotAbstrCutoff = input$plotAbstrCutoff,
-                     input_palplot = input$palplot,
-                     input_plotRevPal = input$plotRevPal)
+    values$codetxt$plot <- paste0("\n## Plot Abstraction plot (experimental)\n", 
+                                  "aweSOM::aweSOMabstraction(ok.som, dat, ",
+                                  "cutoff = ", input$plotAbstrCutoff, ", ", 
+                                  "pal = '", input$palplot, "', ",
+                                  "reversePal = ", input$plotRevPal, ")\n")
+    
+    aweSOMabstraction(ok.som = ok.som(), dat = ok.traindat()$dat,
+                      cutoff = input$plotAbstrCutoff,
+                      pal = input$palplot,
+                      reversePal = input$plotRevPal)
   },
   width = reactive({input$plotSize + 500}),
   height = reactive({input$plotSize + 500}))
   
   
   
-  ## R-Based legend
-  
-  output$theLegend <- renderPlot({
-    
-    
-    if (is.null(ok.som()) | !(input$graphType %in% c("Radar",
-                                                             "Camembert", "CatBarplot",
-                                                             "Barplot", "Boxplot",
-                                                             "Color", "Star",
-                                                            "Line",
-                                                             "Names", "UMatrix")))
-      return(NULL) # si on n'a pas calculé, on donne NULL à JS
-
-    plot.data <- isolate(ok.data()[ok.trainrows(), ])
-    if(is.null(plot.data)) return(NULL)
-    
-    # Obs names per cell for message box
-    if (is.null(input$plotNames)){
-      return(NULL)
-    }
-
-    aweSOM:::the.legend.function(plot.data = plot.data, 
-                                 input_plotNames = input$plotNames, ok.clust = ok.clust(), 
-                                 input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
-                                 input_plotVarOne = input$plotVarOne,
-                                 ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
-                                 input_contrast = input$contrast, input_average_format = input$average_format, 
-                                 ok.sc = ok.sc(),
-                                 input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
-                                 input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
-  },
-  width = reactive({input$plotSize + 900}))
-  
-  
-  
-  # ## Fancy JS Plots
-  # output$thePlot <- reactive({
-  #   if (is.null(ok.som()) | !(input$graphType %in% c("Radar", 
-  #                                                    "Camembert", "CatBarplot",
-  #                                                    "Barplot", "Boxplot", 
-  #                                                    "Color", "Star", 
-  #                                                    "Hitmap", "Line", 
-  #                                                    "Names", "UMatrix")))
-  #     return(NULL) # si on n'a pas calculé, on donne NULL à JS
-  # 
-  #   plot.data <- isolate(ok.data()[ok.trainrows(), ])
-  #   if(is.null(plot.data)) return(NULL)
-  #   # Obs names per cell for message box
-  #   if (is.null(input$plotNames)){
-  #     return(NULL)
-  #     
-  #   } 
-  #   if (input$plotNames == "(rownames)") {
-  #     plotNames.var <- rownames(plot.data)
-  #   } 
-  #   else {
-  #     plotNames.var <- as.character(plot.data[, input$plotNames])
-  #   }
-  #   
-  #   cellNames <- unname(lapply(split(plotNames.var, ok.clust()), 
-  #                       function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
-  #   
-  #   if (input$graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
-  #     if (is.null(input$plotVarMult)) return(NULL)
-  #     plotVar <- input$plotVarMult
-  #     data <- plot.data[, plotVar]
-  #   } else if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
-  #     if (is.null(input$plotVarOne)) return(NULL)
-  #     plotVar <- input$plotVarOne
-  #     data <- plot.data[, plotVar]
-  #   } else if (input$graphType %in% c("Hitmap")) {
-  #     plotVar <- NULL
-  #     data <- NULL
-  #   } else if (input$graphType %in% c("Names")) {
-  #     plotVar <- NULL
-  #     data <- as.character(plot.data[, input$plotVarOne])
-  #   } else if (input$graphType == "UMatrix") {
-  #     plotVar <- NULL
-  #     proto.gridspace.dist <- as.matrix(dist(ok.som()$grid$pts))
-  #     proto.dataspace.dist <- as.matrix(dist(ok.som()$codes[[1]]))
-  #     proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
-  #     proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
-  #     data <- rowMeans(proto.dataspace.dist, na.rm= T)[ok.clust()]
-  #     plotVar <- "Mean distance to neighbours"
-  #   }
-  #   
-  #   options <- list(equalSize= input$plotEqualSize)
-  #   
-  # 
-  #   if(input$contrast == "contrast")  contrast <- "contrast"
-  #   else if(input$contrast == "range") contrast <- "range"
-  #   else if(input$contrast == "no_contrast") contrast <- "no_contrast" 
-  #   
-  #   the.average_format <- switch(input$average_format, "mean"= "mean", 
-  #                                "median"= "median", "prototypes"= "prototypes")
-  #   
-  #   graphType <- ifelse(input$graphType == "UMatrix", "Color", input$graphType)
-  #   
-  #   values$codetxt$plot <- paste0("\n## Plot interactive ** graph \n", 
-  #                                 "# aweSOM::aweSOMplot(the, arguments)")
-  # 
-  #   aweSOM:::getPlotParams(graphType, ok.som(), ok.sc(),  
-  #                          data, input$plotSize, plotVar, contrast,
-  #                          input$palsc, input$palplot, cellNames,
-  #                          input$plotOutliers, input$plotRevPal, options, 
-  #                          the.average_format)
-  # })
-  
-  
   ## Fancy JS plots through widget
   output$theWidget <- aweSOM:::renderaweSOM({
+    if (is.null(input$plotNames)) return(NULL) # Prevents error due to not-yet loaded UI element, for reproducible script
+    
+    ## Reproducible script for plot
     values$codetxt$plot <- paste0(
       "\n## Interactive plot\n", 
       "aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
-      "                   ok.trainrows = c(", paste(ok.trainrows(), collapse= ", "), "),\n", 
-      "                   graphType = '", input$graphType, 
-      "', plotNames = '", input$plotNames, "',\n",
-      "                   plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), 
-      "'), plotVarOne = '", input$plotVarOne, "',\n",
-      "                   plotEqualSize = ", input$plotEqualSize, 
-      ", contrast = '", input$contrast, "',\n",
-      "                   average_format = '", input$average_format,
-      "', plotSize = ", input$plotSize, ",\n",
-      "                   palsc = '", input$palsc, 
-      "', palplot = '", input$palplot, "', plotRevPal = ", input$plotRevPal, ")\n")
+      "                   graphType = '", input$graphType, "', \n", 
+      if(any(!ok.trainrows())) {
+        paste0("                   omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n")
+      }, 
+      if (input$plotNames != "(rownames)") {
+        paste0("                   plotNames = '", input$plotNames, "',\n")
+      },
+      if (input$graphType %in% c("Radar", "Barplot", "Boxplot", "Line", "Star")) {
+        paste0("                   plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
+      },
+      if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
+        paste0("                   plotVarOne = '", input$plotVarOne, "',\n")
+      },
+      if (input$graphType == "Camembert" && input$plotEqualSize) {
+        paste0("                   plotEqualSize = ", input$plotEqualSize, ",\n") 
+      },
+      if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$contrast != "contrast") {
+        paste0("                   contrast = '", input$contrast, "',\n")
+      },
+      if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$average_format != "mean") {
+        paste0("                   average_format = '", input$average_format, "',\n")
+      },
+      if (input$palsc != "Set3") {
+        paste0("                   palsc = '", input$palsc, "',\n")
+      },
+      if (input$palplot != "viridis") {
+        paste0("                   palplot = '", input$palplot, "',\n")
+      }, 
+      if (input$plotRevPal) {
+        paste0("                   plotRevPal = ", input$plotRevPal, ",\n")
+      },
+      "                   plotSize = ", input$plotSize, ")"
+    )
     
     aweSOM:::aweSOMwidget(ok.som= ok.som(), 
                           ok.sc= ok.sc(), 
@@ -643,23 +591,38 @@ shinyServer(function(input, output, session) {
                           plotRevPal= input$plotRevPal)
   })
   
+  ## R-Based legend
   
-  ## warning for smooth distance hex based plot
-  output$smooth_dist_warning <- renderText({
-    if(input$kohTopo == "hexagonal"){ 
-      
-      return("This might be a biased version since the topology of a hexagonal grid cannnot be account
-          for within this plot") 
-      }
-  })
-  
-  
-  
-  ## Visualize Silhouette Information from Clustering
-  output$pam_silhouette <- renderPlot({
-    plot.pam_silhouette(ok.som = ok.som(), ok.pam_clust = ok.pam_clust(), 
-                        input_sup_clust_method = input$sup_clust_method)
-  })
+  output$theLegend <- renderPlot({
+    
+    
+    if (is.null(ok.som()) | !(input$graphType %in% c("Radar",
+                                                     "Camembert", "CatBarplot",
+                                                     "Barplot", "Boxplot",
+                                                     "Color", "Star",
+                                                     "Line",
+                                                     "Names", "UMatrix")))
+      return(NULL) # si on n'a pas calculé, on donne NULL à JS
+    
+    plot.data <- isolate(ok.data()[ok.trainrows(), ])
+    if(is.null(plot.data)) return(NULL)
+    
+    # Obs names per cell for message box
+    if (is.null(input$plotNames)){
+      return(NULL)
+    }
+    
+    aweSOM:::the.legend.function(plot.data = plot.data, 
+                                 input_plotNames = input$plotNames, ok.clust = ok.clust(), 
+                                 input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
+                                 input_plotVarOne = input$plotVarOne,
+                                 ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
+                                 input_contrast = input$contrast, input_average_format = input$average_format, 
+                                 ok.sc = ok.sc(),
+                                 input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
+                                 input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
+  },
+  width = reactive({input$plotSize + 900}))
   
 
   # map cluster function -------------------------------------------------------------
@@ -752,8 +715,9 @@ shinyServer(function(input, output, session) {
   ## Panel "Reproducible code"
   #############################################################################
   
-  output$codeTxt <- renderText({
+  reprocode <- reactive({
     paste0("\n## Import Data\n", 
+           "# setwd('/path/to/datafile/directory') ## Uncomment this line and set the path to the datafile's directory\n",
            values$codetxt$dataread, 
            "\n## Build training data\n",
            values$codetxt_traindat$traindat, 
@@ -764,6 +728,12 @@ shinyServer(function(input, output, session) {
              "\n## Quality measures:\n",
              "aweSOM::somQuality(ok.som, dat)\n",
              values$codetxt$plot))
+  })
+  
+  output$codeTxt <- renderText(reprocode())
+  
+  output$copycode <- renderUI({
+    rclipboard::rclipButton("copycodebtn", "Copy to clipboard", reprocode())
   })
   
   

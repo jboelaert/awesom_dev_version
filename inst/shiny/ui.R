@@ -3,6 +3,8 @@
 
 ## Organisation de la page
 shinyUI(fluidPage(
+  rclipboard::rclipboardSetup(),
+  
   headerPanel(HTML("aweSOM")),
   
   tabsetPanel(
@@ -32,9 +34,9 @@ shinyUI(fluidPage(
                                       ".csv or .txt"  = "csv_txt",
                                       "Microsoft Excel .xlsx"  = "excel_xlsx",
                                       "Microsoft Excel .xls" = "excel_xls",
-                                      "SPSS FILE" = "spss",
+                                      "SPSS (.sav, .por)" = "spss",
                                       "SAS Data" = "sas_data",
-                                      "Stata" = "stata"),
+                                      "Stata (.dta)" = "stata"),
                                     selected = "csv_txt"
                                 ),
                         
@@ -106,7 +108,7 @@ shinyUI(fluidPage(
                         
                         
                         
-                        #for the xls excel files add
+                        ## Options for xls files
                         conditionalPanel("input.file_type == 'excel_xls'",
                                          
                                          
@@ -127,50 +129,34 @@ shinyUI(fluidPage(
                                                                         selected = TRUE ))),
                                          
                                          fluidRow(column(4, checkboxInput("worksheet_specified_bol_xls", "Specify Worksheet", F))),
-                                         conditionalPanel("input.worksheet_specified_bol",
+                                         conditionalPanel("input.worksheet_specified_bol_xls",
                                                           textInput("worksheet_specs_xls", NULL, "")
                                          ),
                                          
                                          
                                          fluidRow(column(4, checkboxInput("range_specified_bol_xls", "Specify Range", F))),
-                                         conditionalPanel("input.range_specified_bol",
+                                         conditionalPanel("input.range_specified_bol_xls",
                                                           textInput("range_specs_xls", NULL, "")
                                          )),
                         
-                        
-                        
-                        
-                        
-                        
-                        
-                        
+                        ## Options for SPSS files
                         conditionalPanel("input.file_type == 'spss'",
                                          ###specs and params here
-                                         #encoding, user_na, skip, n_max
+                                         ## Possible: encoding, user_na, skip, n_max
                                          fluidRow(column(4, p('Skip rows')), 
-                                                  column(8, numericInput('skip_spss', NULL, 0, min= 0))),
-                                         fluidRow(column(4, p('File Encoding')), 
-                                                  column(8, selectInput('encoding_spss', NULL, 
-                                                                        c("specified_in_file", "UTF-8"),
-                                                                        "specified_in_file")))),
+                                                  column(8, numericInput('skip_spss', NULL, 0, min= 0)))),
                                          
-                                         
-                                         
-                                         
-                       
-                        
-                        
-                        conditionalPanel("input.file_type == 'sas_data'",
-                                         ###specs and params here
-                                         
-                        ),
-                        
-                        
-                        
-                        conditionalPanel("input.file_type == 'stata'",
-                                         ###specs and params here
-                                         
-                        ),
+                        # ## Options for SAS files
+                        # conditionalPanel("input.file_type == 'sas_data'",
+                        #                  ###specs and params here
+                        #                  
+                        # ),
+                        # 
+                        # ## Options for Stata files
+                        # conditionalPanel("input.file_type == 'stata'",
+                        #                  ###specs and params here
+                        #                  
+                        # ),
                         )),
                column(8, 
                       uiOutput("dataImportMessage"), 
@@ -275,10 +261,10 @@ shinyUI(fluidPage(
                                                             choices= c("Population map"= "Hitmap",
                                                                        "Superclass Dendrogram"= "Dendrogram",
                                                                        "Superclass Scree plot"= "Screeplot",
-                                                                       "Silhouette"= "Silhouette",
+                                                                       "Superclass Silhouette"= "Silhouette",
                                                                        "Neighbour distance"= "UMatrix", 
                                                                        "Smooth distance"= "SmoothDist", 
-                                                                       "Abstraction"= "Abstraction"
+                                                                       "Abstraction (experimental)"= "Abstraction"
                                                             ), 
                                                             selected= "Hitmap"))),
                              
@@ -291,61 +277,66 @@ shinyUI(fluidPage(
                                                      'input.graphType == "Boxplot" | ', 
                                                      'input.graphType == "Star"'), 
                                               uiOutput("plotVarMult")),
-                             conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
+                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
                                               uiOutput("plotNames")),
                              checkboxInput("plotAdvanced", "Advanced options", F),
                              conditionalPanel("input.plotAdvanced", 
-                                              h4("Advanced options"),
                                               conditionalPanel(paste0('input.graphType == "CatBarplot" | ', 
                                                                       'input.graphType == "Radar" | ', 
                                                                       'input.graphType == "Line" | ', 
                                                                       'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "Boxplot" | ', 
                                                                       'input.graphType == "Color" | ', 
                                                                       'input.graphType == "UMatrix" | ', 
                                                                       'input.graphType == "Star"'), 
-                                                               
-                                                               
-                                              fluidRow(#column(4, checkboxInput("contrast", "Enhanced contrast", value= T)),
-                                                       column(4, selectInput("contrast", NULL,
-                                                                             choices = c("contrast" = "contrast",
-                                                                                         "range" = "range",
-                                                                                         "no_contrast" = "no_contrast"),
-                                                                             selected = "contrast")),
-                                                       
-                                                       
-                                                       column(4, actionButton("help_message_2", "", icon = icon("question"), width = NULL)))),     
+                                                               fluidRow(
+                                                                 column(4, p("Variables scales")),
+                                                                 column(7, selectInput("contrast", NULL,
+                                                                                       choices = c("Contrast" = "contrast",
+                                                                                                   "Observations Range" = "range",
+                                                                                                   "Same scale" = "no_contrast"),
+                                                                                       selected = "contrast")),
+                                                                 column(1, actionButton("help_contrast", "", icon = icon("question"), width = NULL)))), 
                                               
-                                              
-                                              fluidRow(column(8, selectInput("average_format", NULL, 
-                                                                             choices = c("mean" = "mean",
-                                                                                         "median" = "median",
-                                                                                         "prototypes" = "prototypes"),
-                                                                             selected = "mean"))),
-                                                    
-                                              
-                                              
-                                              
-                                              
-                                              
+                                              conditionalPanel(paste0('input.graphType == "Radar" | ', 
+                                                                      'input.graphType == "Line" | ', 
+                                                                      'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "Color" | ', 
+                                                                      'input.graphType == "Star"'), 
+                                                               fluidRow(
+                                                                 column(4, p("Values")),
+                                                                 column(7, selectInput("average_format", NULL, 
+                                                                                       choices = c("Observation means" = "mean",
+                                                                                                   "Observation medians" = "median",
+                                                                                                   "Prototypes" = "prototypes"),
+                                                                                       selected = "mean")), 
+                                                                 column(1, actionButton("help_average_format", "", icon = icon("question"), width = NULL)))),
+
                                               conditionalPanel('input.graphType == "Boxplot"', 
                                                                checkboxInput("plotOutliers", "Plot outliers", value= T)),
-                                              conditionalPanel('input.graphType != "Color" & input.graphType != "UMatrix" & input.graphType != "SmoothDist"', 
+                                              
+                                              conditionalPanel('input.graphType == "Camembert"', 
+                                                               checkboxInput("plotEqualSize", "Equal pie sizes", F)), 
+                                              
+                                              conditionalPanel('input.graphType == "Abstraction"', 
+                                                               numericInput("plotAbstrCutoff", "Links cut-off", 
+                                                                            min= 0, max= 1, step = .01, value= 0)),
+                                              
+                                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "Color" & input.graphType != "UMatrix" & input.graphType != "SmoothDist"', 
                                                                fluidRow(column(4, p("Superclass palette")),
                                                                         column(8, selectInput("palsc", NULL, 
                                                                            c("viridis", "grey", "rainbow", "heat", "terrain", 
                                                                              "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
-                                                                           "Set3")))),
-                                              fluidRow(column(4, p("Plots palette")),
-                                                       column(8,selectInput("palplot", NULL, 
-                                                          c("viridis", "grey", "rainbow", "heat", "terrain", 
-                                                            "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
-                                                          "viridis"))), 
-                                              checkboxInput("plotRevPal", "Reverse palette"), 
-                                              conditionalPanel('input.graphType == "Camembert"', 
-                                                               checkboxInput("plotEqualSize", "Equal pie sizes", F)), 
-                                              conditionalPanel('input.graphType == "Abstraction"', 
-                                                               numericInput("plotAbstrCutoff", "Links cut-off", 
-                                                                            min= 0, max= 1, step = .01, value= 0))),
+                                                                           "Set3")))), 
+                                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot"', 
+                                                               fluidRow(column(4, p("Plots palette")),
+                                                                        column(8,selectInput("palplot", NULL, 
+                                                                                             c("viridis", "grey", "rainbow", "heat", "terrain", 
+                                                                                               "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
+                                                                                             "viridis"))), 
+                                                               checkboxInput("plotRevPal", "Reverse palette"))
+                                              ),
+                             
                              fluidRow(column(4, h4("Plot size:")), 
                                       column(8, sliderInput("plotSize", NULL, 10, 1000, value= 100))),
                              hr(),
@@ -375,24 +366,16 @@ shinyUI(fluidPage(
                                               plotOutput("plotDendrogram")),
                              conditionalPanel('input.graphType == "Screeplot"', 
                                               plotOutput("plotScreeplot")),
+                             conditionalPanel('input.graphType == "Silhouette"', 
+                                              plotOutput("plotSilhouette")),
                              conditionalPanel('input.graphType == "SmoothDist"',
-                                              #maybe here insert the hex-based grid warning
                                               uiOutput("smooth_dist_warning"),
                                               plotOutput("plotSmoothDist")),
                              conditionalPanel('input.graphType == "Abstraction"', 
                                               plotOutput("plotAbstraction")),
-                             conditionalPanel('input.graphType == "Silhouette"', 
-                                              plotOutput("pam_silhouette")),
-                             
-                             
-                             
-                             
-                             
-                             
-                                              # plotly::plotlyOutput("plotAbstraction")),
                              
                              #for all other JS based plots refer to graphs.html
-                             conditionalPanel('input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
+                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
                                               # HTML('<a id="downloadLink">Download Image</a>'),
                                               HTML('<img id="fromcanvasPlot" />'),
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
@@ -409,9 +392,7 @@ shinyUI(fluidPage(
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
                                               #HTML('<br />'),
                                               plotOutput("theLegend")
-                                              
-                                              
-                                              
+
                                               )
                              ))), 
     tabPanel("Clustered data", 
@@ -430,9 +411,10 @@ shinyUI(fluidPage(
                column(8, DT::dataTableOutput("clustTable")))),
     
     tabPanel("Reproducible Scripts",
-             verbatimTextOutput("codeTxt"),
-             downloadButton("report", "Generate as Markdown")
-             )
+             fluidRow(column(6, h4("Run this script in R to reproduce the results.")),
+                      column(3, uiOutput("copycode")), 
+                      column(3, downloadButton("report", "Save html report"))),
+             verbatimTextOutput("codeTxt"))
     
     
   )

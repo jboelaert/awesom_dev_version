@@ -662,9 +662,6 @@ HTMLWidgets.widget({
     return {
            renderValue: function(data) {
 
-console.log("Enter aweSOMwidget\n");
-
-
     document.getElementById("cell-info").style.textAlign = "center";
     document.getElementById("plot-message").style.textAlign = "center";
 
@@ -1094,8 +1091,8 @@ console.log("Enter aweSOMwidget\n");
     				y: n * cellSize,
     				fill: function(d, i) {
               return colorNormalizedValues[(n*nbColumns)+i];
-    				}//, get rid of the color dividing the maps
-    				//stroke: '#FDBB30'
+    				}, 
+    				stroke: '#FFFFFF'
     			});
       		if(activate){ // Superclass numbers on cells for Color plot
       			rows.append("text")
@@ -1157,7 +1154,7 @@ console.log("Enter aweSOMwidget\n");
     						var indice = superclass[(n*nbColumns)+i]; 
     						return superclassColor[indice-1];
     					},
-    					stroke: '#FDBB30'
+    					stroke: '#FFFFFF'
     				});
     			var inside = svg.selectAll('rect' + ' .row-' + (n + 1)) //to this object add the mouseover effect
     				.data(d3.range(nbColumns))
@@ -1205,6 +1202,28 @@ console.log("Enter aweSOMwidget\n");
     					.duration(1000)
     					.style("fill-opacity", 1);
     			});
+    			
+    			inside.on('mouseover', function (d, i) {
+      			var el = d3.select(this)
+      				.transition()
+      				.duration(10)
+      				.style("fill-opacity", 0.8);
+      			d3.select('#cell-info').text(function () {
+      				return 'Cell ' + (1+ ((nbRows-n-1)*nbColumns) + i) + ', Superclass ' + //fixed
+      				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
+      				});
+      			d3.select('#plot-names').text(function () {
+      				return cellNames[(n*nbColumns)+i];
+      				});
+        		});
+        		
+        		inside.on('mouseout', function (d, i) {
+      			var el = d3.select(this)
+      				.transition()
+      				.duration(1000)
+      				.style("fill-opacity", 1);
+        		});
+
     		});
 
       } else if (plotType.localeCompare("Line")==0) {
@@ -1232,7 +1251,7 @@ console.log("Enter aweSOMwidget\n");
     						var indice = superclass[(n*nbColumns)+i];
     						return superclassColor[indice-1];
     					},
-    					stroke: '#FDBB30'
+    					stroke: '#FFFFFF'
     				});
 
     			var points = svg.selectAll('rect' + ' .row-' + (n + 1))
@@ -1387,7 +1406,7 @@ console.log("Enter aweSOMwidget\n");
     					var indice = superclass[(n*nbColumns)+i];
     					return superclassColor[indice-1];
     				},
-    				stroke: '#FDBB30'
+    				stroke: '#FFFFFF'
     			});
 
           // Global mouse events
@@ -2027,37 +2046,6 @@ console.log("Enter aweSOMwidget\n");
 
 
         inner_hex.on('mouseover', function (d, i) {
-          var el_enter_ins = el_enter
-           .transition()
-           .duration(10)
-           .style("fill-opacity", 0.5);
-
-        })
-
-
-        inner_hex.on('mouseout', function (d, i) {
-          var el_enter_ins = el_enter
-           .transition()
-           .duration(10)
-           .style("fill-opacity", 1);
-
-        })
-
-
-    		hexa.on('mouseover', function (d, i) {
-
-
-
-           el_enter = d3.select(this);
-
-
-           el_enter
-    				.transition()
-    				.duration(10)
-    				.style("fill-opacity", 0.5);
-
-
-          //from here copy these to the inner_hex on functions (Julien) --> Same for square hitmpa
     			d3.select('#cell-info').text(function () {
     				var ch = 'Cell ' + parseInt(i+1,10) + ', Superclass ' +
               superclass[i] + ', N= ' + cellPop[i];
@@ -2066,17 +2054,45 @@ console.log("Enter aweSOMwidget\n");
     			d3.select('#plot-names').text(function () {
     				return cellNames[i];
   				});
+
+          el_enter = d3.select(this);
+          var el_enter_ins = el_enter
+           .transition()
+           .duration(10)
+           .style("fill-opacity", 0.8);
+        })
+
+        inner_hex.on('mouseout', function (d, i) {
+          el_enter = d3.select(this);
+          var el_enter_ins = el_enter
+           .transition()
+           .duration(1000)
+           .style("fill-opacity", 1);
+        })
+
+
+    		hexa.on('mouseover', function (d, i) {
+    			d3.select('#cell-info').text(function () {
+    				var ch = 'Cell ' + parseInt(i+1,10) + ', Superclass ' +
+              superclass[i] + ', N= ' + cellPop[i];
+    				return ch;
+    			});
+    			d3.select('#plot-names').text(function () {
+    				return cellNames[i];
+  				});
+  				
+           el_enter = d3.select(this)
+    				.transition()
+    				.duration(10)
+    				.style("fill-opacity", 0.5);
+    				
     		});
     		hexa.on('mouseout', function (d, i) {
-          //console.log(el_enter);
     			var el = d3.select(this)
     				.transition()
     				.duration(1000)
     				.style("fill-opacity", 1);
     		});
-
-
-
 
 
 
