@@ -610,22 +610,44 @@ shinyServer(function(input, output, session) {
   
   ## Fancy JS plots through widget
   output$theWidget <- aweSOM:::renderaweSOM({
+    
+    ## Reproducible script for plot
     values$codetxt$plot <- paste0(
       "\n## Interactive plot\n", 
       "aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
-      ifelse(any(!ok.trainrows()), 
-             paste0("                   omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n"), 
-             ""),
-      "                   graphType = '", input$graphType, 
-      "', plotNames = '", input$plotNames, "',\n",
-      "                   plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), 
-      "'), plotVarOne = '", input$plotVarOne, "',\n",
-      "                   plotEqualSize = ", input$plotEqualSize, 
-      ", contrast = '", input$contrast, "',\n",
-      "                   average_format = '", input$average_format,
-      "', plotSize = ", input$plotSize, ",\n",
-      "                   palsc = '", input$palsc, 
-      "', palplot = '", input$palplot, "', plotRevPal = ", input$plotRevPal, ")\n")
+      "                   graphType = '", input$graphType, "', \n", 
+      if(any(!ok.trainrows())) {
+        paste0("                   omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n")
+      }, 
+      if (input$plotNames != "(rownames)") {
+        paste0("                   plotNames = '", input$plotNames, "',\n")
+      },
+      if (input$graphType %in% c("Radar", "Barplot", "Boxplot", "Line", "Star")) {
+        paste0("                   plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
+      },
+      if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
+        paste0("                   plotVarOne = '", input$plotVarOne, "',\n")
+      },
+      if (input$graphType == "Camembert" && input$plotEqualSize) {
+        paste0("                   plotEqualSize = ", input$plotEqualSize, ",\n") 
+      },
+      if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$contrast != "contrast") {
+        paste0("                   contrast = '", input$contrast, "',\n")
+      },
+      if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$average_format != "mean") {
+        paste0("                   average_format = '", input$average_format, "',\n")
+      },
+      if (input$palsc != "Set3") {
+        paste0("                   palsc = '", input$palsc, "',\n")
+      },
+      if (input$palplot != "viridis") {
+        paste0("                   palplot = '", input$palplot, "',\n")
+      }, 
+      if (input$plotRevPal) {
+        paste0("                   plotRevPal = ", input$plotRevPal, ",\n")
+      },
+      "                   plotSize = ", input$plotSize, ")"
+    )
     
     aweSOM:::aweSOMwidget(ok.som= ok.som(), 
                           ok.sc= ok.sc(), 

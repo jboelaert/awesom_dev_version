@@ -302,20 +302,21 @@ shinyUI(fluidPage(
                                                                       'input.graphType == "Radar" | ', 
                                                                       'input.graphType == "Line" | ', 
                                                                       'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "Boxplot" | ', 
                                                                       'input.graphType == "Color" | ', 
                                                                       'input.graphType == "UMatrix" | ', 
                                                                       'input.graphType == "Star"'), 
                                                                
                                                                
-                                              fluidRow(#column(4, checkboxInput("contrast", "Enhanced contrast", value= T)),
-                                                       column(4, selectInput("contrast", NULL,
-                                                                             choices = c("contrast" = "contrast",
-                                                                                         "range" = "range",
-                                                                                         "no_contrast" = "no_contrast"),
-                                                                             selected = "contrast")),
-                                                       
-                                                       
-                                                       column(4, actionButton("help_message_2", "", icon = icon("question"), width = NULL)))),     
+                                                               fluidRow(#column(4, checkboxInput("contrast", "Enhanced contrast", value= T)),
+                                                                 column(4, selectInput("contrast", NULL,
+                                                                                       choices = c("contrast" = "contrast",
+                                                                                                   "range" = "range",
+                                                                                                   "no_contrast" = "no_contrast"),
+                                                                                       selected = "contrast")),
+                                                                 
+                                                                 
+                                                                 column(4, actionButton("help_message_2", "", icon = icon("question"), width = NULL)))),     
                                               
                                               
                                               fluidRow(column(8, selectInput("average_format", NULL, 
@@ -323,7 +324,7 @@ shinyUI(fluidPage(
                                                                                          "median" = "median",
                                                                                          "prototypes" = "prototypes"),
                                                                              selected = "mean"))),
-                                                    
+                                              
                                               
                                               
                                               
