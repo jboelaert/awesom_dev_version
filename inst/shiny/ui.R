@@ -34,9 +34,9 @@ shinyUI(fluidPage(
                                       ".csv or .txt"  = "csv_txt",
                                       "Microsoft Excel .xlsx"  = "excel_xlsx",
                                       "Microsoft Excel .xls" = "excel_xls",
-                                      "SPSS FILE" = "spss",
+                                      "SPSS (.sav, .por)" = "spss",
                                       "SAS Data" = "sas_data",
-                                      "Stata" = "stata"),
+                                      "Stata (.dta)" = "stata"),
                                     selected = "csv_txt"
                                 ),
                         
@@ -108,7 +108,7 @@ shinyUI(fluidPage(
                         
                         
                         
-                        #for the xls excel files add
+                        ## Options for xls files
                         conditionalPanel("input.file_type == 'excel_xls'",
                                          
                                          
@@ -139,40 +139,24 @@ shinyUI(fluidPage(
                                                           textInput("range_specs_xls", NULL, "")
                                          )),
                         
-                        
-                        
-                        
-                        
-                        
-                        
-                        
+                        ## Options for SPSS files
                         conditionalPanel("input.file_type == 'spss'",
                                          ###specs and params here
-                                         #encoding, user_na, skip, n_max
+                                         ## Possible: encoding, user_na, skip, n_max
                                          fluidRow(column(4, p('Skip rows')), 
-                                                  column(8, numericInput('skip_spss', NULL, 0, min= 0))),
-                                         fluidRow(column(4, p('File Encoding')), 
-                                                  column(8, selectInput('encoding_spss', NULL, 
-                                                                        c("specified_in_file", "UTF-8"),
-                                                                        "specified_in_file")))),
+                                                  column(8, numericInput('skip_spss', NULL, 0, min= 0)))),
                                          
-                                         
-                                         
-                                         
-                       
-                        
-                        
-                        conditionalPanel("input.file_type == 'sas_data'",
-                                         ###specs and params here
-                                         
-                        ),
-                        
-                        
-                        
-                        conditionalPanel("input.file_type == 'stata'",
-                                         ###specs and params here
-                                         
-                        ),
+                        # ## Options for SAS files
+                        # conditionalPanel("input.file_type == 'sas_data'",
+                        #                  ###specs and params here
+                        #                  
+                        # ),
+                        # 
+                        # ## Options for Stata files
+                        # conditionalPanel("input.file_type == 'stata'",
+                        #                  ###specs and params here
+                        #                  
+                        # ),
                         )),
                column(8, 
                       uiOutput("dataImportMessage"), 

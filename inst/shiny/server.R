@@ -74,7 +74,8 @@ shinyServer(function(input, output, session) {
     } else if(input$file_type == "spss"){
       imported_file_object <- aweSOM:::ok.data.function.spss(
         input_dataFile = input$dataFile, 
-        input_dataFile_datapath = input$dataFile$datapath)
+        input_dataFile_datapath = input$dataFile$datapath, 
+        input_skip_spss = input$skip_spss)
     } else if(input$file_type == "stata"){
       imported_file_object <- aweSOM:::ok.data.function.stata(
         input_dataFile = input$dataFile, 

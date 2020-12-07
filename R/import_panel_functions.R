@@ -169,38 +169,36 @@ ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, i
 
 
 #' Import SPSS data
-#'based on read_spss
+#'based on haven::read_spss
 #' @param input_dataFile shiny-related dataFile object 
 #' @param input_dataFile_datapath datapath
 #'
 #' @return
 #'
 #' @examples
-ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath){
-  if (is.null((input_dataFile))){ 
-    return(NULL)
-  }
-  library(haven)
-  the.spss.encoding <- NULL
+ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath, input_skip_spss){
+  if (is.null((input_dataFile))) return(NULL)
+
+  data_read_reproducible <- paste0("ok.data <- data.frame(haven::read_spss('", 
+                                   input_dataFile$name, "', skip = ", 
+                                   input_skip_spss, "))\n")
   
-  
-  data_read_reproducible <- paste0("ok.data <- data.frame(read_spss('", 
-                                   input_dataFile$name, "'",
-                                   
-                                   ")\n")
-  
-  
-  data <- try(data.frame(haven::read_spss(file = input_dataFile_datapath))) #<- encoding as an argument cannot be matched for some reason
+  data <- try(data.frame(haven::read_spss(file = input_dataFile_datapath, 
+                                          skip= input_skip_spss))) 
+  data <- data.frame(lapply(data, function(x) {
+    attr(x, "format.spss") <- NULL
+    if ("haven_labelled" %in% class(x)) 
+      x <- haven:::as_factor.haven_labelled(x, levels= "labels")
+    x
+  }))
   if(class(data) == "try-error") return(NULL)
   return(list(data, data_read_reproducible))
   
 }
 
 
-
-
 #' Import Stata data
-#' bvased on read.dta
+#' based on haven::read.dta
 #' @param input_dataFile   shiny-related dataFile object 
 #' @param input_dataFile_datapath datapath
 #'
@@ -212,43 +210,32 @@ ok.data.function.stata <- function(input_dataFile, input_dataFile_datapath){
     return(NULL)
   }
   
-  data_read_reproducible <- paste0("ok.data <- data.frame(read.dta('", 
-                                   input_dataFile$name, "'",
-                                   ")\n")
-  
-  
-  data <- try(data.frame(haven::read.dta(file = input_dataFile_datapath)))
+  data_read_reproducible <- paste0("ok.data <- data.frame(foreign::read.dta('", 
+                                   input_dataFile$name, "'))\n")
+
+  data <- try(data.frame(foreign::read.dta(file = input_dataFile_datapath)))
   if(class(data) == "try-error") return(NULL)
   return(list(data, data_read_reproducible))
-  
-  
-  
 }
 
 
 #' Import SAS data
-#'based on read_sas
+#'based on haven::read_sas
 #' @param input_dataFile 
 #' @param input_dataFile_datapath 
 #' @return
 #'
 #' @examples
 ok.data.function.sas.data <- function(input_dataFile, input_dataFile_datapath ){
-                                     
-  if (is.null((input_dataFile))){ 
-    return(NULL)
-  }
-    
+  if (is.null((input_dataFile))) return(NULL)
   
-    data_read_reproducible <- paste0("ok.data <- data.frame(read_sas('", 
-                                   input_dataFile$name, "'",
-                                   ")\n")
+  data_read_reproducible <- paste0("ok.data <- data.frame(haven::read_sas('", 
+                                   input_dataFile$name, "'))\n")
   
-    
-    data <- try(data.frame(haven::read_sas(data_file = input_dataFile_datapath)))
-    if(class(data) == "try-error") return(NULL)
-    return(list(data, data_read_reproducible))
+  data <- try(data.frame(haven::read_sas(data_file = input_dataFile_datapath)))
+  if(class(data) == "try-error") return(NULL)
   
+  return(list(data, data_read_reproducible))
 }
 
 
