@@ -112,9 +112,60 @@ aweSOM provides multiple types of interactive and static visualizations for SOM.
 
 
 ### aweSOMplot
+aweSOMplot creates a variety of different interactive SOM visualizations. Using the _graphType_ argument to the function, one the following types of plots can be created:
+
+* Hitmap: visualizes the number of observation per cell using respectively sized hexagons/rectangles.
+* Radar, Barplot, Boxplot, Line, Camembert : visualizes the numeric value of each variable per cell using by the respective type of chart.
+* Camembert [other to be added]: visualizes factor-level variables of each variable per cell using by the respective type of chart.
+
+
+
+
+Thus, using 'Hitmap' as the argument for _graphType_ generates an interactive Hitmap that displays the distribution of observations on the SOM. _ok.sc_ is used to pass superclasses that are visualized. 
+
+```{r}
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses_pam, ok.data = ok.data, graphType = 'Hitmap', plotSize = 100)
+```
+
+
+
+
+
+
+In particular focussing on the plot types that visualize variables per cell, further arguments can be used to specify. 
+
+* _plotNames_: 
+* _constrast_ 
+* _average_format_
+* _plotVarMult_: 
+* _plotOutliers_:
+* _plotEqualSize_:
+* _plotSize_:
+* _palsc_:
+* _palplot_: 
+* _plotRevPal_: 
+
+
+Additionally, _omitRows_ can be used an argument to omit certain rows in the ok.data object that should be omitted from being included in the visualization.  
+
+
+
+
+```{r}
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses_pam, ok.data = ok.data,
+                   graphType = 'Barplot',  
+                   plotVarMult = c("Sepal.Length", "Sepal.Width",  
+                                   "Petal.Length", "Petal.Width"),  
+                   plotSize = 100)
+```
+
+
 
 
 ### aweSOMsmoothdist
+
+
+
 
 
 ### aweSOMabstraction
