@@ -1,5 +1,5 @@
 ---
-title: "my-vignette"
+title: "aweSOM vignette"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{my-vignette}
@@ -12,59 +12,47 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-```
-
-```{r setup}
 library(aweSOM)
+library(kohonen)
 ```
 
 
+__aweSOM__ consists of a variety of functions to visualize and assess the quality of self-organizing Kohonen map (SOM) (based on the kohonen package), and provides an shiny application for these purposes, too. This vignette explains the functions of the aweSOM package along the workflow of training a SOM, assessing its quality measures and visualizing both the SOM as well superclusters within it.  
 
 
 
 
-This vignette provides a walthrough to explain how to use aweSOM without the shiny interface. Next to the graphical user interface this package provides functions to train, evaluate and visualize self-organizing maps. Within the following sections these functions are presented. 
 
-
-
-# Training a self-organizing map
-The aweSOM package provides trains self-organizing maps (SOM) using the kohonen package. Within the aweSOM graphical user interface reproducible code is provided that is used to train a SOM. For example, the code below trains a map using the iris dataset and calculates superclasses. In this example we proceed with hiearchical clustering for superclasses but provide an example for PAM clustering in section... 
-
+## Creating a dataset and training a self-organizig map
+For the purpose of this walkthrough the iris dataset is used to train a SOM of a 4x4 dimension. Before training the SOM using the kohonen::som function, an initial grid is approximated using principal component analysis (PCA) to improve convergence and fit of the kohonen::som function. In this example we use a hexagonal SOM grid. 
 
 
 ```{r}
 ok.data <- iris
-## Build training data
-dat <- iris[, c('Sepal.Length', 'Sepal.Width', 'Petal.Length', 'Petal.Width')]
+## Select variables
+dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
 ### Scale training data
 dat <- scale(dat)
-## Train SOM
-### RNG Seed (for reproducibility)
-set.seed(69791)
 ### Initialization (PCA grid)
 data.pca <- prcomp(dat, center= F, scale.= F)
-init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 3)
-init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 3)
+init.x <- seq(from= quantile(data.pca$x[,1], .025), 
+              to= quantile(data.pca$x[,1], .975), length.out= 4)
+init.y <- seq(from= quantile(data.pca$x[,2], .025), 
+              to= quantile(data.pca$x[,2], .975), length.out= 4)
 init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
 init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
-### Training
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(3, 3, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
-## Group cells into superclasses (hierarchical clustering)
-
-
-superclust_pam <- cluster::pam(ok.som$codes[[1]], 2)
-
-
-superclust_hiearchical <- hclust(dist(ok.som$codes[[1]]), 'ward.D2') # Hierarchical clustering using ward.D2 algorithm
-superclasses_hierarchical <- unname(cutree(superclust_hiearchical, 2))
+## Train SOM
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01),
+                       radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
 ```
 
 
 
 
-# Evaluate Quality 
+## Evaluate Quality 
 
-somQuality calculates several measures of quality for a trained SOM object. 
+aweSOM provides a specific function that returns quality measures of SOM object (based on the kohonen package). In particular, quantization error, the percentage of explained variance, the topographic error and the Kaski-Lagus error are calculated as well as the number of obs. per SOM cell. 
+
 
 ```{r}
 aweSOM::somQuality(ok.som = ok.som, traindat = dat)
@@ -72,53 +60,61 @@ aweSOM::somQuality(ok.som = ok.som, traindat = dat)
 
 
 
+## Superclasses of SOM
 
+One particular feature of aweSOM is to integrate superclasses based on the SOM cells into visualizations and analysis of SOM. Inbuilt functions of aweSOM are in particular suited to hierarchical clustering and PAM (k-medoids).  This vignette covers the application of both methods for further integration into the aweSOM package. \newline
+PAM clustering on the SOM cells can be achieved using the following code.
 ```{r}
-# does not work yet
-#aweSOMsmoothdist(ok.som = ok.som, ok.dist = superclust_hiearchical, input_palplot = "viridis", input_plotRevPal = FALSE)
+superclust_pam <- cluster::pam(ok.som$codes[[1]], 2)
+superclasses_pam <- unname(superclust_pam$clustering)
+```
+
+Hierarchical clustering  on the SOM cells can be achieved using the following code.
+```{r}
+superclust_hclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
+superclasses_hclust <-  unname(superclust_hclust$clustering)
+```
+
+### Quality of superclass clustering
+
+aweSOM provides inbuilt functions to create three different plots that allow assessing the quality of both types of clustering: aweSOMdendrogram, aweSOMscreeplot, and aweSOMsilhouette. 
+
+###  aweSOMdendrogram
+aweSOMdendrogram returns a dendogram for hierarchical clustering performed on an SOM object. For the example below, the hierarchical clustering performed in the previous section is used and 2 superclasses are visualized. This function is only valid for hierarchical clustering.
+```{r}
+aweSOM::aweSOMdendrogram(ok.som = ok.som, ok.hclust = superclust_hclust, 
+                         input_kohSuperclass = 2)
 ```
 
 
+### aweSOMscreeplot
+aweSOMscreeplot [tbd]
+
 ```{r}
-aweSOM::aweSOMscreeplot(ok.som, superclust_hiearchical, 2)
+aweSOM::aweSOMscreeplot(ok.som = ok.som, method = 'hierarchical', 
+                        hmethod = 'ward.D2', nclass = 2)
 ```
 
-
-```{r}
-plot.pam_silhouette(ok.som, superclust_pam, "PAM")
-```
-
-
-
-
+### aweSOMsilhouette
+aweSOMsilhouette returns a silhouette for PAM clustering performed on an SOM object. For the example below, the PAM clustering is performed in the previous section.  This function is only valid for PAM clustering.
 
 
 ```{r}
-aweSOM::aweSOMdendrogram(ok.som, superclust_hiearchical, 5)
-```
-
-
-
-```{r}
-# does not work yet
-#plot.abstraction(ok.som = ok.som, input_palplot = "viridis", input_plotRevPal = FALSE, 
-#input_plotAbstrCutoff = 2, ok.traindat = dat)
+aweSOM::aweSOMsilhouette(ok.som, superclasses_pam)
 ```
 
 
 
 
+## Visualizing SOM with aweSOM
 
-# Interactive Visualizations
-The aweSOMplot function creates interactive SOM maps visualizations as these are displayed within the aweSOM graphical user interface...  
+aweSOM provides multiple types of interactive and static visualizations for SOM. While the aweSOM shiny widget (launched using aweSOM::aweSOM()), several functions in the aweSOM package allow reproducing these visualizations. Interactive visualizations of SOM are part of the aweSOMplot function that will be explained in the next section. Additionally, aweSOM provides functions to create smooth distance plots of SOM (aweSOMsmoothdist) and abstraction plots (aweSOMabstraction). 
 
-```{r}
-aweSOMplot(ok.som = ok.som, ok.sc = superclasses_hierarchical, ok.data = ok.data,
-                   ok.trainrows = rep(TRUE, 150),
-                   graphType = 'Barplot', plotNames = '(rownames)',
-                   plotVarMult = c('Sepal.Length', 'Sepal.Width', 'Petal.Length', 'Petal.Width'), plotVarOne = '',
-                   plotEqualSize = FALSE, contrast = 'contrast',
-                   average_format = 'mean', plotSize = 100,
-                   palsc = 'Set3', palplot = 'viridis', plotRevPal = FALSE)
-```
 
+### aweSOMplot
+
+
+### aweSOMsmoothdist
+
+
+### aweSOMabstraction
