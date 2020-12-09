@@ -39,7 +39,7 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
                                     "', quote = '", the.quote, 
                                     "', dec = '", the.dec, 
                                     "', stringsAsFactors = TRUE, encoding = '", 
-                                   the.encoding, "', data.table= F)\n")
+                                   the.encoding, "', data.table = F)\n")
 
   data <- try(data.frame(data.table::fread(input_dataFile_datapath, 
                                            header=the.header, sep=the.sep, 
