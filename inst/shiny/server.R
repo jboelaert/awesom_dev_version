@@ -311,7 +311,7 @@ shinyServer(function(input, output, session) {
       superclasses <- unname(cutree(ok.hclust(), input$kohSuperclass))
       
       values$codetxt$sc <- paste0("## Group cells into superclasses (hierarchical clustering)\n", 
-                                  "superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')\n",
+                                  "superclust <- hclust(dist(ok.som$codes[[1]]), '", input$sup_clust_hcmethod, "')\n",
                                   "superclasses <- unname(cutree(superclust, ", 
                                   input$kohSuperclass, "))\n")
     } else {

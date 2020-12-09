@@ -468,7 +468,7 @@ getPalette <- function(pal, n, reverse= F) {
 #'
 #' @param ok.som SOM data object
 #' @param ok.hclust hierarchical clustering object
-#' @param input_kohSuperclass number of Kohonen superclasses
+#' @param input_kohSuperclass number of superclasses
 #'
 #' @return Dendogram plot of hierarchical clustering
 #'
