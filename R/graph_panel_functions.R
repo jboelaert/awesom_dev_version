@@ -462,7 +462,7 @@ json_edits <- function(test){
 #' @param plotOutliers 
 #' @param reversePal 
 #' @param options 
-#' @param the.average_format 
+#' @param valueFormat 
 #'
 #' @return
 #'
@@ -470,7 +470,7 @@ json_edits <- function(test){
 getPlotParams <- function(type, som, superclass, data, plotsize, varnames, 
                           normtype= c("range", "contrast"), palsc, palplot, 
                           cellNames, plotOutliers, reversePal, options= NULL, 
-                          the.average_format) {
+                          valueFormat) {
   
   ## Paramètres communs à tous les graphiques
   somsize <- nrow(som$grid$pts)
@@ -492,7 +492,6 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
               cellNames= cellNames, 
               cellPop= unname(clust.table))
   
-  ## Traitement data si besoin :
   if (type %in% c("Camembert", "CatBarplot")) {
     if (is.numeric(data)) if (length(unique(data)) > 100) data <- cut(data, 100)
     data <- as.factor(data)
@@ -508,135 +507,88 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     
     nvar <- length(varnames)
     
+    ##########
+    ## Compute normalized values for mean/median/prototype to use in plots
+    ##########
+    
     if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
-      #browser()      
-      ## Means by cell
+      prototypes <- som$codes[[1]][, varnames]
+      
+      ## realValues are the one displayed in the text info above the plot
+      if (valueFormat == "mean") {
+        realValues <- do.call(rbind, lapply(split(data, clustering), 
+                                            function(x) {
+                                              if (!nrow(x)) return(rep(NA, nvar))
+                                              unname(round(colMeans(x), 3))
+                                            }))
+      } else if (valueFormat == "median") {
+        realValues <- do.call(rbind, lapply(split(data, clustering), 
+                                            function(x) {
+                                              if (!nrow(x)) return(rep(NA, nvar))
+                                              unname(round(apply(x, 2, median), 3))
+                                            }))
+      } else if (valueFormat == "prototypes") {
+        realValues <- unname(as.data.frame(prototypes))
+      }
+        
       if (normtype == "range") { 
-        ## "Range" normalization : data range to [0,1], then means
-        normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
-        #for the prototypes data
-        prototypes_data <- as.data.frame(som$codes)
-        normDat_prototypes <- as.data.frame(sapply(prototypes_data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
+        ## "Range" normalization : data/proto range to [0,1], then means
+        if (valueFormat == "prototypes") {
+          normDat <- as.data.frame(sapply(as.data.frame(prototypes), function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
+        } else {
+          normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
+        }
         
-        
-        if(the.average_format == "mean"){ #using input$average_format does not work since this is not within the server function context
+        if(valueFormat == "mean"){ 
           normValues <- unname(lapply(split(normDat, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
                                         unname(colMeans(x))
                                       }))
-          realValues <- unname(lapply(split(data, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(round(colMeans(x), 3)) #is this what is supposed to be edited to pass other data?
-                                      }))
-        }
-        
-        
-        if(the.average_format == "median"){
+        } else if(valueFormat == "median"){
           normValues <- unname(lapply(split(normDat, clustering), 
                                       function(x) {
                                         if (!nrow(x)) return(rep(NA, nvar))
                                         unname(apply(x, 2, median))
                                       }))
-          realValues <- unname(lapply(split(data, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(round(apply(x, 2, median), 3)) #is this what is supposed to be edited to pass other data?
-                                      }))
+        } else if(valueFormat == "prototypes"){
+          normValues <- unname(as.list(as.data.frame(t(normDat))))
         }
-        
-        if(the.average_format == "prototypes"){
-          normValues <- unname(split((unname(normDat_prototypes)), seq(nrow(normDat_prototypes))))
-          normValues <- lapply(normValues, as.numeric)
-          realValues <-   unname(split((unname(prototypes_data)), seq(nrow(prototypes_data))))
-          realValues <- lapply(realValues, as.numeric)
-        }
+        realValues <- unname(as.list(as.data.frame(t(realValues))))
         
       } else if (normtype == "contrast") {
+        ## "Contrast" normalization : means on data, then range(means) -> [0,1]
         
-        if(the.average_format == "mean"){
-          
-          ## "Contrast" normalization : means on data, then range(means) -> [0,1]
-          realValues <- do.call(rbind, lapply(split(data, clustering), 
-                                              function(x) {
-                                                if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(colMeans(x), 3))
-                                              }))
-          normValues <- apply(realValues, 2, function(x) 
-            .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
-          realValues <- unname(as.list(as.data.frame(t(realValues))))
-          normValues <- unname(as.list(as.data.frame(t(normValues))))
-        }
+        normValues <- apply(realValues, 2, function(x) 
+          .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
+        normValues <- unname(as.list(as.data.frame(t(normValues))))
+        realValues <- unname(as.list(as.data.frame(t(realValues))))
         
-        if(the.average_format == "median"){
-          realValues <- do.call(rbind, lapply(split(data, clustering), 
-                                              function(x) {
-                                                if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(apply(x, 2, median), 3))
-                                              }))
-          normValues <- apply(realValues, 2, function(x) 
-            .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
-          realValues <- unname(as.list(as.data.frame(t(realValues))))
-          normValues <- unname(as.list(as.data.frame(t(normValues))))
-        }
+      } else if(normtype == "no_contrast"){
+        ## "No contrast" normalization : global 0-1 scale, on obs/protos
         
-        
-        if(the.average_format == "prototypes"){
-          prototypes_data <- as.data.frame(som$codes) #<-not sure if this is correct calculytion here for contrast?! 
-          normDat_prototypes <- as.data.frame(sapply(prototypes_data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
-          normValues <- unname(split((unname(normDat_prototypes)), seq(nrow(normDat_prototypes))))
-          normValues <- lapply(normValues, as.numeric)
-          realValues <-   unname(split((unname(prototypes_data)), seq(nrow(prototypes_data))))
-          realValues <- lapply(realValues, as.numeric)
-        }
-        
-      }
-      
-      else if(normtype == "no_contrast"){
-        
-        if(the.average_format == "mean"){
-          
+        if (valueFormat %in% c("mean", "median")) {
           normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(data)) / (max(data) - min(data))))
-          normValues <- unname(lapply(split(normDat, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(colMeans(x))
-                                      }))
-          realValues <- do.call(rbind, lapply(split(data, clustering), 
-                                              function(x) {
-                                                if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(colMeans(x), 3))
-                                              }))
+          if(valueFormat == "mean"){
+            normValues <- unname(lapply(split(normDat, clustering), 
+                                        function(x) {
+                                          if (!nrow(x)) return(rep(NA, nvar))
+                                          unname(colMeans(x))
+                                        }))
+          } else if(valueFormat == "median"){
+            normValues <- unname(lapply(split(normDat, clustering), 
+                                        function(x) {
+                                          if (!nrow(x)) return(rep(NA, nvar))
+                                          unname(apply(x, 2, median))
+                                        }))
+          }
+        } else if(valueFormat == "prototypes"){
+          normDat <- as.data.frame(sapply(as.data.frame(prototypes), 
+                                          function(x) .05 + .9 * (x - min(prototypes)) / (max(prototypes) - min(prototypes))))
+          normValues <- unname(as.list(as.data.frame(t(normDat))))
         }
-        
-        
-        if(the.average_format == "median"){
-          normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(data)) / (max(data) - min(data))))
-          normValues <- unname(lapply(split(normDat, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(apply(x, 2, median))
-                                      }))
-          realValues <- do.call(rbind, lapply(split(data, clustering), 
-                                              function(x) {
-                                                if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(apply(x, 2, median), 3))
-                                              }))
-        }
-        
-        
-        if(the.average_format == "prototypes"){
-          
-          prototypes_data <- as.data.frame(som$codes) #<-not sure if this is correct calculytion here for contrast?! 
-          normDat_prototypes <- as.data.frame(sapply(prototypes_data, function(x) .05 + .9 * (x - min(prototypes_data)) / (max(prototypes_data) - min(prototypes_data)))) #<- again not sure
-          normValues <- unname(split((unname(normDat_prototypes)), seq(nrow(normDat_prototypes))))
-          normValues <- lapply(normValues, as.numeric)
-          realValues <-   unname(split((unname(prototypes_data)), seq(nrow(prototypes_data))))
-          realValues <- lapply(realValues, as.numeric)
-        }
+        realValues <- unname(as.list(as.data.frame(t(realValues))))
       }
-      
       
       if (type == "Color") {
         ## 8 colors (equal-sized bins of values) of selected palette
@@ -658,7 +610,10 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   }
   
   
-  ## Paramètres spécifiques :
+  ##########
+  ## Generate plot-type specific list of arguments
+  ##########
+  
   if (type == "Camembert") {
     res$parts <- nvalues
     res$label <- unique.values

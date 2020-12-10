@@ -12,7 +12,6 @@ Plots
 * display the legend
 * Reverse-order issue for rectangular grid
 * Julien : check "contrast" options for boxplot (doesn't seem to change anything)
-* Julien : prototype value rescale ; probably linked to black "Color" plot for prototypes
 * Julien : static map download
 * boxplot contours and whiskers do not show
 
