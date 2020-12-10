@@ -5,12 +5,12 @@
 shinyUI(fluidPage(
   rclipboard::rclipboardSetup(),
   
-  headerPanel(HTML("aweSOM")),
+  # headerPanel(HTML("aweSOM")),
   
   tabsetPanel(
     #### Panel 'Welcome, Import Data'
     #########################################################################
-    tabPanel("Import Data", 
+    tabPanel("aweSOM", 
              # includeHTML("js/hexbin.js"),
              # includeHTML("js/lodash.min.js"), 
              # includeHTML("js/d3.min.js"),
@@ -19,16 +19,19 @@ shinyUI(fluidPage(
              includeHTML("js/canvg.js"),
              includeHTML("js/rgbcolor.js"),
              # includeHTML("js/radar-chart-d3.js"),
-             includeHTML("js/word-cloud.js"),
+             # includeHTML("js/word-cloud.js"),
              
              
              # data_import -------------------------------------------------------------
              
-             h2("Import your data"), 
+             
+             h2("aweSOM"), 
+             h4("interactive self-organizing maps"),
+             
              fluidRow(
                column(4,
                       wellPanel(
-                        
+                        h4("Import Data"), 
                         selectInput('file_type', NULL, 
                                     choices =  c(
                                       ".csv or .txt"  = "csv_txt",
@@ -42,122 +45,119 @@ shinyUI(fluidPage(
                         
                         
                         fileInput('dataFile', 'Choose File'),
-                        HTML("<b>Import parameters</b>"),
                         
+                        # HTML("<b>Import parameters</b>"),
+                        checkboxInput("importParams", "File parameters"),
                         
+                        conditionalPanel(
+                          "input.importParams", 
+                          conditionalPanel("input.file_type == 'csv_txt'",
+                                           
+                                           fluidRow(column(4, p('Header:')), 
+                                                    column(8, selectInput('header', NULL,
+                                                                          c("Auto", "Header",
+                                                                            "No Header"), 
+                                                                          "Auto"))),
+                                           fluidRow(column(4, p('Separator:')), 
+                                                    column(8, selectInput('sep', NULL,
+                                                                          c("Auto", "Comma ','",
+                                                                            "Semicolon ';'",
+                                                                            "Tab","Space"), 
+                                                                          "Auto"))),
+                                           fluidRow(column(4, p('Quote:')), 
+                                                    column(8, selectInput('quote', NULL,
+                                                                          c("None","Double Quote \"","Single Quote '"), 
+                                                                          'Double Quote "'))),
+                                           fluidRow(column(4, p('Decimal mark')), 
+                                                    column(8, selectInput('dec', NULL, 
+                                                                          c('Period "."', 'Comma ","'),
+                                                                          'Period "."'))),
+                                           fluidRow(column(4, p('File Encoding')), 
+                                                    column(8, selectInput('encoding', NULL, 
+                                                                          c("unknown", "UTF-8", "whatever else"),
+                                                                          "unknown")))),
+
+                          conditionalPanel("input.file_type == 'excel_xlsx'",
+                                           fluidRow(column(4, p('Column names')), 
+                                                    column(8, selectInput('column_names', NULL, 
+                                                                          choices = c("Yes" = "TRUE",
+                                                                                      "No" = "FALSE"),
+                                                                          selected = TRUE ))),
+                                           
+                                           fluidRow(column(4, p('Skip rows')), 
+                                                    column(8, numericInput('rows_to_skip', NULL, 0, min= 0))),
+                                           
+                                           
+                                           fluidRow(column(4, p('Trim whitespaces')), 
+                                                    column(8, selectInput('trim_spaces', NULL, 
+                                                                          choices = c("Yes" = "TRUE",
+                                                                                      "No" = "FALSE"),
+                                                                          selected = TRUE ))),
+                                           
+                                           fluidRow(column(4, checkboxInput("worksheet_specified_bol", "Specify Worksheet", F))),
+                                           conditionalPanel("input.worksheet_specified_bol",
+                                                            textInput("worksheet_specs", NULL, "")
+                                           ),
+                                           
+                                           
+                                           fluidRow(column(4, checkboxInput("range_specified_bol", "Specify Range", F))),
+                                           conditionalPanel("input.range_specified_bol",
+                                                            textInput("range_specs", NULL, "")
+                                           )),
+                          
+                          
+                          
+                          ## Options for xls files
+                          conditionalPanel("input.file_type == 'excel_xls'",
+                                           fluidRow(column(4, p('Column names')), 
+                                                    column(8, selectInput('column_names_xls', NULL, 
+                                                                          choices = c("Yes" = "TRUE",
+                                                                                      "No" = "FALSE"),
+                                                                          selected = TRUE ))),
+                                           
+                                           fluidRow(column(4, p('Skip rows')), 
+                                                    column(8, numericInput('rows_to_skip_xls', NULL, 0, min= 0))),
+                                           
+                                           
+                                           fluidRow(column(4, p('Trim whitespaces')), 
+                                                    column(8, selectInput('trim_spaces_xls', NULL, 
+                                                                          choices = c("Yes" = "TRUE",
+                                                                                      "No" = "FALSE"),
+                                                                          selected = TRUE ))),
+                                           
+                                           fluidRow(column(4, checkboxInput("worksheet_specified_bol_xls", "Specify Worksheet", F))),
+                                           conditionalPanel("input.worksheet_specified_bol_xls",
+                                                            textInput("worksheet_specs_xls", NULL, "")
+                                           ),
+                                           
+                                           
+                                           fluidRow(column(4, checkboxInput("range_specified_bol_xls", "Specify Range", F))),
+                                           conditionalPanel("input.range_specified_bol_xls",
+                                                            textInput("range_specs_xls", NULL, "")
+                                           )),
+                          
+                          ## Options for SPSS files
+                          conditionalPanel("input.file_type == 'spss'",
+                                           ###specs and params here
+                                           ## Possible: encoding, user_na, skip, n_max
+                                           fluidRow(column(4, p('Skip rows')), 
+                                                    column(8, numericInput('skip_spss', NULL, 0, min= 0)))),
+                          
+                          # ## Options for SAS files
+                          # conditionalPanel("input.file_type == 'sas_data'",
+                          #                  ###specs and params here
+                          #                  
+                          # ),
+                          # 
+                          # ## Options for Stata files
+                          # conditionalPanel("input.file_type == 'stata'",
+                          #                  ###specs and params here
+                          #                  
+                          # ),
+                          
+                        ) 
                         
-                        conditionalPanel("input.file_type == 'csv_txt'",
-                        
-                        fluidRow(column(4, p('Header:')), 
-                                 column(8, selectInput('header', NULL,
-                                                       c("Auto", "Header",
-                                                         "No Header"), 
-                                                       "Auto"))),
-                        fluidRow(column(4, p('Separator:')), 
-                                 column(8, selectInput('sep', NULL,
-                                                       c("Auto", "Comma ','",
-                                                         "Semicolon ';'",
-                                                         "Tab","Space"), 
-                                                       "Auto"))),
-                        fluidRow(column(4, p('Quote:')), 
-                                 column(8, selectInput('quote', NULL,
-                                                       c("None","Double Quote \"","Single Quote '"), 
-                                                       'Double Quote "'))),
-                        fluidRow(column(4, p('Decimal mark')), 
-                                 column(8, selectInput('dec', NULL, 
-                                                       c('Period "."', 'Comma ","'),
-                                                       'Period "."'))),
-                        fluidRow(column(4, p('File Encoding')), 
-                                 column(8, selectInput('encoding', NULL, 
-                                                       c("unknown", "UTF-8", "whatever else"),
-                                                       "unknown")))),
-                        
-                        
-                        
-                        
-                        
-                        conditionalPanel("input.file_type == 'excel_xlsx'",
-                                         
-                                         
-                                         fluidRow(column(4, p('Column names')), 
-                                                  column(8, selectInput('column_names', NULL, 
-                                                                        choices = c("Yes" = "TRUE",
-                                                                                    "No" = "FALSE"),
-                                                                        selected = TRUE ))),
-                                         
-                                         fluidRow(column(4, p('Skip rows')), 
-                                                  column(8, numericInput('rows_to_skip', NULL, 0, min= 0))),
-                                         
-                                         
-                                         fluidRow(column(4, p('Trim whitespaces')), 
-                                                  column(8, selectInput('trim_spaces', NULL, 
-                                                                        choices = c("Yes" = "TRUE",
-                                                                                    "No" = "FALSE"),
-                                                                        selected = TRUE ))),
-                                         
-                                         fluidRow(column(4, checkboxInput("worksheet_specified_bol", "Specify Worksheet", F))),
-                                         conditionalPanel("input.worksheet_specified_bol",
-                                                          textInput("worksheet_specs", NULL, "")
-                                                          ),
-                                         
-                                         
-                                         fluidRow(column(4, checkboxInput("range_specified_bol", "Specify Range", F))),
-                                         conditionalPanel("input.range_specified_bol",
-                                                          textInput("range_specs", NULL, "")
-                                         )),
-                        
-                        
-                        
-                        ## Options for xls files
-                        conditionalPanel("input.file_type == 'excel_xls'",
-                                         
-                                         
-                                         fluidRow(column(4, p('Column names')), 
-                                                  column(8, selectInput('column_names_xls', NULL, 
-                                                                        choices = c("Yes" = "TRUE",
-                                                                                    "No" = "FALSE"),
-                                                                        selected = TRUE ))),
-                                         
-                                         fluidRow(column(4, p('Skip rows')), 
-                                                  column(8, numericInput('rows_to_skip_xls', NULL, 0, min= 0))),
-                                         
-                                         
-                                         fluidRow(column(4, p('Trim whitespaces')), 
-                                                  column(8, selectInput('trim_spaces_xls', NULL, 
-                                                                        choices = c("Yes" = "TRUE",
-                                                                                    "No" = "FALSE"),
-                                                                        selected = TRUE ))),
-                                         
-                                         fluidRow(column(4, checkboxInput("worksheet_specified_bol_xls", "Specify Worksheet", F))),
-                                         conditionalPanel("input.worksheet_specified_bol_xls",
-                                                          textInput("worksheet_specs_xls", NULL, "")
-                                         ),
-                                         
-                                         
-                                         fluidRow(column(4, checkboxInput("range_specified_bol_xls", "Specify Range", F))),
-                                         conditionalPanel("input.range_specified_bol_xls",
-                                                          textInput("range_specs_xls", NULL, "")
-                                         )),
-                        
-                        ## Options for SPSS files
-                        conditionalPanel("input.file_type == 'spss'",
-                                         ###specs and params here
-                                         ## Possible: encoding, user_na, skip, n_max
-                                         fluidRow(column(4, p('Skip rows')), 
-                                                  column(8, numericInput('skip_spss', NULL, 0, min= 0)))),
-                                         
-                        # ## Options for SAS files
-                        # conditionalPanel("input.file_type == 'sas_data'",
-                        #                  ###specs and params here
-                        #                  
-                        # ),
-                        # 
-                        # ## Options for Stata files
-                        # conditionalPanel("input.file_type == 'stata'",
-                        #                  ###specs and params here
-                        #                  
-                        # ),
-                        )),
+                      )),
                column(8, 
                       uiOutput("dataImportMessage"), 
                       DT::dataTableOutput("dataView"))
