@@ -839,12 +839,15 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                                        average_format)
   
   # create the widget
-  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = 4 * plotSize, height = 4 * plotSize, package = "aweSOM")
+  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = plotSize, 
+                            height = plotSize, package = "aweSOM", 
+                            sizingPolicy = htmlwidgets::sizingPolicy(defaultWidth = "100%", defaultHeight = "auto", padding= 0))
 }
 
 ## htmlwidgets - shiny binding
 #' @export
-aweSOMoutput <- function(outputId, width = "100%", height = "400px") {
+# aweSOMoutput <- function(outputId, width = "100%", height = "400px") {
+aweSOMoutput <- function(outputId, width = "100%", height = "auto") {
   htmlwidgets::shinyWidgetOutput(outputId, "aweSOMwidget", width, height, package = "aweSOM")
 }
 #' @export

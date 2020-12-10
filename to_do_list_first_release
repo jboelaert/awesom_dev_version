@@ -11,7 +11,6 @@ Train
 Plots
 * display the legend
 * Reverse-order issue for rectangular grid
-* Plot size setting does not impact SOM sizes anymore
 * Julien : check "contrast" options for boxplot (doesn't seem to change anything)
 * Julien : prototype value rescale ; probably linked to black "Color" plot for prototypes
 * Julien : static map download

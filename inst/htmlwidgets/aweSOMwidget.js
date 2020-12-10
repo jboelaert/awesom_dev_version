@@ -464,6 +464,8 @@ HTMLWidgets.widget({
   	var cellNames = data.cellNames;
   	var cellPop = data.cellPop;
   	
+  	width= data.sizeInfo;
+  	height= data.sizeInfo;
   	var widgetWidth = width;
   	var widgetHeight = height;
   	var cellSize = Math.min(height / nbRows, width / nbColumns);

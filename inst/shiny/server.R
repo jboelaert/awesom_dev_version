@@ -462,8 +462,8 @@ shinyServer(function(input, output, session) {
                                   "aweSOM::aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
     aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
-    }, width = reactive({input$plotSize + 500}),
-  height = reactive({input$plotSize + 500}))
+    }, width = reactive({input$plotSize / 4 + 500}),
+  height = reactive({input$plotSize / 4 + 500}))
   
   
   ## Scree plot
@@ -477,8 +477,8 @@ shinyServer(function(input, output, session) {
                                   "nclass = ", input$kohSuperclass, ")\n")
     aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
   },
-  width = reactive({input$plotSize + 500}),
-  height = reactive({input$plotSize + 500}))
+  width = reactive({input$plotSize / 4 + 500}),
+  height = reactive({input$plotSize / 4 + 500}))
   
 
   ## Silhouette plot
@@ -487,8 +487,8 @@ shinyServer(function(input, output, session) {
                                   "aweSOM::aweSOMsilhouette(ok.som, superclass)\n")
     aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
   },
-  width = reactive({input$plotSize + 500}),
-  height = reactive({input$plotSize + 500}))
+  width = reactive({input$plotSize / 4 + 500}),
+  height = reactive({input$plotSize / 4 + 500}))
   
   
   ## Smooth distance plot
@@ -500,8 +500,8 @@ shinyServer(function(input, output, session) {
                     input_plotRevPal = input$plotRevPal)
     
     },
-  width = reactive({(input$plotSize + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
-  height = reactive({input$plotSize + 500 }))
+  width = reactive({(input$plotSize / 4 + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
+  height = reactive({input$plotSize / 4 + 500 }))
   
   ## warning for smooth distance hex based plot
   output$smooth_dist_warning <- renderText({
@@ -526,8 +526,8 @@ shinyServer(function(input, output, session) {
                       pal = input$palplot,
                       reversePal = input$plotRevPal)
   },
-  width = reactive({input$plotSize + 500}),
-  height = reactive({input$plotSize + 500}))
+  width = reactive({input$plotSize / 4 + 500}),
+  height = reactive({input$plotSize / 4 + 500}))
   
   
   
