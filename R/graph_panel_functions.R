@@ -484,7 +484,6 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   n.sc <- length(unique(superclass))
   superclassColor <- getPalette(palsc, n.sc)
   res <- list(plotType= type, 
-              saveToPng= TRUE, #<- previously true
               sizeInfo= plotsize, 
               gridInfo= gridInfo, 
               superclass= superclass, 
@@ -604,7 +603,11 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
                                     if (!nrow(x)) return(rep(NA, nvar))
                                     unname(colMeans(x))
                                   }))
-      normDat <- as.data.frame(sapply(data, function(x) (x - min(x)) / (max(x) - min(x))))
+      if (normtype == "no_contrast") {
+        normDat <- data
+      } else {
+        normDat <- as.data.frame(sapply(data, function(x) (x - min(x)) / (max(x) - min(x))))
+      }
       data <- as.data.frame(apply(data, 2, as.numeric)) # To prevent weird JS error (when a type is in integer)
     }
   }
@@ -687,15 +690,11 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     res$boxPlotNormalizedValues <- unname(lapply(boxes.norm, function(x) unname(as.list(as.data.frame(x$stats)))))
     res$boxPlotRealValues <- unname(lapply(boxes.real, function(x) unname(as.list(as.data.frame(x$stats)))))
     if (plotOutliers) {
-      res$boxNormalizedExtremesValues <- json_edits(unname(lapply(boxes.norm, function(x) unname(split(x$out, factor(x$group, levels= 1:nvar))))))
-      res$boxRealExtremesValues <- json_edits(unname(lapply(boxes.real, function(x) as.list(unname(split(x$out, factor(x$group, levels= 1:nvar)))))))
-      
-      
-      
-      
+      res$boxNormalizedExtremesValues <- unname(lapply(boxes.norm, function(x) unname(split(x$out, factor(x$group, levels= 1:nvar)))))
+      res$boxRealExtremesValues <- unname(lapply(boxes.real, function(x) as.list(unname(split(x$out, factor(x$group, levels= 1:nvar))))))
     } else {
-      res$boxNormalizedExtremesValues <- json_edits(unname(lapply(boxes.norm, function(x) lapply(1:nvar, function(y) numeric(0)))))
-      res$boxRealExtremesValues <- json_edits(unname(lapply(boxes.real, function(x) lapply(1:nvar, function(y) numeric(0)))))
+      res$boxNormalizedExtremesValues <- unname(lapply(boxes.norm, function(x) lapply(1:nvar, function(y) numeric(0))))
+      res$boxRealExtremesValues <- unname(lapply(boxes.real, function(x) lapply(1:nvar, function(y) numeric(0))))
     }
   } else if (type == "Color") {
     res$activate <- TRUE
@@ -814,7 +813,7 @@ renderaweSOM <- function(expr, env = parent.frame(), quoted = FALSE) {
 
 aweSOMwidget_html = function(id, style, class, ...){
   htmltools::tags$div(id = id, class = class, 
-                      style= paste0(style, "display:block; margin:auto; margin-top:30px"))
+                      style= paste0(style, "display:block; margin:auto; margin-top:5px; margin-bottom:5px;"))
 }
 
 #################################

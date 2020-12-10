@@ -458,7 +458,6 @@ HTMLWidgets.widget({
     var nbRows= data.gridInfo.nbLines;
     var nbColumns= data.gridInfo.nbColumns;
     var topology= data.gridInfo.topology;
-    var saveToPng=data.saveToPng;
     var superclass = data.superclass;
     var superclassColor = data.superclassColor;
   	var cellNames = data.cellNames;
@@ -548,80 +547,35 @@ HTMLWidgets.widget({
       var wordClouds = data.wordClouds;
     }
     
-    
-    
-    
-    // select the svg area
-      var Svg = d3.select("#my_dataviz2")
 
-      // create a list of keys
-      var keys = data.label;
-      var  colors  = data.labelColor;
-
-      Svg.selectAll("mydots")
-        .data(keys)
-        .enter()
-        .append("circle")
-          .attr("cx", function(d,i){
-            //return 100
-            return (Math.floor(i/5) * 200 + 100)
-          })
-          .attr("cy", function(d,i){
-
-            return i % 5 * 20 + 10
-          }) // 100 is where the first dot appears. 25 is the distance between dots
-          .attr("r", 7)
-          .style("fill", function(d,i){return colors[i]})
-
-
-
-          Svg.selectAll("mylabels")
-          .data(keys)
-          .enter()
-          .append("text")
-            .attr("x", function(d,i){
-
-              return (Math.floor(i/5) * 200 + 115)
-            })
-            .attr("y", function(d,i){
-              return i % 5 * 20 + 15
-            }) // 100 is where the first dot appears. 25 is the distance between dots
-            .style("fill", "black")
-            .text(function(d){ return d})
-            .attr("text-anchor", "left")
-            .style("alignment-baseline", "middle")
-
-    
-
-    // Plot download handler
-    function downloadCanvas(link, filename) {
-      var svg = el.children[0];
-      var img = document.getElementById("fromcanvasPlot");
-
-      if(saveToPng){
-        svg.toDataURL("image/png", {
+    /////////////////////////
+    // Static download handlers
+    /////////////////////////
+    function downloadPng(link, filename) {
+      var svg = document.getElementById("theWidget").children[0];
+      svg.toDataURL("image/png", {
           callback: function(data) {
             link.href = data;
             link.download = filename;
           }
-        })
-      }
-      else {
-        svg.toDataURL("image/svg+xml", {
-          callback: function(data) {
-            link.href = data;
-            link.download = filename;
-          }
-        })
-      }
+      })
     }
-    document.getElementById('downloadLink').addEventListener('click', function() {
-      if(saveToPng){
-        downloadCanvas(this, 'somplot.png');
-      }else{
-        downloadCanvas(this, 'somplot.svg');
-      }
-    }, false);
+    function downloadSvg(link, filename) {
+      var svg = document.getElementById("theWidget").children[0];
+      svg.toDataURL("image/svg+xml", {
+          callback: function(data) {
+            link.href = data;
+            link.download = filename;
+          }
+      })
+    }
+    document.getElementById('downloadPng').addEventListener('click', function() {
+        downloadPng(this, 'somplot.png');}, false);
+    document.getElementById('downloadSvg').addEventListener('click', function() {
+        downloadSvg(this, 'somplot.svg');}, false);
+        
+        
+        
 
     // Call grid following topology and type
     if(topology.localeCompare('rectangular')==0){

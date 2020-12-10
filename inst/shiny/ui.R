@@ -339,10 +339,12 @@ shinyUI(fluidPage(
                                                                                "median", "centroid"), 
                                                                              "complete")))),
                              hr(),
-                             fluidRow(column(4, h4("Save:")),
-                                      column(4, downloadButton('downloadLink', 'Static Map')), 
-                                      column(4, downloadButton('downloadInteractive', "Interactive Map"))),
-                             hr(),
+                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
+                                              fluidRow(column(2, h4("Save:")),
+                                                       column(4, downloadButton('downloadInteractive', "Interactive html")), 
+                                                       column(3, downloadButton('downloadPng', 'png')),
+                                                       column(3, downloadButton('downloadSvg', 'svg'))),
+                                              hr()),
                              fluidRow(column(4, h4("Roll the dice:")), 
                                       column(8, actionButton('retrainButton', "Train new SOM"))),
                              uiOutput("plotWarning")),
@@ -363,21 +365,16 @@ shinyUI(fluidPage(
                              conditionalPanel('input.graphType == "Abstraction"', 
                                               plotOutput("plotAbstraction")),
                              
-                             #for all other JS based plots refer to graphs.html
+                             # D3-based plots
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              # HTML('<a id="downloadLink">Download Image</a>'),
-                                              HTML('<img id="fromcanvasPlot" />'),
                                               HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
                                               HTML('<h4 id="plot-message">-</h4>'),
-                                              # HTML('<div id="thePlot" class="shiny-Plot"><svg /></div>'), #JS plots placed here?!
                                               aweSOM:::aweSOMoutput("theWidget"),
                                              
                                               
                                               #uiOutput("plot_legend_margin"),
                                               
                                               #HTML('<br />'), 
-                                              #aweSOM:::aweSOMoutput("plot-names"),
-                                              
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
                                               #HTML('<br />'),
                                               plotOutput("theLegend")
