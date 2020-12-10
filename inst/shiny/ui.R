@@ -155,7 +155,12 @@ shinyUI(fluidPage(
                           #                  
                           # ),
                           
-                        ) 
+                        ), 
+                        img(
+                          src = "Teuvo-Kohonen.jpg",
+                          width= "100%",
+                          style = "margin:10px; padding: 0px 0px;"
+                        )
                         
                       )),
                column(8, 
