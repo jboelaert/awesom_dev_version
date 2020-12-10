@@ -839,7 +839,7 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                                        average_format)
   
   # create the widget
-  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = width, height = height, package = "aweSOM")
+  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = 4 * plotSize, height = 4 * plotSize, package = "aweSOM")
 }
 
 ## htmlwidgets - shiny binding
@@ -854,6 +854,10 @@ renderaweSOM <- function(expr, env = parent.frame(), quoted = FALSE) {
   # htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = F)
 }
 
+aweSOMwidget_html = function(id, style, class, ...){
+  htmltools::tags$div(id = id, class = class, 
+                      style= paste0(style, "display:block; margin:auto; margin-top:30px"))
+}
 
 #################################
 ## Console-callable function for interactive plots
@@ -937,11 +941,9 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
   res <- htmlwidgets::appendContent(res, 
-                                    (htmltools::tag("p", list(id= "plot-names",
-                                                              style = "padding-top:10%"))))
+                                    (htmltools::tag("p", list(id= "plot-names"))))
 
   res
 }
-
 
 

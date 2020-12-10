@@ -534,6 +534,7 @@ shinyServer(function(input, output, session) {
   ## Fancy JS plots through widget
   output$theWidget <- aweSOM:::renderaweSOM({
     if (is.null(input$plotNames)) return(NULL) # Prevents error due to not-yet loaded UI element, for reproducible script
+    if (is.null(ok.som())) return(NULL)
     
     ## Reproducible script for plot
     values$codetxt$plot <- paste0(
