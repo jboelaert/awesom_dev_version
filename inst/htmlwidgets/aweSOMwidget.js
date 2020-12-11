@@ -424,228 +424,6 @@ function boxQuartiles(d) {
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-//// Function for star plot
-////////////////////////////////////////////////////////////////////////////////
-
-var RadarChart = {
-  draw: function(id, d, options){
-  var cfg = {
-	 radius: 5,
-	 w: 600,
-	 h: 600,
-	 factor: 1,
-	 factorLegend: .85,
-	 levels: 3,
-	 maxValue: 0,
-	 radians: 2 * Math.PI,
-	 opacityArea: 0.5,
-	 ToRight: 5,
-	 TranslateX: 80,
-	 TranslateY: 30,
-	 ExtraWidthX: 100,
-	 ExtraWidthY: 100,
-	 color: d3.scale.category10(),
-	 x : 0,
-	 y : 0
-	};
-
-	if('undefined' !== typeof options){
-	  for(var i in options){
-		if('undefined' !== typeof options[i]){
-		  cfg[i] = options[i];
-		}
-	  }
-	}
-	cfg.maxValue = Math.max(cfg.maxValue, d3.max(d, function(i){return d3.max(i.map(function(o){return o.value;}))}));
-	var allAxis = (d[0].map(function(i, j){return i.axis}));
-	var total = allAxis.length;
-	var radius = cfg.factor*Math.min(cfg.w/2, cfg.h/2);
-	var Format = d3.format('%');
-	var g = d3.select(id).select("svg").append("g").attr("transform", "translate("+cfg.x+","+cfg.y+")");     //  transform graph !!!
-
-
-
-
-	var tooltip;
-
-	//Circular segments
-	for(var j=0; j<cfg.levels; j++){
-	  var levelFactor = cfg.factor*radius*((j+1)/cfg.levels);
-	  g.selectAll(".levels")
-	   .data(allAxis)
-	   .enter()
-	   .append("svg:line")
-	   .attr("x1", function(d, i){return levelFactor*(1-cfg.factor*Math.sin(i*cfg.radians/total));})
-	   .attr("y1", function(d, i){return levelFactor*(1-cfg.factor*Math.cos(i*cfg.radians/total));})
-	   .attr("x2", function(d, i){return levelFactor*(1-cfg.factor*Math.sin((i+1)*cfg.radians/total));})
-	   .attr("y2", function(d, i){return levelFactor*(1-cfg.factor*Math.cos((i+1)*cfg.radians/total));})
-	   .attr("class", "line")
-	   .style("stroke", "#414141")
-	   .style("stroke-opacity", "0.75")
-	   .style("stroke-width", "0.3px")
-	   .attr("transform", "translate(" + ((cfg.w/2)-levelFactor) + ", " + (cfg.h/2-levelFactor) + ")");
-	}
-
-	//Text indicating at what % each level is
-	/*for(var j=0; j<cfg.levels; j++){
-	  var levelFactor = cfg.factor*radius*((j+1)/cfg.levels);
-	  g.selectAll(".levels")
-	   .data([1]) //dummy data
-	   .enter()
-	   .append("svg:text")
-	   .attr("x", function(d){return levelFactor*(1-cfg.factor*Math.sin(0));})
-	   .attr("y", function(d){return levelFactor*(1-cfg.factor*Math.cos(0));})
-	   .attr("class", "legend")
-	   .style("font-family", "sans-serif")
-	   .style("font-size", "10px")
-	   .attr("transform", "translate(" + (cfg.w/2-levelFactor + cfg.ToRight) + ", " + (cfg.h/2-levelFactor) + ")")
-	   .attr("fill", "#737373")
-	   .text(Format((j+1)*cfg.maxValue/cfg.levels));
-	}*/
-
-	series = 0;
-
-	var axis = g.selectAll(".axis")
-			.data(allAxis)
-			.enter()
-			.append("g")
-			.attr("class", "axis");
-
-	axis.append("line")
-		.attr("x1", cfg.w/2)
-		.attr("y1", cfg.h/2)
-		.attr("x2", function(d, i){return cfg.w/2*(1-cfg.factor*Math.sin(i*cfg.radians/total));})
-		.attr("y2", function(d, i){return cfg.h/2*(1-cfg.factor*Math.cos(i*cfg.radians/total));})
-		.attr("class", "line")
-		.style("stroke", "grey")
-		.style("stroke-width", "1px");
-
-	/*axis.append("text")
-		.attr("class", "legend")
-		.text(function(d){return d})
-		.style("font-family", "sans-serif")
-		.style("font-size", "8px")
-		.attr("text-anchor", "middle")
-		.attr("dy", "1.5em")
-		.attr("transform", function(d, i){return "translate(5, -5)"})
-		.attr("x", function(d, i){return cfg.w/2*(1-cfg.factor*Math.sin(i*cfg.radians/total));})
-		.attr("y", function(d, i){return cfg.h/2*(1-Math.cos(i*cfg.radians/total))-20*Math.cos(i*cfg.radians/total);});*/
-
-
-	d.forEach(function(y, x){
-	  dataValues = [];
-	  g.selectAll(".nodes")
-		.data(y, function(j, i){
-		  dataValues.push([
-			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
-			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
-		  ]);
-		});
-	  dataValues.push(dataValues[0]);
-	  g.selectAll(".area")
-					 .data([dataValues])
-					 .enter()
-					 .append("polygon")
-					 .attr("class", "radar-chart-serie"+series)
-					 .style("stroke-width", "1px")
-					 .style("stroke", "#112E45")
-					 .attr("points",function(d) {
-						 var str="";
-						 for(var pti=0;pti<d.length;pti++){
-							 str=str+d[pti][0]+","+d[pti][1]+" ";
-						 }
-
-						 return str;
-					  })
-					 .style("fill", function(j, i){return "#77ADD9"})
-					 .style("fill-opacity", cfg.opacityArea)
-					 .on('mouseover', function (d){
-										z = "polygon."+d3.select(this).attr("class");
-										g.selectAll("polygon")
-										 .transition(200)
-										 .style("fill-opacity", 0.3);
-										g.selectAll(z)
-										 .transition(200)
-										 .style("fill-opacity", 0.2);
-									  })
-					 .on('mouseout', function(){
-										g.selectAll("polygon")
-										 .transition(200)
-										 .style("fill-opacity", cfg.opacityArea);
-					 });
-	  series++;
-	});
-	series=0;
-
-
-	d.forEach(function(y, x){
-	  g.selectAll(".nodes")
-		.data(y).enter()
-		.append("svg:circle")
-		.attr("class", "radar-chart-serie"+series)
-		.attr('r', cfg.radius)
-		.attr("alt", function(j){return Math.max(j.value, 0)})
-		.attr("cx", function(j, i){
-		  dataValues.push([
-			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
-			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
-		]);
-		return cfg.w/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total));
-		})
-		.attr("cy", function(j, i){
-		  return cfg.h/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total));
-		})
-		.attr("data-id", function(j){return j.axis})
-		.style("fill", "#112E45").style("fill-opacity", .9)
-		.on('mouseover', function (d){
-					newX =  parseFloat(d3.select(this).attr('cx')) - 10;
-					newY =  parseFloat(d3.select(this).attr('cy')) - 5;
-
-					/*tooltip
-						.attr('x', newX)
-						.attr('y', newY)
-						.text(d.realValue)
-						.transition(200)*/
-
-					d3.select(this).style("fill", "#C9E5FC");
-
-					d3.select('#plot-message').text(function () {
-						var ch = d.axis+': ' + d.realValue;
-						return ch;
-					});
-
-					z = "polygon."+d3.select(this).attr("class");
-					g.selectAll("polygon")
-						.transition(200)
-						.style("fill-opacity", 0.3);
-					g.selectAll(z)
-						.transition(200)
-						.style("fill-opacity", 0.2);
-				  })
-		.on('mouseout', function(){
-					/*tooltip
-						.transition(200)
-						.style('opacity', 0);*/
-
-					d3.select(this).style("fill", "#112E45");
-
-					g.selectAll("polygon")
-						.transition(200)
-						.style("fill-opacity", cfg.opacityArea);
-				  })
-		.append("svg:title");
-
-	  series++;
-	});
-	//Tooltip
-	tooltip = g.append('text')
-			   .style('opacity', 0)
-			   .style('font-family', 'sans-serif')
-			   .style('font-size', '13px');
-  }
-};
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //// The widget
@@ -665,21 +443,12 @@ HTMLWidgets.widget({
     document.getElementById("cell-info").style.textAlign = "center";
     document.getElementById("plot-message").style.textAlign = "center";
 
-    //remove the old graph
-    document.getElementById("theWidget").innerHTML = "";
- 
+    document.getElementById("theWidget").innerHTML = ""; //remove the old graph
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
-    
-    
     document.getElementById("plot-names").innerHTML = "-";
     
     
-
-
-
-
-
 
     // Import common data
     if(data == null ) {return;}
@@ -689,29 +458,20 @@ HTMLWidgets.widget({
     var nbRows= data.gridInfo.nbLines;
     var nbColumns= data.gridInfo.nbColumns;
     var topology= data.gridInfo.topology;
-    var saveToPng=data.saveToPng;
-    //var cellSize=data.sizeInfo;
-    //var w = cellSize*nbColumns;
-    //var h = cellSize*nbRows;
     var superclass = data.superclass;
     var superclassColor = data.superclassColor;
   	var cellNames = data.cellNames;
   	var cellPop = data.cellPop;
   	
-  	var h = height; 
-  	var cellSize = height / nbRows;
-  	var w = width;
-  	
-  	
-  	// Implement these changes
-  	// w = similar yep
-  	// h  = width that is argument to factory function
-  	// cellsize = height /number if cells
-  	
-  	
+  	width= data.sizeInfo;
+  	height= data.sizeInfo;
+  	var widgetWidth = width;
+  	var widgetHeight = height;
+  	var cellSize = Math.min(height / nbRows, width / nbColumns);
+
     //window.value = cellSize*nbRows;
     //document.getElementsByClassName('aweSOMwidget html-widget')[0].style.paddingBottom = ((window.value/2) + "px");
-
+    
 
     // Plot-specific data
     if(plotType.localeCompare("Radar")==0) {
@@ -787,80 +547,35 @@ HTMLWidgets.widget({
       var wordClouds = data.wordClouds;
     }
     
-    
-    
-    
-    // select the svg area
-      var Svg = d3.select("#my_dataviz2")
 
-      // create a list of keys
-      var keys = data.label;
-      var  colors  = data.labelColor;
-
-      Svg.selectAll("mydots")
-        .data(keys)
-        .enter()
-        .append("circle")
-          .attr("cx", function(d,i){
-            //return 100
-            return (Math.floor(i/5) * 200 + 100)
-          })
-          .attr("cy", function(d,i){
-
-            return i % 5 * 20 + 10
-          }) // 100 is where the first dot appears. 25 is the distance between dots
-          .attr("r", 7)
-          .style("fill", function(d,i){return colors[i]})
-
-
-
-          Svg.selectAll("mylabels")
-          .data(keys)
-          .enter()
-          .append("text")
-            .attr("x", function(d,i){
-
-              return (Math.floor(i/5) * 200 + 115)
-            })
-            .attr("y", function(d,i){
-              return i % 5 * 20 + 15
-            }) // 100 is where the first dot appears. 25 is the distance between dots
-            .style("fill", "black")
-            .text(function(d){ return d})
-            .attr("text-anchor", "left")
-            .style("alignment-baseline", "middle")
-
-    
-
-    // Plot download handler
-    function downloadCanvas(link, filename) {
-      var svg = el.children[0];
-      var img = document.getElementById("fromcanvasPlot");
-
-      if(saveToPng){
-        svg.toDataURL("image/png", {
+    /////////////////////////
+    // Static download handlers
+    /////////////////////////
+    function downloadPng(link, filename) {
+      var svg = document.getElementById("theWidget").children[0];
+      svg.toDataURL("image/png", {
           callback: function(data) {
             link.href = data;
             link.download = filename;
           }
-        })
-      }
-      else {
-        svg.toDataURL("image/svg+xml", {
-          callback: function(data) {
-            link.href = data;
-            link.download = filename;
-          }
-        })
-      }
+      })
     }
-    document.getElementById('downloadLink').addEventListener('click', function() {
-      if(saveToPng){
-        downloadCanvas(this, 'somplot.png');
-      }else{
-        downloadCanvas(this, 'somplot.svg');
-      }
-    }, false);
+    function downloadSvg(link, filename) {
+      var svg = document.getElementById("theWidget").children[0];
+      svg.toDataURL("image/svg+xml", {
+          callback: function(data) {
+            link.href = data;
+            link.download = filename;
+          }
+      })
+    }
+    document.getElementById('downloadPng').addEventListener('click', function() {
+        downloadPng(this, 'somplot.png');}, false);
+    document.getElementById('downloadSvg').addEventListener('click', function() {
+        downloadSvg(this, 'somplot.svg');}, false);
+        
+        
+        
 
     // Call grid following topology and type
     if(topology.localeCompare('rectangular')==0){
@@ -869,10 +584,9 @@ HTMLWidgets.widget({
       commonHexGrid();
     }
 
-    // Star function
-//    if(plotType.localeCompare("Star")==0) {
-
-
+    ////////////////////////////////////////////////////////////////////////////
+    // Common Star function
+    ////////////////////////////////////////////////////////////////////////////
       function StarChart(id, d, options) {
         var cfg = {
       	 radius: 5,
@@ -1050,7 +764,6 @@ HTMLWidgets.widget({
       			   .style('font-family', 'sans-serif')
       			   .style('font-size', '13px');
       }
-    //}
 
 
 
@@ -1064,7 +777,8 @@ HTMLWidgets.widget({
     function commonSquareGrid(){
       var svg = d3.select(el).append('svg')
       .attr("style"," display:block; margin:auto; margin-top:30px")
-      .attr({width: w, height: h});
+      .attr({width: Math.min(width, cellSize * nbColumns), 
+             height: Math.min(height, cellSize * nbRows)});
 
       if(plotType.localeCompare("Color")==0) {
         ////////////////////////////////////////////////////////////////////////
@@ -1858,7 +1572,6 @@ HTMLWidgets.widget({
       				}
       				//Call function to draw the Radar chart
       				//Will expect that data is in %'s
-      				// RadarChart.draw("#thePlot", arrayValues, mycfg);
       				StarChart("#theWidget", arrayValues, mycfg);
 
       			}
@@ -1918,34 +1631,38 @@ HTMLWidgets.widget({
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
     function commonHexGrid(){
-      var margin = {top: 30, right: 20, bottom: 20, left: 50};
-      var width = 850;
-      var height = 350;
-      var widtht = 850;
-      var heightt = 350;
-      var hexRadius=cellSize/2;
-      var hexInRadius;
 
+      ////// Old sizing scheme, size adapted from fixed hexRadius
+      //var hexRadius=cellSize/2;
       //Set the new height and width of the SVG based on the max possible
-      width = nbColumns*hexRadius*Math.sqrt(3)+hexRadius;
-      height = nbRows*1.5*hexRadius+2.5*hexRadius;
+      //width = nbColumns*hexRadius*Math.sqrt(3)+hexRadius;
+      //height = nbRows*1.5*hexRadius+2.5*hexRadius;
+      //var hexCellSize= cellSize;
+      
+      ////// New sizing scheme, hexRadius adapted from size
+      ////// Still not optimal, but takes into account the mysterious padding in the svg
+      hexRadius = Math.min(widgetWidth / (Math.sqrt(3) * nbColumns + 1), 
+                           widgetHeight / (1.5 * nbRows + 1));
+      var hexCellSize= 1.95 * hexRadius;
+      width = Math.min(widgetWidth, hexRadius * (Math.sqrt(3) * nbColumns + 1));
+      height= Math.min(widgetHeight, hexRadius * (1.5 * nbRows + 1));
+
       //Set the hexagon radius
       var hexbin = d3.hexbin().radius(hexRadius);
       //Calculate the center positions of each hexagon
       var points = [];
-       //for (var i = 0; i < nbRows; i++) {
-      for (var i = nbRows; i > 0; i--) {  //for (var i = 0; i < nbRows; i++) { <-- this is the edit to change the order of class numbering
+      for (var i = nbRows; i > 0; i--) {
         for (var j = 0; j < nbColumns; j++) {
           points.push([(hexRadius * j * 1.75)+hexRadius, (hexRadius * i * 1.5) ]); //+hexRadius added to get different shape
         }
       }
 
       var svg = d3.select(el).append("svg")
-			.attr("width", width+hexRadius+5)
+			.attr("width", width) //+hexRadius+5)
 			.attr("height", height)
-			.attr("style"," display:block; margin:auto; margin-top:30px;")
-			.append("g")
-			.attr("transform", "translate(" + hexRadius + "," + hexRadius+ ")");
+			.attr("style","display:block; margin:auto; margin-top:0px;")
+			.append("g");
+			//.attr("transform", "translate(" + hexRadius + "," + hexRadius+ ")");
 
 
       if (plotType.localeCompare("Color")==0) {
@@ -1972,11 +1689,11 @@ HTMLWidgets.widget({
 
     		if(activate){
     			hexa.append("text")
-    					.attr("x", function(d, i) { return coordinatesArray[i].x - cellSize*5/100 ; })
-    					.attr("y", function(d, i) { return coordinatesArray[i].y + cellSize*5/100 ; })
+    					.attr("x", function(d, i) { return coordinatesArray[i].x - hexCellSize*5/100 ; })
+    					.attr("y", function(d, i) { return coordinatesArray[i].y + hexCellSize*5/100 ; })
     					.text(function(d, i) { return superclass[i]; })
     					.attr("font-family", "sans-serif")
-    					.attr("font-size", cellSize*20/100)
+    					.attr("font-size", hexCellSize*20/100)
     					.attr("fill", "#112E45");
     		}
 
@@ -2007,6 +1724,8 @@ HTMLWidgets.widget({
         ////////////////////////////////////////////////////////////////////////
         // Hexagonal Hitmap
         ////////////////////////////////////////////////////////////////////////
+        var hexInRadius;
+
         var hexa = svg.selectAll(".hexagon")
     			.data(hexbin(points))
     			.enter().append("path")
@@ -2031,7 +1750,7 @@ HTMLWidgets.widget({
     			.append("path")
     			.attr("class", "InnerHexagon")
     			.attr("d", function (d) {
-    				hexInRadius = (hitmapNormalizedValues[i]*cellSize)/2;
+    				hexInRadius = (hitmapNormalizedValues[i]*hexCellSize)/2;
     				i++;
     				hexbint = d3.hexbin().radius(hexInRadius);
 
@@ -2139,10 +1858,10 @@ HTMLWidgets.widget({
 					.style("fill-opacity", 1);
         });
 
-        var array = d3.range(nbColumns);
-        var width = hexRadius;
-        var height = hexRadius;
-        var radius = Math.min(width, height)/ 2;
+        //var array = d3.range(nbColumns);
+        //var width = hexRadius;
+        //var height = hexRadius;
+        //var radius = Math.min(width, height)/ 2;
 
         svg.selectAll(".hexagon").data(d3.range(nbColumns)).append('g')
         var coordinatesArray = hexbin(points);
@@ -2152,8 +1871,8 @@ HTMLWidgets.widget({
           // Hexagonal Radar
           //////////////////////////////////////////////////////////////////////////
           var array = d3.range(nbColumns);
-          var width = cellSize*.5;
-          var height = cellSize*.5;
+          var width = hexCellSize*.5;
+          var height = hexCellSize*.5;
           var radius = Math.min(width, height) / 2;
           for (var n = 0; n < nbRows*nbColumns; n++) {
             var arc = d3.svg.arc().outerRadius(function function_name(d,i) { return d.data.normalizedValue*0.4;});
@@ -2165,7 +1884,7 @@ HTMLWidgets.widget({
 
             for(var j=0; j<parts; j++){
               arrayValues[j] = [];
-              arrayValues[j].normalizedValue = innerArrayNormalizedValues[j]*cellSize;
+              arrayValues[j].normalizedValue = innerArrayNormalizedValues[j]*hexCellSize;
               arrayValues[j].realValue = innerArrayRealValues[j];
             }
 
@@ -2213,11 +1932,11 @@ HTMLWidgets.widget({
           // Hexagonal Pie
           //////////////////////////////////////////////////////////////////////////
           var array = d3.range(nbColumns);
-          var width = cellSize*.5;
-          var height = cellSize*.5;
+          var width = hexCellSize*.5;
+          var height = hexCellSize*.5;
           var radius = Math.min(width, height) / 2;
           for (var n = 0; n < nbRows*nbColumns; n++) {
-    				var arc = d3.svg.arc().outerRadius(pieNormalizedSize[n]*(cellSize*40/100));
+    				var arc = d3.svg.arc().outerRadius(pieNormalizedSize[n]*(hexCellSize*40/100));
 
     				var innerArrayNormalizedValues = [];
     				innerArrayNormalizedValues= pieNormalizedValues[n];
@@ -2228,7 +1947,7 @@ HTMLWidgets.widget({
     				var arrayValues = [];
     				for(var j=0; j<parts; j++){
     					arrayValues[j] = [];
-    					arrayValues[j].normalizedValue = innerArrayNormalizedValues[j]*cellSize;
+    					arrayValues[j].normalizedValue = innerArrayNormalizedValues[j]*hexCellSize;
     					arrayValues[j].realValue = innerArrayRealValues[j];
     					arrayValues[j].innerCellPop = cellPop[n];
     				}
@@ -2278,8 +1997,8 @@ HTMLWidgets.widget({
           // Hexagonal Barplot
           //////////////////////////////////////////////////////////////////////////
         	var array = d3.range(nbColumns);
-    			var width = cellSize;
-    			var height = cellSize*.6;
+    			var width = hexCellSize;
+    			var height = hexCellSize*.6;
         	for (var indice = 0; indice < nbRows*nbColumns; indice++) {
             var innerArrayNormalizedValues= batonNormalizedValues[indice];
             var innerArrayRealValues= batonRealValues[indice];
@@ -2293,7 +2012,7 @@ HTMLWidgets.widget({
             var arrayValues = [];
             for(var j=0; j<nbBatons; j++){
       				arrayValues[j] = [];
-      				arrayValues[j].normalizedValue = innerArrayNormalizedValues[j]*cellSize;
+      				arrayValues[j].normalizedValue = innerArrayNormalizedValues[j]*hexCellSize;
       				arrayValues[j].realValue = innerArrayRealValues[j];
       				arrayValues[j].innerCellPop = cellPop[indice]
       			}
@@ -2317,12 +2036,12 @@ HTMLWidgets.widget({
       					return "r"+i;
       				})
       				.attr("x", function (d, i) {
-      					return i*((width-(cellSize*40/100))/nbBatons)+(cellSize*20/100);
+      					return i*((width-(hexCellSize*40/100))/nbBatons)+(hexCellSize*20/100);
       				})
-      				.attr("y", function (d, i) { return -innerArrayNormalizedValues[i]*(cellSize*55/100)+cellSize*25/100; })
-      				.attr("width", function (d) { return ((width-(cellSize*40/100))/nbBatons)-(cellSize*2/100)})
-      				.attr("height", function (d, i) {return innerArrayNormalizedValues[i]*cellSize*55/100; })
-      				.attr('transform', 'translate(' + (coordinatesArray[indice].x-cellSize/2) + ',' + (coordinatesArray[indice].y) + ')')
+      				.attr("y", function (d, i) { return -innerArrayNormalizedValues[i]*(hexCellSize*55/100)+hexCellSize*25/100; })
+      				.attr("width", function (d) { return ((width-(hexCellSize*40/100))/nbBatons)-(hexCellSize*2/100)})
+      				.attr("height", function (d, i) {return innerArrayNormalizedValues[i]*hexCellSize*55/100; })
+      				.attr('transform', 'translate(' + (coordinatesArray[indice].x-hexCellSize/2) + ',' + (coordinatesArray[indice].y) + ')')
       				.attr("fill", function(d, i) {
       						return labelColor[i];
       				});
@@ -2356,10 +2075,10 @@ HTMLWidgets.widget({
           // Hexagonal Boxplot
           //////////////////////////////////////////////////////////////////////////
 
-          var width = (cellSize*80/100)/(nbBox)-(cellSize*10/100),
-      			height = (cellSize*50/100);
-      		if(nbBox==1){width = (cellSize*20/100);
-      					 height = (cellSize*30/100);}
+          var width = (hexCellSize*80/100)/(nbBox)-(hexCellSize*10/100),
+      			height = (hexCellSize*50/100);
+      		if(nbBox==1){width = (hexCellSize*20/100);
+      					 height = (hexCellSize*30/100);}
       		var min = Infinity,
       			max = -Infinity;
       		var chart = d3.box()
@@ -2387,7 +2106,7 @@ HTMLWidgets.widget({
       				for(l=0; l<5; l++){
       					var e = Math.floor(j),
       					r = Math.floor(l),
-      					s = Math.floor(speed[l]*cellSize),
+      					s = Math.floor(speed[l]*hexCellSize),
       					d = data[e];
 
       					if (!d) { d = data[e] = [s];}
@@ -2409,9 +2128,9 @@ HTMLWidgets.widget({
       				.attr("height", height)
       				.attr('transform', function(d, i) {
       					if(nbBox==1){
-      						return 'translate(' + (cellSize*40/100+i*(cellSize*30/100) + coordinatesArray[p].x -cellSize/2) + ',' + (coordinatesArray[p].y - cellSize*15/100)+ ')';
+      						return 'translate(' + (hexCellSize*40/100+i*(hexCellSize*30/100) + coordinatesArray[p].x -hexCellSize/2) + ',' + (coordinatesArray[p].y - hexCellSize*15/100)+ ')';
       					}else{
-      						return 'translate(' + ((cellSize*15/100+i*((cellSize*80/100)/(nbBox))) + coordinatesArray[p].x -cellSize/2) + ',' + (coordinatesArray[p].y - cellSize*25/100)+ ')';
+      						return 'translate(' + ((hexCellSize*15/100+i*((hexCellSize*80/100)/(nbBox))) + coordinatesArray[p].x -hexCellSize/2) + ',' + (coordinatesArray[p].y - hexCellSize*25/100)+ ')';
       					}
       				})
       				.attr('fill', function(d, i) {
@@ -2441,12 +2160,12 @@ HTMLWidgets.widget({
       					.attr("class", "y")
       					.attr('transform', function(d, i) {
       						if(nbBox==1){
-      							return 'translate(' + (cellSize*40/100+j*(cellSize*40/100) + width/2 + coordinatesArray[p].x -cellSize/2) + ',' + (coordinatesArray[p].y + cellSize*25/100 - d.normalizedValues*cellSize*60/100) + ')';
+      							return 'translate(' + (hexCellSize*40/100+j*(hexCellSize*40/100) + width/2 + coordinatesArray[p].x -hexCellSize/2) + ',' + (coordinatesArray[p].y + hexCellSize*25/100 - d.normalizedValues*hexCellSize*60/100) + ')';
       						}else{
-      							return 'translate(' + ((cellSize*15/100+j*((cellSize*80/100)/(nbBox)) + width/2) + coordinatesArray[p].x -cellSize/2) + ',' + (coordinatesArray[p].y + cellSize*25/100 - d.normalizedValues*cellSize*52/100) + ')';
+      							return 'translate(' + ((hexCellSize*15/100+j*((hexCellSize*80/100)/(nbBox)) + width/2) + coordinatesArray[p].x -hexCellSize/2) + ',' + (coordinatesArray[p].y + hexCellSize*25/100 - d.normalizedValues*hexCellSize*52/100) + ')';
       						}
       					})
-      					.attr("r", cellSize*3/100)
+      					.attr("r", hexCellSize*3/100)
       					.attr('fill', function(d, i) {
       							return labelColor[j];
       					})
@@ -2527,23 +2246,22 @@ HTMLWidgets.widget({
       			}
 
       			// Dimension of the graph
-      			var w = cellSize*70/100,
-      				h = cellSize*70/100;
+      			var w = hexCellSize*70/100,
+      				h = hexCellSize*70/100;
 
       			//Options for the Radar chart, other than default
       			var mycfg = {
       				w: w,
       				h: h,
       				levels: 6,
-      				ExtraWidthX: cellSize,
-      				radius: cellSize*5/100,
-      				x: coordinatesArray[p].x+cellSize*15/100,
-      				y: coordinatesArray[p].y+cellSize*15/100
+      				ExtraWidthX: hexCellSize,
+      				radius: hexCellSize*5/100,
+      				x: coordinatesArray[p].x+hexCellSize*15/100,
+      				y: coordinatesArray[p].y+hexCellSize*15/100
       			}
 
       			//Call function to draw the Radar chart
       			//Will expect that data is in %'s
-      			//RadarChart.draw("#thePlot", arrayValues, mycfg);
       			StarChart("#theWidget", arrayValues, mycfg);
 
       		}
@@ -2558,8 +2276,8 @@ HTMLWidgets.widget({
       			var arrayValues = [];
       			for(var j=0; j<nbPoints; j++){
       				arrayValues[j] = [];
-      				arrayValues[j].px = cellSize*20/100+j*((cellSize-(cellSize*40/100))/(nbPoints-1));
-      				arrayValues[j].py = innerArrayNormalizedValues[j]*cellSize*0.5;
+      				arrayValues[j].px = hexCellSize*20/100+j*((hexCellSize-(hexCellSize*40/100))/(nbPoints-1));
+      				arrayValues[j].py = innerArrayNormalizedValues[j]*hexCellSize*0.5;
       				arrayValues[j].realValue = innerArrayRealValues[j];
       			}
       			var points = svg.append("g").selectAll(".hexagon")
@@ -2574,7 +2292,7 @@ HTMLWidgets.widget({
       						.interpolate("linear");
       					return lineFunction(arrayValues);
       				})
-      				.attr('transform', 'translate(' + (coordinatesArray[indice].x-cellSize/2) + ',' + (coordinatesArray[indice].y+cellSize*25/100) + ')')
+      				.attr('transform', 'translate(' + (coordinatesArray[indice].x-hexCellSize/2) + ',' + (coordinatesArray[indice].y+hexCellSize*25/100) + ')')
       				.attr("stroke", function(d) {
       					return "#112E45";
       				})
@@ -2589,15 +2307,15 @@ HTMLWidgets.widget({
       					return "y"+(indice);
       				})
       				.attr("cx", function(d, i) {
-      					var px = cellSize*20/100+i*cellSize;
+      					var px = hexCellSize*20/100+i*hexCellSize;
       					return px;
       				})
       				.attr("cy", function(d, i) {
       					innerArrayNormalizedValues= lineNormalizedValues[indice];
-      					var py = (-innerArrayNormalizedValues[0]*cellSize)*0.5;
+      					var py = (-innerArrayNormalizedValues[0]*hexCellSize)*0.5;
       					return py;
       				})
-      				.attr('transform', 'translate(' + (coordinatesArray[indice].x-cellSize/2) + ',' + (coordinatesArray[indice].y+cellSize*25/100) + ')')
+      				.attr('transform', 'translate(' + (coordinatesArray[indice].x-hexCellSize/2) + ',' + (coordinatesArray[indice].y+hexCellSize*25/100) + ')')
       				.attr("r", 4)
       				.style("fill", "none")
       				.style("stroke", "#112E45");
@@ -2612,8 +2330,8 @@ HTMLWidgets.widget({
       						var arrayValues = [];
       						for(var j=0; j<nbPoints; j++){
       							arrayValues[j] = [];
-      							arrayValues[j].px = cellSize*20/100+j*((cellSize-(cellSize*40/100))/(nbPoints-1))+coordinatesArray[(k*nbColumns)+l].x-cellSize/2;
-      							arrayValues[j].py = -(innerArrayNormalizedValues[j]*cellSize*0.5)+coordinatesArray[(k*nbColumns)+l].y+cellSize*25/100;
+      							arrayValues[j].px = hexCellSize*20/100+j*((hexCellSize-(hexCellSize*40/100))/(nbPoints-1))+coordinatesArray[(k*nbColumns)+l].x-hexCellSize/2;
+      							arrayValues[j].py = -(innerArrayNormalizedValues[j]*hexCellSize*0.5)+coordinatesArray[(k*nbColumns)+l].y+hexCellSize*25/100;
       							arrayValues[j].realValue = innerArrayRealValues[j];
       						}
 
@@ -2637,7 +2355,7 @@ HTMLWidgets.widget({
 
       						//svg.select("circle.y"+((k*nbColumns)+l))
       						svg.select("circle.y"+(((((nbRows-1)* nbColumns)-(nbRows-k-1)*(nbColumns)))+l))
-      							.attr("transform", "translate(" + (d.px-cellSize*20/100) + "," + (d.py-arrayValues[0].py+(cellSize-cellSize*75/100)+(nbRows-k)*cellSize*75/100) + ")");
+      							.attr("transform", "translate(" + (d.px-hexCellSize*20/100) + "," + (d.py-arrayValues[0].py+(hexCellSize-hexCellSize*75/100)+(nbRows-k)*hexCellSize*75/100) + ")");
 
       						if(l==parseInt((i%nbRows),10) && k==parseInt((i/nbRows),10)){
       							d3.select('#plot-message').text(function () {
@@ -2685,9 +2403,9 @@ HTMLWidgets.widget({
       			}
 
             // => ici l'intervalle est tres important car il joue sur l'apparence des mots !
-      			d3.layout.cloud().size([cellSize*0.6, cellSize*0.6])
+      			d3.layout.cloud().size([hexCellSize*0.6, hexCellSize*0.6])
       				.words(arrayValues.map(function(d) {
-      					return {text: d, size: (cellSize/wordWithMaxLetters)*0.7 };
+      					return {text: d, size: (hexCellSize/wordWithMaxLetters)*0.7 };
       				}))
       				.rotate(function() { return ~~(Math.random() * 1) * 90; })
       				.fontSize(function(d) { return d.size; })
@@ -2699,7 +2417,8 @@ HTMLWidgets.widget({
       }
     }
 
-           }
+           }, 
+           resize: function(width, height) {}
     };
   }
 });

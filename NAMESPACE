@@ -5,6 +5,7 @@ import(shiny)
 # standard functions
 export(aweSOM)
 export(somDist)
+export(somInit)
 export(somQuality)
 export(aweSOMdendrogram)
 export(aweSOMscreeplot)

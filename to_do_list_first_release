@@ -8,12 +8,10 @@ Train
 .
 
 
-
 Plots
+* display the legend
 * Reverse-order issue for rectangular grid
-* Plot size setting does not impact SOM sizes anymore
-* Julien : check "contrast" options for boxplot (doesn't seem to change anything)
-* Julien : prototype value rescale ; probably linked to black "Color" plot for prototypes
+* boxplot contours and whiskers do not show
 
 
 Clustered Data
@@ -28,5 +26,6 @@ Vignette
 
 Other: 
 * Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?)
-* UI Panel Element for Meta Information?
+* UI Panel Element for Meta Information -> About panel
 * Roxygen Skeletons functions
+* (Julien) Clean code, and make CRAN-ready

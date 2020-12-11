@@ -1,322 +1,48 @@
 
-
-
-
-#' D3-based plot data generation
-#' Function generates a list object containing data for D3-based plots
-#' @param type 
-#' @param som 
-#' @param superclass 
-#' @param data 
-#' @param plotsize 
-#' @param varnames 
-#' @param normtype 
-#' @param palsc 
-#' @param palplot 
-#' @param cellNames 
-#' @param plotOutliers 
-#' @param reversePal 
-#' @param options 
-#' @param the.average_format 
+#' Generate plot color palets
+#' Function that generates color pallets
+#' @param pal 
+#' @param n 
+#' @param reverse 
 #'
 #' @return
 #'
 #' @examples
-getPlotParams <- function(type, som, superclass, data, plotsize, varnames, 
-                          normtype= c("range", "contrast"), palsc, palplot, 
-                          cellNames, plotOutliers, reversePal, options= NULL, 
-                          the.average_format) {
-  
-  ## Paramètres communs à tous les graphiques
-  somsize <- nrow(som$grid$pts)
-  clustering <- factor(som$unit.classif, 1:nrow(som$grid$pts))
-  clust.table <- table(clustering)
-  
-  gridInfo <- list(nbLines= som$grid$xdim,
-                   nbColumns= som$grid$ydim,
-                   topology= ifelse(som$grid$topo == "rectangular", 
-                                    'rectangular', "hexagonal"))
-  n.sc <- length(unique(superclass))
-  superclassColor <- getPalette(palsc, n.sc)
-  res <- list(plotType= type, 
-              saveToPng= TRUE, #<- previously true
-              sizeInfo= plotsize, 
-              gridInfo= gridInfo, 
-              superclass= superclass, 
-              superclassColor= superclassColor, 
-              cellNames= cellNames, 
-              cellPop= unname(clust.table))
-  
-  ## Traitement data si besoin :
-  if (type %in% c("Camembert", "CatBarplot")) {
-    if (is.numeric(data)) if (length(unique(data)) > 100) data <- cut(data, 100)
-    data <- as.factor(data)
-    unique.values <- levels(data)
-    nvalues <- nlevels(data)
-  } else if (type %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "Star")) {
-    if (is.null(dim(data))) {
-      data <- data.frame(data)
-      colnames(data) <- varnames
-    } else data <- as.data.frame(data)
-    if (type == "Color") 
-      data <- as.data.frame(sapply(data, as.numeric))
-    
-    nvar <- length(varnames)
-    
-    if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
-      #browser()      
-      ## Means by cell
-      if (normtype == "range") { 
-        ## "Range" normalization : data range to [0,1], then means
-        normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
-        #for the prototypes data
-        prototypes_data <- as.data.frame(som$codes)
-        normDat_prototypes <- as.data.frame(sapply(prototypes_data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
-       
-
-        if(the.average_format == "mean"){ #using input$average_format does not work since this is not within the server function context
-          normValues <- unname(lapply(split(normDat, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(colMeans(x))
-                                      }))
-          realValues <- unname(lapply(split(data, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(round(colMeans(x), 3)) #is this what is supposed to be edited to pass other data?
-                                      }))
-        }
-        
-        
-        if(the.average_format == "median"){
-          normValues <- unname(lapply(split(normDat, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(apply(x, 2, median))
-                                      }))
-          realValues <- unname(lapply(split(data, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(round(apply(x, 2, median), 3)) #is this what is supposed to be edited to pass other data?
-                                      }))
-        }
-        
-        if(the.average_format == "prototypes"){
-          normValues <- unname(split((unname(normDat_prototypes)), seq(nrow(normDat_prototypes))))
-          normValues <- lapply(normValues, as.numeric)
-          realValues <-   unname(split((unname(prototypes_data)), seq(nrow(prototypes_data))))
-          realValues <- lapply(realValues, as.numeric)
-        }
-
-      } else if (normtype == "contrast") {
-        
-        if(the.average_format == "mean"){
-        
-        ## "Contrast" normalization : means on data, then range(means) -> [0,1]
-        realValues <- do.call(rbind, lapply(split(data, clustering), 
-                                            function(x) {
-                                              if (!nrow(x)) return(rep(NA, nvar))
-                                              unname(round(colMeans(x), 3))
-                                            }))
-        normValues <- apply(realValues, 2, function(x) 
-          .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
-        realValues <- unname(as.list(as.data.frame(t(realValues))))
-        normValues <- unname(as.list(as.data.frame(t(normValues))))
-        }
-        
-        if(the.average_format == "median"){
-          realValues <- do.call(rbind, lapply(split(data, clustering), 
-                                              function(x) {
-                                                if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(apply(x, 2, median), 3))
-                                              }))
-          normValues <- apply(realValues, 2, function(x) 
-            .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
-          realValues <- unname(as.list(as.data.frame(t(realValues))))
-          normValues <- unname(as.list(as.data.frame(t(normValues))))
-        }
-        
-        
-        if(the.average_format == "prototypes"){
-          prototypes_data <- as.data.frame(som$codes) #<-not sure if this is correct calculytion here for contrast?! 
-          normDat_prototypes <- as.data.frame(sapply(prototypes_data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
-          normValues <- unname(split((unname(normDat_prototypes)), seq(nrow(normDat_prototypes))))
-          normValues <- lapply(normValues, as.numeric)
-          realValues <-   unname(split((unname(prototypes_data)), seq(nrow(prototypes_data))))
-          realValues <- lapply(realValues, as.numeric)
-        }
-
-      }
-      
-      else if(normtype == "no_contrast"){
-
-        if(the.average_format == "mean"){
-          
-        normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(data)) / (max(data) - min(data))))
-        normValues <- unname(lapply(split(normDat, clustering), 
-                                    function(x) {
-                                      if (!nrow(x)) return(rep(NA, nvar))
-                                      unname(colMeans(x))
-                                    }))
-        realValues <- do.call(rbind, lapply(split(data, clustering), 
-                                            function(x) {
-                                              if (!nrow(x)) return(rep(NA, nvar))
-                                              unname(round(colMeans(x), 3))
-                                            }))
-        }
-        
-        
-        if(the.average_format == "median"){
-          normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(data)) / (max(data) - min(data))))
-          normValues <- unname(lapply(split(normDat, clustering), 
-                                      function(x) {
-                                        if (!nrow(x)) return(rep(NA, nvar))
-                                        unname(apply(x, 2, median))
-                                      }))
-          realValues <- do.call(rbind, lapply(split(data, clustering), 
-                                              function(x) {
-                                                if (!nrow(x)) return(rep(NA, nvar))
-                                                unname(round(apply(x, 2, median), 3))
-                                              }))
-        }
-        
-        
-        if(the.average_format == "prototypes"){
-          
-          prototypes_data <- as.data.frame(som$codes) #<-not sure if this is correct calculytion here for contrast?! 
-          normDat_prototypes <- as.data.frame(sapply(prototypes_data, function(x) .05 + .9 * (x - min(prototypes_data)) / (max(prototypes_data) - min(prototypes_data)))) #<- again not sure
-          normValues <- unname(split((unname(normDat_prototypes)), seq(nrow(normDat_prototypes))))
-          normValues <- lapply(normValues, as.numeric)
-          realValues <-   unname(split((unname(prototypes_data)), seq(nrow(prototypes_data))))
-          realValues <- lapply(realValues, as.numeric)
-         }
-        }
-      
-      
-      if (type == "Color") {
-        ## 8 colors (equal-sized bins of values) of selected palette
-        normValues <- do.call(rbind, normValues)
-        normValues <- apply(normValues, 2, function(x) 
-          getPalette(palplot, 8, reversePal)[cut(x, seq(.049, .951, length.out= 9))])
-        normValues[is.na(normValues)] <- "#FFFFFF"
-      }
-    } else if (type == "Boxplot") {
-      normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
-      normValues <- unname(lapply(split(normDat, clustering), 
-                                  function(x) {
-                                    if (!nrow(x)) return(rep(NA, nvar))
-                                    unname(colMeans(x))
-                                  }))
-      normDat <- as.data.frame(sapply(data, function(x) (x - min(x)) / (max(x) - min(x))))
-      data <- as.data.frame(apply(data, 2, as.numeric)) # To prevent weird JS error (when a type is in integer)
-    }
+getPalette <- function(pal, n, reverse= F) {
+  if(pal == "grey") {
+    res <- grey(1:n / n)
+  } else if(pal == "rainbow") { 
+    res <- substr(rainbow(n), 1, 7) 
+  } else if(pal == "heat") { 
+    res <- substr(heat.colors(n), 1, 7) 
+  } else if(pal == "terrain") { 
+    res <- substr(terrain.colors(n), 1, 7) 
+  } else if(pal == "topo") { 
+    res <- substr(topo.colors(n), 1, 7) 
+  } else if(pal == "cm") { 
+    res <- substr(cm.colors(n), 1, 7) 
+  } else if (pal == "viridis") {
+    if (n == 1) {
+      res <- substr(viridis::viridis(3), 1, 7)[1]
+    } else if (n == 2) {
+      res <- substr(viridis::viridis(3), 1, 7)[c(1,3)]
+    } else 
+      res <- substr(viridis::viridis(n), 1, 7)
+  } else {
+    if (n == 1) {
+      res <- RColorBrewer::brewer.pal(3, pal)[1]
+    } else if (n == 2) {
+      res <- RColorBrewer::brewer.pal(3, pal)[c(1,3)]
+    } else 
+      res <- RColorBrewer::brewer.pal(n, pal)
   }
-  
-  
-  ## Paramètres spécifiques :
-  if (type == "Camembert") {
-    res$parts <- nvalues
-    res$label <- unique.values
-    res$labelColor <- getPalette(palplot, nvalues, reversePal)
-    if (options$equalSize) {
-      res$pieNormalizedSize <- rep(.9, length(clust.table))
-    } else
-      res$pieNormalizedSize <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
-    res$pieRealSize <- unname(clust.table)
-    res$pieNormalizedValues <- unname(lapply(split(data, clustering), 
-                                             function(x) {
-                                               if (!length(x)) return(rep(1/nvalues, nvalues))
-                                               unname(table(x) / length(x))
-                                             }))
-    res$pieRealValues <- unname(lapply(split(data, clustering), 
-                                       function(x) unname(table(x))))
-    
-    #print(res$labelColor)
-    
-  } else if (type == "CatBarplot") {
-    res$nbBatons <- nvalues
-    res$isHist <- FALSE
-    res$isCatBarplot <- TRUE
-    res$label <- unique.values
-    res$labelColor <- getPalette(palplot, nvalues, reversePal)
-    res$batonRealValues <- unname(lapply(split(data, clustering), 
-                                         function(x) unname(table(x))))
-    if (normtype == "contrast") {
-      maxValue <- max(do.call(c, lapply(split(data, clustering), 
-                                        function(x) {
-                                          if (!length(x)) return(rep(0, nvalues))
-                                          unname(table(x) / length(x))
-                                        })))
-    } else maxValue <- 1
-    res$batonNormalizedValues <- unname(lapply(split(data, clustering), 
-                                               function(x) {
-                                                 if (!length(x)) return(rep(0, nvalues))
-                                                 .02 + .98 * unname(table(x) / length(x)) / maxValue
-                                               }))
-  } else if (type == "Radar") {
-    res$parts <- nvar
-    res$label <- varnames
-    res$labelColor <- getPalette(palplot, nvar, reversePal)
-    res$radarNormalizedSize <- unname(clust.table > 0)
-    res$radarRealSize <- unname(clust.table)
-    res$radarNormalizedValues <- normValues
-    res$radarRealValues <- realValues
-  } else if (type == "Hitmap") {
-    res$hitmapNormalizedValues <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table))) #taken care
-    res$hitmapRealValues <- unname(clust.table)
-  } else if (type == "Line") {
-    res$nbPoints <- nvar
-    res$label <- varnames
-    res$lineNormalizedValues <- normValues
-    res$lineRealValues <- realValues    
-  } else if (type == "Barplot") {
-    res$nbBatons <- nvar
-    res$isHist <- FALSE
-    res$isCatBarplot <- FALSE
-    res$label <- varnames
-    res$labelColor <- getPalette(palplot, nvar, reversePal)
-    res$batonNormalizedValues <- normValues
-    res$batonRealValues <- realValues
-  } else if (type == "Boxplot") {
-    res$nbBox <- nvar
-    res$label <- varnames
-    res$labelColor <- getPalette(palplot, nvar, reversePal)
-    
-    boxes.norm <- lapply(split(normDat, clustering), boxplot, plot= F)
-    boxes.real <- lapply(split(data, clustering), boxplot, plot= F)
-    res$boxPlotNormalizedValues <- unname(lapply(boxes.norm, function(x) unname(as.list(as.data.frame(x$stats)))))
-    res$boxPlotRealValues <- unname(lapply(boxes.real, function(x) unname(as.list(as.data.frame(x$stats)))))
-    if (plotOutliers) {
-      res$boxNormalizedExtremesValues <- json_edits(unname(lapply(boxes.norm, function(x) unname(split(x$out, factor(x$group, levels= 1:nvar))))))
-      res$boxRealExtremesValues <- json_edits(unname(lapply(boxes.real, function(x) as.list(unname(split(x$out, factor(x$group, levels= 1:nvar)))))))
-      
-
-      
-      
-    } else {
-      res$boxNormalizedExtremesValues <- json_edits(unname(lapply(boxes.norm, function(x) lapply(1:nvar, function(y) numeric(0)))))
-      res$boxRealExtremesValues <- json_edits(unname(lapply(boxes.real, function(x) lapply(1:nvar, function(y) numeric(0)))))
-    }
-  } else if (type == "Color") {
-    res$activate <- TRUE
-    res$colorNormalizedValues <- normValues
-    res$colorRealValues <- realValues   
-    res$label <- varnames
-  } else if (type == "Star") {
-    res$nbSommet <- nvar
-    res$label <- varnames
-    res$starPlotNormalizedValues <- normValues
-    res$starPlotRealValues <- realValues
-  } else if (type == "Names") {
-    res$wordClouds <- unname(split(data, clustering))
-    res$nbWord <- unname(sapply(res$wordClouds, length))
-  }
-  
-  if (type == "CatBarplot")
-    res$plotType <- "Barplot"
-  
+  if (length(res) == 1) 
+    res <- list(res)
+  if (reverse) 
+    res <- rev(res)
   res
 }
+
 
 
 
@@ -417,58 +143,12 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
 
 
 
-#' Generate plot color palets
-#' Function that generates color pallets
-#' @param pal 
-#' @param n 
-#' @param reverse 
-#'
-#' @return
-#'
-#' @examples
-getPalette <- function(pal, n, reverse= F) {
-  if(pal == "grey") {
-    res <- grey(1:n / n)
-  } else if(pal == "rainbow") { 
-    res <- substr(rainbow(n), 1, 7) 
-  } else if(pal == "heat") { 
-    res <- substr(heat.colors(n), 1, 7) 
-  } else if(pal == "terrain") { 
-    res <- substr(terrain.colors(n), 1, 7) 
-  } else if(pal == "topo") { 
-    res <- substr(topo.colors(n), 1, 7) 
-  } else if(pal == "cm") { 
-    res <- substr(cm.colors(n), 1, 7) 
-  } else if (pal == "viridis") {
-    if (n == 1) {
-      res <- substr(viridis::viridis(3), 1, 7)[1]
-    } else if (n == 2) {
-      res <- substr(viridis::viridis(3), 1, 7)[c(1,3)]
-    } else 
-      res <- substr(viridis::viridis(n), 1, 7)
-  } else {
-    if (n == 1) {
-      res <- RColorBrewer::brewer.pal(3, pal)[1]
-    } else if (n == 2) {
-      res <- RColorBrewer::brewer.pal(3, pal)[c(1,3)]
-    } else 
-      res <- RColorBrewer::brewer.pal(n, pal)
-  }
-  if (length(res) == 1) 
-    res <- list(res)
-  if (reverse) 
-    res <- rev(res)
-  res
-}
-
-
-
 
 #' Plot dendogram for hierarchical clustering of SOM cells
 #'
 #' @param ok.som SOM data object
 #' @param ok.hclust hierarchical clustering object
-#' @param input_kohSuperclass number of Kohonen superclasses
+#' @param input_kohSuperclass number of superclasses
 #'
 #' @return Dendogram plot of hierarchical clustering
 #'
@@ -755,7 +435,293 @@ json_edits <- function(test){
 
 
 
-## htmlwidgets binding
+
+
+################################################################################
+## d3-based plots
+################################################################################
+
+
+
+#################################
+## Generate plot parameters to be passed to D3 functions
+#################################
+
+#' D3-based plot data generation
+#' Function generates a list object containing data for D3-based plots
+#' @param type 
+#' @param som 
+#' @param superclass 
+#' @param data 
+#' @param plotsize 
+#' @param varnames 
+#' @param normtype 
+#' @param palsc 
+#' @param palplot 
+#' @param cellNames 
+#' @param plotOutliers 
+#' @param reversePal 
+#' @param options 
+#' @param valueFormat 
+#'
+#' @return
+#'
+#' @examples
+getPlotParams <- function(type, som, superclass, data, plotsize, varnames, 
+                          normtype= c("range", "contrast"), palsc, palplot, 
+                          cellNames, plotOutliers, reversePal, options= NULL, 
+                          valueFormat) {
+  
+  ## Paramètres communs à tous les graphiques
+  somsize <- nrow(som$grid$pts)
+  clustering <- factor(som$unit.classif, 1:nrow(som$grid$pts))
+  clust.table <- table(clustering)
+  
+  gridInfo <- list(nbLines= som$grid$xdim,
+                   nbColumns= som$grid$ydim,
+                   topology= ifelse(som$grid$topo == "rectangular", 
+                                    'rectangular', "hexagonal"))
+  n.sc <- length(unique(superclass))
+  superclassColor <- getPalette(palsc, n.sc)
+  res <- list(plotType= type, 
+              sizeInfo= plotsize, 
+              gridInfo= gridInfo, 
+              superclass= superclass, 
+              superclassColor= superclassColor, 
+              cellNames= cellNames, 
+              cellPop= unname(clust.table))
+  
+  if (type %in% c("Camembert", "CatBarplot")) {
+    if (is.numeric(data)) if (length(unique(data)) > 100) data <- cut(data, 100)
+    data <- as.factor(data)
+    unique.values <- levels(data)
+    nvalues <- nlevels(data)
+  } else if (type %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "Star")) {
+    if (is.null(dim(data))) {
+      data <- data.frame(data)
+      colnames(data) <- varnames
+    } else data <- as.data.frame(data)
+    if (type == "Color") 
+      data <- as.data.frame(sapply(data, as.numeric))
+    
+    nvar <- length(varnames)
+    
+    ##########
+    ## Compute normalized values for mean/median/prototype to use in plots
+    ##########
+    
+    if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
+      prototypes <- som$codes[[1]][, varnames]
+      
+      ## realValues are the one displayed in the text info above the plot
+      if (valueFormat == "mean") {
+        realValues <- do.call(rbind, lapply(split(data, clustering), 
+                                            function(x) {
+                                              if (!nrow(x)) return(rep(NA, nvar))
+                                              unname(round(colMeans(x), 3))
+                                            }))
+      } else if (valueFormat == "median") {
+        realValues <- do.call(rbind, lapply(split(data, clustering), 
+                                            function(x) {
+                                              if (!nrow(x)) return(rep(NA, nvar))
+                                              unname(round(apply(x, 2, median), 3))
+                                            }))
+      } else if (valueFormat == "prototypes") {
+        realValues <- unname(as.data.frame(prototypes))
+      }
+        
+      if (normtype == "range") { 
+        ## "Range" normalization : data/proto range to [0,1], then means
+        if (valueFormat == "prototypes") {
+          normDat <- as.data.frame(sapply(as.data.frame(prototypes), function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
+        } else {
+          normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
+        }
+        
+        if(valueFormat == "mean"){ 
+          normValues <- unname(lapply(split(normDat, clustering), 
+                                      function(x) {
+                                        if (!nrow(x)) return(rep(NA, nvar))
+                                        unname(colMeans(x))
+                                      }))
+        } else if(valueFormat == "median"){
+          normValues <- unname(lapply(split(normDat, clustering), 
+                                      function(x) {
+                                        if (!nrow(x)) return(rep(NA, nvar))
+                                        unname(apply(x, 2, median))
+                                      }))
+        } else if(valueFormat == "prototypes"){
+          normValues <- unname(as.list(as.data.frame(t(normDat))))
+        }
+        realValues <- unname(as.list(as.data.frame(t(realValues))))
+        
+      } else if (normtype == "contrast") {
+        ## "Contrast" normalization : means on data, then range(means) -> [0,1]
+        
+        normValues <- apply(realValues, 2, function(x) 
+          .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
+        normValues <- unname(as.list(as.data.frame(t(normValues))))
+        realValues <- unname(as.list(as.data.frame(t(realValues))))
+        
+      } else if(normtype == "no_contrast"){
+        ## "No contrast" normalization : global 0-1 scale, on obs/protos
+        
+        if (valueFormat %in% c("mean", "median")) {
+          normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(data)) / (max(data) - min(data))))
+          if(valueFormat == "mean"){
+            normValues <- unname(lapply(split(normDat, clustering), 
+                                        function(x) {
+                                          if (!nrow(x)) return(rep(NA, nvar))
+                                          unname(colMeans(x))
+                                        }))
+          } else if(valueFormat == "median"){
+            normValues <- unname(lapply(split(normDat, clustering), 
+                                        function(x) {
+                                          if (!nrow(x)) return(rep(NA, nvar))
+                                          unname(apply(x, 2, median))
+                                        }))
+          }
+        } else if(valueFormat == "prototypes"){
+          normDat <- as.data.frame(sapply(as.data.frame(prototypes), 
+                                          function(x) .05 + .9 * (x - min(prototypes)) / (max(prototypes) - min(prototypes))))
+          normValues <- unname(as.list(as.data.frame(t(normDat))))
+        }
+        realValues <- unname(as.list(as.data.frame(t(realValues))))
+      }
+      
+      if (type == "Color") {
+        ## 8 colors (equal-sized bins of values) of selected palette
+        normValues <- do.call(rbind, normValues)
+        normValues <- apply(normValues, 2, function(x) 
+          getPalette(palplot, 8, reversePal)[cut(x, seq(.049, .951, length.out= 9))])
+        normValues[is.na(normValues)] <- "#FFFFFF"
+      }
+    } else if (type == "Boxplot") {
+      normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
+      normValues <- unname(lapply(split(normDat, clustering), 
+                                  function(x) {
+                                    if (!nrow(x)) return(rep(NA, nvar))
+                                    unname(colMeans(x))
+                                  }))
+      if (normtype == "no_contrast") {
+        normDat <- data
+      } else {
+        normDat <- as.data.frame(sapply(data, function(x) (x - min(x)) / (max(x) - min(x))))
+      }
+      data <- as.data.frame(apply(data, 2, as.numeric)) # To prevent weird JS error (when a type is in integer)
+    }
+  }
+  
+  
+  ##########
+  ## Generate plot-type specific list of arguments
+  ##########
+  
+  if (type == "Camembert") {
+    res$parts <- nvalues
+    res$label <- unique.values
+    res$labelColor <- getPalette(palplot, nvalues, reversePal)
+    if (options$equalSize) {
+      res$pieNormalizedSize <- rep(.9, length(clust.table))
+    } else
+      res$pieNormalizedSize <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
+    res$pieRealSize <- unname(clust.table)
+    res$pieNormalizedValues <- unname(lapply(split(data, clustering), 
+                                             function(x) {
+                                               if (!length(x)) return(rep(1/nvalues, nvalues))
+                                               unname(table(x) / length(x))
+                                             }))
+    res$pieRealValues <- unname(lapply(split(data, clustering), 
+                                       function(x) unname(table(x))))
+    
+    #print(res$labelColor)
+    
+  } else if (type == "CatBarplot") {
+    res$nbBatons <- nvalues
+    res$isHist <- FALSE
+    res$isCatBarplot <- TRUE
+    res$label <- unique.values
+    res$labelColor <- getPalette(palplot, nvalues, reversePal)
+    res$batonRealValues <- unname(lapply(split(data, clustering), 
+                                         function(x) unname(table(x))))
+    if (normtype == "contrast") {
+      maxValue <- max(do.call(c, lapply(split(data, clustering), 
+                                        function(x) {
+                                          if (!length(x)) return(rep(0, nvalues))
+                                          unname(table(x) / length(x))
+                                        })))
+    } else maxValue <- 1
+    res$batonNormalizedValues <- unname(lapply(split(data, clustering), 
+                                               function(x) {
+                                                 if (!length(x)) return(rep(0, nvalues))
+                                                 .02 + .98 * unname(table(x) / length(x)) / maxValue
+                                               }))
+  } else if (type == "Radar") {
+    res$parts <- nvar
+    res$label <- varnames
+    res$labelColor <- getPalette(palplot, nvar, reversePal)
+    res$radarNormalizedSize <- unname(clust.table > 0)
+    res$radarRealSize <- unname(clust.table)
+    res$radarNormalizedValues <- normValues
+    res$radarRealValues <- realValues
+  } else if (type == "Hitmap") {
+    res$hitmapNormalizedValues <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table))) #taken care
+    res$hitmapRealValues <- unname(clust.table)
+  } else if (type == "Line") {
+    res$nbPoints <- nvar
+    res$label <- varnames
+    res$lineNormalizedValues <- normValues
+    res$lineRealValues <- realValues    
+  } else if (type == "Barplot") {
+    res$nbBatons <- nvar
+    res$isHist <- FALSE
+    res$isCatBarplot <- FALSE
+    res$label <- varnames
+    res$labelColor <- getPalette(palplot, nvar, reversePal)
+    res$batonNormalizedValues <- normValues
+    res$batonRealValues <- realValues
+  } else if (type == "Boxplot") {
+    res$nbBox <- nvar
+    res$label <- varnames
+    res$labelColor <- getPalette(palplot, nvar, reversePal)
+    
+    boxes.norm <- lapply(split(normDat, clustering), boxplot, plot= F)
+    boxes.real <- lapply(split(data, clustering), boxplot, plot= F)
+    res$boxPlotNormalizedValues <- unname(lapply(boxes.norm, function(x) unname(as.list(as.data.frame(x$stats)))))
+    res$boxPlotRealValues <- unname(lapply(boxes.real, function(x) unname(as.list(as.data.frame(x$stats)))))
+    if (plotOutliers) {
+      res$boxNormalizedExtremesValues <- unname(lapply(boxes.norm, function(x) unname(split(x$out, factor(x$group, levels= 1:nvar)))))
+      res$boxRealExtremesValues <- unname(lapply(boxes.real, function(x) as.list(unname(split(x$out, factor(x$group, levels= 1:nvar))))))
+    } else {
+      res$boxNormalizedExtremesValues <- unname(lapply(boxes.norm, function(x) lapply(1:nvar, function(y) numeric(0))))
+      res$boxRealExtremesValues <- unname(lapply(boxes.real, function(x) lapply(1:nvar, function(y) numeric(0))))
+    }
+  } else if (type == "Color") {
+    res$activate <- TRUE
+    res$colorNormalizedValues <- normValues
+    res$colorRealValues <- realValues   
+    res$label <- varnames
+  } else if (type == "Star") {
+    res$nbSommet <- nvar
+    res$label <- varnames
+    res$starPlotNormalizedValues <- normValues
+    res$starPlotRealValues <- realValues
+  } else if (type == "Names") {
+    res$wordClouds <- unname(split(data, clustering))
+    res$nbWord <- unname(sapply(res$wordClouds, length))
+  }
+  
+  if (type == "CatBarplot")
+    res$plotType <- "Barplot"
+  
+  res
+}
+
+
+#################################
+## Core widget function, render D3 plot in an htmlwidget
+#################################
+
 #' @import htmlwidgets
 #' @export
 aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows, 
@@ -827,15 +793,32 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                                        average_format)
   
   # create the widget
-  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = width, height = height, package = "aweSOM")
+  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = plotSize, 
+                            height = plotSize, package = "aweSOM", 
+                            sizingPolicy = htmlwidgets::sizingPolicy(defaultWidth = "100%", defaultHeight = "auto", padding= 0))
 }
 
+## htmlwidgets - shiny binding
+#' @export
+# aweSOMoutput <- function(outputId, width = "100%", height = "400px") {
+aweSOMoutput <- function(outputId, width = "100%", height = "auto") {
+  htmlwidgets::shinyWidgetOutput(outputId, "aweSOMwidget", width, height, package = "aweSOM")
+}
+#' @export
+renderaweSOM <- function(expr, env = parent.frame(), quoted = FALSE) {
+  if (!quoted) { expr <- substitute(expr) } # force quoted
+  htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = TRUE)
+  # htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = F)
+}
 
+aweSOMwidget_html = function(id, style, class, ...){
+  htmltools::tags$div(id = id, class = class, 
+                      style= paste0(style, "display:block; margin:auto; margin-top:5px; margin-bottom:5px;"))
+}
 
-
-
-
-
+#################################
+## Console-callable function for interactive plots
+#################################
 
 #' SOM interactive visualizations
 #'
@@ -909,38 +892,15 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
                       plotSize = plotSize, 
                       palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
   
-  
-  
   res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadLink")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget"))) # formely padding bottom 10%
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
-     
-  # div with wll similar to ui.R to get grey-ish box
-  
   res <- htmlwidgets::appendContent(res, 
-                                    (htmltools::tag("p", list(id= "plot-names",
-                                                                                   style = "padding-top:10%"))))
-  
- 
+                                    (htmltools::tag("p", list(id= "plot-names"))))
 
-  
   res
 }
-
-
-## htmlwidgets - shiny binding
-#' @export
-aweSOMoutput <- function(outputId, width = "100%", height = "400px") {
-  htmlwidgets::shinyWidgetOutput(outputId, "aweSOMwidget", width, height, package = "aweSOM")
-}
-#' @export
-renderaweSOM <- function(expr, env = parent.frame(), quoted = FALSE) {
-  if (!quoted) { expr <- substitute(expr) } # force quoted
-  htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = TRUE)
-  # htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = F)
-}
-
 
 

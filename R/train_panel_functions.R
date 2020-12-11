@@ -108,6 +108,45 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
 }
 
 
+## Compute SOM initialization 
+somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "random")) {
+  method <- match.arg(method)
+  if (method == "random") {
+    init <- traindat[sample(nrow(traindat), nrows * ncols, replace= T), ]
+  } else if (method %in% c("pca.sample", "pca")) {
+    # the most detailed grid axis is assigned to the first component
+    if (nrows >= ncols) {
+      x.ev <- 1
+      y.ev <- 2
+    } else {
+      x.ev <- 2
+      y.ev <- 1
+    }
+    # perform PCA
+    traindata.pca <- prcomp(traindat, center= F, scale.= F)
+    init.x <- seq(from= quantile(traindata.pca$x[,x.ev], .025), 
+                  to= quantile(traindata.pca$x[,x.ev], .975),
+                  length.out= nrows)
+    init.y <- seq(from= quantile(traindata.pca$x[,y.ev], .025), 
+                  to= quantile(traindata.pca$x[,y.ev], .975),
+                  length.out= ncols)
+    init.base <- as.matrix(expand.grid(x= init.x, y= init.y)) # here a hex variant could be created instead if hex topology
+    
+    if (method == "pca.sample") {
+      ## As in SOMbrero, init to observations closest to a 2D PCA grid
+      closest.obs <- apply(init.base, 1, function(point) 
+        which.min(colSums((t(traindata.pca$x[,c(x.ev,y.ev)])-point)^2)))
+      init <- traindat[closest.obs,]
+    } else if (method == "pca") {
+      ## Pure PCA grid
+      init <- tcrossprod(init.base, traindata.pca$rotation[, 1:2])
+    }
+  } 
+  init
+}
+
+
+
 #' Train SOM
 #'
 #' @param ok.traindat return object from ok.traindat.function
@@ -145,56 +184,16 @@ ok.som.function <- function(ok.traindat,  input_trainSeed, input_kohInit,
     set.seed(input_trainSeed)
     codeTxt$seed <- paste0("set.seed(", input_trainSeed, ")\n")
     
-    codeTxt$init <- "### Initialization "
-    if (input_kohInit == "random") {
-      init <- dat[sample(nrow(dat), input_kohDimx * input_kohDimy, replace= T), ]
-      codeTxt$init <- paste0(codeTxt$init, "(random observations)\n",
-                             "init <- dat[sample(nrow(dat), ", 
-                             input_kohDimx, " * ", input_kohDimy, 
-                             ", replace= T), ]\n")
-    } else if (input_kohInit %in% c("pca.sample", "pca")) {
-      # the most detailed grid axis is assigned to the first component
-      if (input_kohDimx >= input_kohDimy) {
-        x.ev <- 1
-        y.ev <- 2
-      } else {
-        x.ev <- 2
-        y.ev <- 1
-      }
-      # perform PCA (TODO: make hex grid on pca ?) --> HOW/WHAT?
-      data.pca <- prcomp(dat, center= F, scale.= F)
-      init.x <- seq(from= quantile(data.pca$x[,x.ev], .025), 
-                    to= quantile(data.pca$x[,x.ev], .975),
-                    length.out= input_kohDimx)
-      init.y <- seq(from= quantile(data.pca$x[,y.ev], .025), 
-                    to= quantile(data.pca$x[,y.ev], .975),
-                    length.out= input_kohDimy)
-      init.base <- as.matrix(expand.grid(x= init.x, y= init.y)) #here a hex variant could be created instead if hex topology
-      codeTxt$init <- paste0(codeTxt$init, 
-                             ifelse(input_kohInit == "pca.sample", 
-                                    "(observations closest to PCA grid)\n",
-                                    "(PCA grid)\n"),
-                             "data.pca <- prcomp(dat, center= F, scale.= F)\n",
-                             "init.x <- seq(from= quantile(data.pca$x[,", x.ev, "], .025), to= quantile(data.pca$x[,", x.ev, "], .975), length.out= ", input_kohDimx, ")\n",
-                             "init.y <- seq(from= quantile(data.pca$x[,", y.ev, "], .025), to= quantile(data.pca$x[,", y.ev, "], .975), length.out= ", input_kohDimy, ")\n",
-                             "init.base <- as.matrix(expand.grid(x= init.x, y= init.y))\n")
-      if (input_kohInit == "pca.sample") {
-        ## As in SOMbrero, init to observations closest to a 2D PCA grid
-        closest.obs <- apply(init.base, 1, function(point) 
-          which.min(colSums((t(data.pca$x[,c(x.ev,y.ev)])-point)^2)))
-        init <- dat[closest.obs,]
-        codeTxt$init <- paste0(codeTxt$init, 
-                               "closest.obs <- apply(init.base, 1, function(point) which.min(colSums((t(data.pca$x[,c(", x.ev, ", ", y.ev, ")])-point)^2)))\n",
-                               "init <- dat[closest.obs,]\n")
-      } else if (input_kohInit == "pca") {
-        ## Pure PCA grid
-        init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
-        codeTxt$init <- paste0(codeTxt$init, 
-                               "init <- tcrossprod(init.base, data.pca$rotation[, 1:2])\n")
-      }
-    } 
+    codeTxt$init <- paste0("### Initialization\n", 
+                           "init <- aweSOM::somInit(dat, ", input_kohDimx, ", ", 
+                           input_kohDimy, 
+                           if (input_kohInit != "pca.sample") {
+                             paste0(", method= '", input_kohInit, "'")
+                           }, 
+                           ")\n")
+    init <- somInit(dat, input_kohDimx, input_kohDimy, input_kohInit)
     
-    #where it happens!
+    ## Train SOM
     res <- kohonen::som(dat, 
                         grid= kohonen::somgrid(input_kohDimx, input_kohDimy, 
                                                input_kohTopo), 

@@ -2,10 +2,6 @@
 library(aweSOM)
 options(shiny.maxRequestSize=2^30) # Max filesize
 
-## TODO : remove these library calls, to be replaced by package::function inline
-
-
-
 
 ################################################################################
 ## Global Variables
@@ -93,12 +89,9 @@ shinyServer(function(input, output, session) {
   
   # data preview table
   output$dataView <- DT::renderDataTable({
-     d.input <- ok.data()
-    if (is.null(d.input)){
-      NULL
-      
-    }
-      data.frame(rownames= rownames(d.input), d.input)
+    d.input <- ok.data()
+    if (is.null(d.input)) return(NULL)
+    data.frame(rownames= rownames(d.input), d.input)
   })
   
   
@@ -110,46 +103,25 @@ shinyServer(function(input, output, session) {
       return(h4("Data preview should appear here after import."))
     if (! is.null(input$dataFile) & is.null(ok.data())) 
       return(h4("Error during import: try different import parameters, and check that file is a text or csv table."))
+    HTML("<h4> Data imported, proceed to Train panel. </h4> <br/>")
+    
+  })
+  
+  output$Teuvo <- renderUI({
+    img(
+      src = "Teuvo-Kohonen.jpg",
+      title = "Teuvo Kohonen, inventor of the SOM, in the early 1980s.",
+      alt= "Here a portrait of Teuvo Kohonen.",
+      width= "100%",
+      style = paste0("margin:10px; padding: 0px 0px;", 
+                     ifelse(!is.null(ok.data()), "transform: scaleX(-1);", ""))
+    )
   })
   
   
   
   
   
-  ## Download interactive plot (download widget)
-  output$downloadInteractive <- downloadHandler(
-    filename= paste0(Sys.Date(), "-aweSOM.html"), 
-    content= function(file) {
-      if (is.null(ok.som())) return(NULL)
-      widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
-                                 ok.sc= ok.sc(), 
-                                 ok.data= ok.data(), 
-                                 omitRows= which(!ok.trainrows()), 
-                                 graphType= input$graphType, 
-                                 plotNames= input$plotNames, 
-                                 plotVarMult= input$plotVarMult, 
-                                 plotVarOne= input$plotVarOne, 
-                                 plotOutliers= input$plotOutliers,
-                                 plotEqualSize= input$plotEqualSize,
-                                 contrast= input$contrast, 
-                                 average_format= input$average_format,
-                                 plotSize= input$plotSize, 
-                                 palsc= input$palsc, 
-                                 palplot= input$palplot, 
-                                 plotRevPal= input$plotRevPal)
-      htmlwidgets::saveWidget(widg, file = file)
-    }) 
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
   #############################################################################
   ## Panel "Train"
   #############################################################################
@@ -218,38 +190,43 @@ shinyServer(function(input, output, session) {
   
  
 
+  ## Create training data when button is hit
   ok.traindat <- reactive({
     if (input$trainbutton == 0) return(NULL)
     input$retrainButton
+
     isolate({
+      if (is.null(ok.data())) return(NULL)
+
       #to make externalized functions more useable this part is placed outside of the (Jan)
-      varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())), 
+      varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())),
                                        function(var) input[[var]]))
-      varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())), 
+      varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())),
                            function(var) input[[var]])
-      
+
       varSelected <- varSelected & varWeights > 0
 
-      if (sum(varSelected) < 2) 
+      if (sum(varSelected) < 2)
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
-      
-      return_traindat <- aweSOM:::ok.traindat.function(input_trainscale = input$trainscale, 
-                                              ok.data = ok.data(), 
+
+      return_traindat <- aweSOM:::ok.traindat.function(input_trainscale = input$trainscale,
+                                              ok.data = ok.data(),
                                               varSelected = varSelected,
                                               varWeights = varWeights)
       values$codetxt_traindat <- return_traindat$codeTxt
       return_traindat
     })
   })
-  
+
+
   
   ## Train SOM when button is hit (triggered by change in ok.traindat)
 
   ok.som <- reactive({
     dat <- ok.traindat()
-    if (is.null(dat$dat)) {
-      return(NULL)
-    }
+    if (is.null(dat)) return(NULL)
+    if (is.null(dat$dat)) return(NULL)
+
     isolate({
       res <- aweSOM:::ok.som.function(ok.traindat = dat, 
                                       input_trainSeed = input$trainSeed, 
@@ -311,7 +288,7 @@ shinyServer(function(input, output, session) {
       superclasses <- unname(cutree(ok.hclust(), input$kohSuperclass))
       
       values$codetxt$sc <- paste0("## Group cells into superclasses (hierarchical clustering)\n", 
-                                  "superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')\n",
+                                  "superclust <- hclust(dist(ok.som$codes[[1]]), '", input$sup_clust_hcmethod, "')\n",
                                   "superclasses <- unname(cutree(superclust, ", 
                                   input$kohSuperclass, "))\n")
     } else {
@@ -351,6 +328,7 @@ shinyServer(function(input, output, session) {
   
   ## Training message
   output$Message <- renderPrint({
+    if (is.null(ok.data())) return(cat("Import data to train a SOM."))
     if (!is.null(ok.traindat()$msg)) {
       cat(paste0("********** Warning: **********\n", 
                  paste("* ", ok.traindat()$msg, collapse= "\n"), 
@@ -371,18 +349,34 @@ shinyServer(function(input, output, session) {
   
  
   
-  
-  
-  
-  
-
-  
-  
   #############################################################################
   ## Panel "Graph"
   #############################################################################
   
   
+  ## Download interactive plot (download widget)
+  output$downloadInteractive <- downloadHandler(
+    filename= paste0(Sys.Date(), "-aweSOM.html"), 
+    content= function(file) {
+      if (is.null(ok.som())) return(NULL)
+      widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
+                                 ok.sc= ok.sc(), 
+                                 ok.data= ok.data(), 
+                                 omitRows= which(!ok.trainrows()), 
+                                 graphType= input$graphType, 
+                                 plotNames= input$plotNames, 
+                                 plotVarMult= input$plotVarMult, 
+                                 plotVarOne= input$plotVarOne, 
+                                 plotOutliers= input$plotOutliers,
+                                 plotEqualSize= input$plotEqualSize,
+                                 contrast= input$contrast, 
+                                 average_format= input$average_format,
+                                 plotSize= input$plotSize, 
+                                 palsc= input$palsc, 
+                                 palplot= input$palplot, 
+                                 plotRevPal= input$plotRevPal)
+      htmlwidgets::saveWidget(widg, file = file)
+    }) 
   
   
   #############################################################################
@@ -462,8 +456,8 @@ shinyServer(function(input, output, session) {
                                   "aweSOM::aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
     aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
-    }, width = reactive({input$plotSize + 500}),
-  height = reactive({input$plotSize + 500}))
+    }, width = reactive({input$plotSize / 4 + 500}),
+  height = reactive({input$plotSize / 4 + 500}))
   
   
   ## Scree plot
@@ -477,8 +471,8 @@ shinyServer(function(input, output, session) {
                                   "nclass = ", input$kohSuperclass, ")\n")
     aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
   },
-  width = reactive({input$plotSize + 500}),
-  height = reactive({input$plotSize + 500}))
+  width = reactive({input$plotSize / 4 + 500}),
+  height = reactive({input$plotSize / 4 + 500}))
   
 
   ## Silhouette plot
@@ -487,8 +481,8 @@ shinyServer(function(input, output, session) {
                                   "aweSOM::aweSOMsilhouette(ok.som, superclass)\n")
     aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
   },
-  width = reactive({input$plotSize + 500}),
-  height = reactive({input$plotSize + 500}))
+  width = reactive({input$plotSize / 4 + 500}),
+  height = reactive({input$plotSize / 4 + 500}))
   
   
   ## Smooth distance plot
@@ -500,8 +494,8 @@ shinyServer(function(input, output, session) {
                     input_plotRevPal = input$plotRevPal)
     
     },
-  width = reactive({(input$plotSize + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
-  height = reactive({input$plotSize + 500 }))
+  width = reactive({(input$plotSize / 4 + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
+  height = reactive({input$plotSize / 4 + 500 }))
   
   ## warning for smooth distance hex based plot
   output$smooth_dist_warning <- renderText({
@@ -526,14 +520,15 @@ shinyServer(function(input, output, session) {
                       pal = input$palplot,
                       reversePal = input$plotRevPal)
   },
-  width = reactive({input$plotSize + 500}),
-  height = reactive({input$plotSize + 500}))
+  width = reactive({input$plotSize / 4 + 500}),
+  height = reactive({input$plotSize / 4 + 500}))
   
   
   
   ## Fancy JS plots through widget
   output$theWidget <- aweSOM:::renderaweSOM({
     if (is.null(input$plotNames)) return(NULL) # Prevents error due to not-yet loaded UI element, for reproducible script
+    if (is.null(ok.som())) return(NULL)
     
     ## Reproducible script for plot
     values$codetxt$plot <- paste0(
