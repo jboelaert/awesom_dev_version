@@ -3,6 +3,7 @@
 
 ## Organisation de la page
 shinyUI(fluidPage(
+  tags$head(HTML("<title>aweSOM</title>")),
   rclipboard::rclipboardSetup(),
   
   # headerPanel(HTML("aweSOM")),
@@ -10,7 +11,7 @@ shinyUI(fluidPage(
   tabsetPanel(
     #### Panel 'Welcome, Import Data'
     #########################################################################
-    tabPanel("aweSOM", 
+    tabPanel("Data", 
              # includeHTML("js/hexbin.js"),
              # includeHTML("js/lodash.min.js"), 
              # includeHTML("js/d3.min.js"),
@@ -25,7 +26,7 @@ shinyUI(fluidPage(
              # data_import -------------------------------------------------------------
              
              
-             h2("aweSOM"), 
+             h1("aweSOM"), 
              h4("interactive self-organizing maps"),
              
              fluidRow(
