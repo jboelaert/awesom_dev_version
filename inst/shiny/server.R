@@ -110,6 +110,19 @@ shinyServer(function(input, output, session) {
       return(h4("Data preview should appear here after import."))
     if (! is.null(input$dataFile) & is.null(ok.data())) 
       return(h4("Error during import: try different import parameters, and check that file is a text or csv table."))
+    HTML("<h4> Data imported, proceed to Train panel. </h4> <br/>")
+    
+  })
+  
+  output$Teuvo <- renderUI({
+    img(
+      src = "Teuvo-Kohonen.jpg",
+      title = "Teuvo Kohonen, inventor of the SOM, in the early 1980s.",
+      alt= "Here a portrait of Teuvo Kohonen.",
+      width= "100%",
+      style = paste0("margin:10px; padding: 0px 0px;", 
+                     ifelse(!is.null(ok.data()), "transform: scaleX(-1);", ""))
+    )
   })
   
   
