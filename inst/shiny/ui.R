@@ -26,7 +26,7 @@ shinyUI(fluidPage(
              # data_import -------------------------------------------------------------
              
              
-             h1("aweSOM"), 
+             h2("aweSOM"), 
              h4("interactive self-organizing maps"),
              
              fluidRow(

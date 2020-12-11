@@ -2,10 +2,6 @@
 library(aweSOM)
 options(shiny.maxRequestSize=2^30) # Max filesize
 
-## TODO : remove these library calls, to be replaced by package::function inline
-
-
-
 
 ################################################################################
 ## Global Variables
@@ -93,12 +89,9 @@ shinyServer(function(input, output, session) {
   
   # data preview table
   output$dataView <- DT::renderDataTable({
-     d.input <- ok.data()
-    if (is.null(d.input)){
-      NULL
-      
-    }
-      data.frame(rownames= rownames(d.input), d.input)
+    d.input <- ok.data()
+    if (is.null(d.input)) return(NULL)
+    data.frame(rownames= rownames(d.input), d.input)
   })
   
   
@@ -129,40 +122,6 @@ shinyServer(function(input, output, session) {
   
   
   
-  ## Download interactive plot (download widget)
-  output$downloadInteractive <- downloadHandler(
-    filename= paste0(Sys.Date(), "-aweSOM.html"), 
-    content= function(file) {
-      if (is.null(ok.som())) return(NULL)
-      widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
-                                 ok.sc= ok.sc(), 
-                                 ok.data= ok.data(), 
-                                 omitRows= which(!ok.trainrows()), 
-                                 graphType= input$graphType, 
-                                 plotNames= input$plotNames, 
-                                 plotVarMult= input$plotVarMult, 
-                                 plotVarOne= input$plotVarOne, 
-                                 plotOutliers= input$plotOutliers,
-                                 plotEqualSize= input$plotEqualSize,
-                                 contrast= input$contrast, 
-                                 average_format= input$average_format,
-                                 plotSize= input$plotSize, 
-                                 palsc= input$palsc, 
-                                 palplot= input$palplot, 
-                                 plotRevPal= input$plotRevPal)
-      htmlwidgets::saveWidget(widg, file = file)
-    }) 
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
   #############################################################################
   ## Panel "Train"
   #############################################################################
@@ -231,38 +190,43 @@ shinyServer(function(input, output, session) {
   
  
 
+  ## Create training data when button is hit
   ok.traindat <- reactive({
     if (input$trainbutton == 0) return(NULL)
     input$retrainButton
+
     isolate({
+      if (is.null(ok.data())) return(NULL)
+
       #to make externalized functions more useable this part is placed outside of the (Jan)
-      varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())), 
+      varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())),
                                        function(var) input[[var]]))
-      varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())), 
+      varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())),
                            function(var) input[[var]])
-      
+
       varSelected <- varSelected & varWeights > 0
 
-      if (sum(varSelected) < 2) 
+      if (sum(varSelected) < 2)
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
-      
-      return_traindat <- aweSOM:::ok.traindat.function(input_trainscale = input$trainscale, 
-                                              ok.data = ok.data(), 
+
+      return_traindat <- aweSOM:::ok.traindat.function(input_trainscale = input$trainscale,
+                                              ok.data = ok.data(),
                                               varSelected = varSelected,
                                               varWeights = varWeights)
       values$codetxt_traindat <- return_traindat$codeTxt
       return_traindat
     })
   })
-  
+
+
   
   ## Train SOM when button is hit (triggered by change in ok.traindat)
 
   ok.som <- reactive({
     dat <- ok.traindat()
-    if (is.null(dat$dat)) {
-      return(NULL)
-    }
+    if (is.null(dat)) return(NULL)
+    if (is.null(dat$dat)) return(NULL)
+
     isolate({
       res <- aweSOM:::ok.som.function(ok.traindat = dat, 
                                       input_trainSeed = input$trainSeed, 
@@ -364,6 +328,7 @@ shinyServer(function(input, output, session) {
   
   ## Training message
   output$Message <- renderPrint({
+    if (is.null(ok.data())) return(cat("Import data to train a SOM."))
     if (!is.null(ok.traindat()$msg)) {
       cat(paste0("********** Warning: **********\n", 
                  paste("* ", ok.traindat()$msg, collapse= "\n"), 
@@ -384,18 +349,34 @@ shinyServer(function(input, output, session) {
   
  
   
-  
-  
-  
-  
-
-  
-  
   #############################################################################
   ## Panel "Graph"
   #############################################################################
   
   
+  ## Download interactive plot (download widget)
+  output$downloadInteractive <- downloadHandler(
+    filename= paste0(Sys.Date(), "-aweSOM.html"), 
+    content= function(file) {
+      if (is.null(ok.som())) return(NULL)
+      widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
+                                 ok.sc= ok.sc(), 
+                                 ok.data= ok.data(), 
+                                 omitRows= which(!ok.trainrows()), 
+                                 graphType= input$graphType, 
+                                 plotNames= input$plotNames, 
+                                 plotVarMult= input$plotVarMult, 
+                                 plotVarOne= input$plotVarOne, 
+                                 plotOutliers= input$plotOutliers,
+                                 plotEqualSize= input$plotEqualSize,
+                                 contrast= input$contrast, 
+                                 average_format= input$average_format,
+                                 plotSize= input$plotSize, 
+                                 palsc= input$palsc, 
+                                 palplot= input$palplot, 
+                                 plotRevPal= input$plotRevPal)
+      htmlwidgets::saveWidget(widg, file = file)
+    }) 
   
   
   #############################################################################
