@@ -369,8 +369,9 @@ shinyUI(fluidPage(
                              
                              # D3-based plots
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              HTML('<h4 id="cell-info">Hover over the plot for information.</h4>'),
-                                              HTML('<h4 id="plot-message">-</h4>'),
+                                              HTML('<h4 id="cell-info"></h4>'),
+                                              HTML('<h4 id="plot-message"></h4>'),
+                                              
                                               aweSOM:::aweSOMoutput("theWidget"),
                                              
                                               
@@ -402,8 +403,10 @@ shinyUI(fluidPage(
              fluidRow(column(6, h4("Run this script in R to reproduce the results.")),
                       column(3, uiOutput("copycode")), 
                       column(3, downloadButton("report", "Save html report"))),
-             verbatimTextOutput("codeTxt"))
-    
-    
+             verbatimTextOutput("codeTxt")), 
+    tabPanel("About", 
+             h2("aweSOM"), 
+             h4("interactive self-organizing maps"))
+
   )
 ))

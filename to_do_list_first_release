@@ -26,6 +26,6 @@ Vignette
 
 Other: 
 * Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?)
-* UI Panel Element for Meta Information?
+* UI Panel Element for Meta Information -> About panel
 * Roxygen Skeletons functions
 * (Julien) Clean code, and make CRAN-ready
