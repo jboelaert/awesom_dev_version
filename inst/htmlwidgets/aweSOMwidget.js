@@ -448,8 +448,7 @@ HTMLWidgets.widget({
     document.getElementById("plot-message").innerHTML = "-";
     document.getElementById("plot-names").innerHTML = "-";
     
-    //try to fix export issues with static image buttons
-    
+
    
     
 
