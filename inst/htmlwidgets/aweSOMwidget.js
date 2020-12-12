@@ -442,7 +442,9 @@ HTMLWidgets.widget({
 
     document.getElementById("cell-info").style.textAlign = "center";
     document.getElementById("plot-message").style.textAlign = "center";
-    document.getElementById("cell-info").style.color = '#d00';
+    
+    
+    //document.getElementById("cell-info").style.color = '#d00';
     
 
 
