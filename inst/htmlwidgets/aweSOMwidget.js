@@ -450,9 +450,7 @@ HTMLWidgets.widget({
     
     //try to fix export issues with static image buttons
     
-    document.getElementById("downloadSvg").innerHTML = "-";
-    document.getElementById("downloadPng").innerHTML = "-";
-
+   
     
 
     // Import common data
