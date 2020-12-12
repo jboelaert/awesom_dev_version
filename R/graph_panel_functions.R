@@ -126,6 +126,10 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                        input_plotOutliers, input_plotRevPal, 
                        options, input_average_format)
   
+  
+  
+  
+  
   legend_data <- data.frame(cbind(res$label, res$labelColor, seq(1,length(res$label))))
   try(grab_legend(ggplot(data = legend_data, aes(x = X3, y = X3))+
                 geom_tile(aes(fill = X2))+

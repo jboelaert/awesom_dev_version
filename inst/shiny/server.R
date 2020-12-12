@@ -606,9 +606,7 @@ shinyServer(function(input, output, session) {
       return(NULL)
     }
     
-    
-    browser()
-    aweSOM:::the.legend.function(plot.data = plot.data, 
+      aweSOM:::the.legend.function(plot.data = plot.data, 
                                  input_plotNames = input$plotNames, ok.clust = ok.clust(), 
                                  input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
                                  input_plotVarOne = input$plotVarOne,
