@@ -75,7 +75,7 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                                 input_plotOutliers, input_plotRevPal){
   
   
-
+  browser()
   if (input_plotNames == "(rownames)") {
     plotNames.var <- rownames(plot.data)
   } else 
