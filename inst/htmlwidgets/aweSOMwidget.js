@@ -569,10 +569,17 @@ HTMLWidgets.widget({
           }
       })
     }
+    
+    if(document.getElementById("downloadPng"){
     document.getElementById('downloadPng').addEventListener('click', function() {
         downloadPng(this, 'somplot.png');}, false);
+    }
+    
+    
+    if(document.getElementById("downloadSvg"){    
     document.getElementById('downloadSvg').addEventListener('click', function() {
         downloadSvg(this, 'somplot.svg');}, false);
+    }    
         
         
         
