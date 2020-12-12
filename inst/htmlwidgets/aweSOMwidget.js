@@ -442,6 +442,9 @@ HTMLWidgets.widget({
 
     document.getElementById("cell-info").style.textAlign = "center";
     document.getElementById("plot-message").style.textAlign = "center";
+    document.getElementById("cell-info").style.color = '#d00';
+    
+
 
     document.getElementById("theWidget").innerHTML = ""; //remove the old graph
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
