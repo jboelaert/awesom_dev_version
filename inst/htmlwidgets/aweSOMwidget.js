@@ -448,6 +448,11 @@ HTMLWidgets.widget({
     document.getElementById("plot-message").innerHTML = "-";
     document.getElementById("plot-names").innerHTML = "-";
     
+    //try to fix export issues with static image buttons
+    
+    document.getElementById("downloadSvg").innerHTML = "-";
+    document.getElementById("downloadPng").innerHTML = "-";
+
     
 
     // Import common data
@@ -570,16 +575,14 @@ HTMLWidgets.widget({
       })
     }
     
-    if(document.getElementById("downloadPng"){
     document.getElementById('downloadPng').addEventListener('click', function() {
         downloadPng(this, 'somplot.png');}, false);
-    }
     
     
-    if(document.getElementById("downloadSvg"){    
+    
     document.getElementById('downloadSvg').addEventListener('click', function() {
         downloadSvg(this, 'somplot.svg');}, false);
-    }    
+    
         
         
         
