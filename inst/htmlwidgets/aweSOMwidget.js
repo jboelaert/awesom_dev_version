@@ -573,15 +573,25 @@ HTMLWidgets.widget({
       })
     }
     
+    
+    
+var element = document.getElementById("downloadPng");
+var element_b = document.getElementById("downloadSvg");
+
+if(typeof(element) != 'undefined' && element != null){
+
     document.getElementById('downloadPng').addEventListener('click', function() {
         downloadPng(this, 'somplot.png');}, false);
-    
-    
-    
+
+}
+
+if(typeof(element_b) != 'undefined' && element != null){
+
     document.getElementById('downloadSvg').addEventListener('click', function() {
         downloadSvg(this, 'somplot.svg');}, false);
-    
-        
+      }
+
+
         
         
 
