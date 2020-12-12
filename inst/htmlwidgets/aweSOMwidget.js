@@ -593,7 +593,7 @@ if(typeof(element_b) != 'undefined' && element != null){
 
 
 
-
+if(false){
 
         // create the legend
         var Svg = d3.select("#awesom_legend_svg")
@@ -628,7 +628,7 @@ if(typeof(element_b) != 'undefined' && element != null){
               .attr("text-anchor", "left")
               .style("alignment-baseline", "middle")
 
-        
+}
         
 
     // Call grid following topology and type
