@@ -155,7 +155,7 @@ Additionally, _omitRows_ can be used an argument to omit certain rows in the ok.
 
 ```{r}
 aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses_pam, ok.data = ok.data,
-                   graphType = 'Barplot',  
+                   graphType = 'Radar',  
                    plotVarMult = c("Sepal.Length", "Sepal.Width",  
                                    "Petal.Length", "Petal.Width"),  
                    plotSize = 200)
