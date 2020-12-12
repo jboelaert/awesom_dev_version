@@ -75,7 +75,6 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                                 input_plotOutliers, input_plotRevPal){
   
   
-  browser()
   if (input_plotNames == "(rownames)") {
     plotNames.var <- rownames(plot.data)
   } else 
@@ -121,7 +120,7 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
   options <- list(equalSize= input_plotEqualSize)
   
   graphType <- ifelse(input_graphType == "UMatrix", "Color", input_graphType)
-  res <- getPlotParams(graphType, ok.som, ok.sc,  
+  res <- aweSOM::getPlotParams(graphType, ok.som, ok.sc,  
                        data, input_plotSize, plotVar, input_contrast,
                        input_palsc, input_palplot, cellNames,
                        input_plotOutliers, input_plotRevPal, 
