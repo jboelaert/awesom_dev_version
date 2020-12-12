@@ -593,6 +593,7 @@ if(typeof(element_b) != 'undefined' && element != null){
 
 
 
+        if(plotType !== "Hitmap"){
 
 
         // create the legend
@@ -629,7 +630,7 @@ if(typeof(element_b) != 'undefined' && element != null){
               .style("alignment-baseline", "middle")
 
 
-        
+        }
 
     // Call grid following topology and type
     if(topology.localeCompare('rectangular')==0){

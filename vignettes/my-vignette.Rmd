@@ -124,7 +124,9 @@ aweSOMplot creates a variety of different interactive SOM visualizations. Using 
 Thus, using 'Hitmap' as the argument for _graphType_ generates an interactive Hitmap that displays the distribution of observations on the SOM. _ok.sc_ is used to pass superclasses that are visualized. 
 
 ```{r}
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses_pam, ok.data = ok.data, graphType = 'Hitmap', plotSize = 100)
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses_hclust, ok.data = ok.data,
+                   graphType = 'Hitmap', 
+                   plotSize = 400)
 ```
 
 
