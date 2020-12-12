@@ -590,7 +590,7 @@ shinyServer(function(input, output, session) {
   
   output$theLegend <- renderPlot({
     
-    
+    browser()
     if (is.null(ok.som()) | !(input$graphType %in% c("Radar",
                                                      "Camembert", "CatBarplot",
                                                      "Barplot", "Boxplot",

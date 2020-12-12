@@ -75,8 +75,7 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
                                 input_plotOutliers, input_plotRevPal){
   
   
-  print("test")
-  
+
   if (input_plotNames == "(rownames)") {
     plotNames.var <- rownames(plot.data)
   } else 
