@@ -181,8 +181,9 @@ shinyUI(fluidPage(
              # map training -------------------------------------------------------------
              
              fluidRow(column(4, wellPanel( 
-                 h3("Train new map:"), 
-                 actionButton("trainbutton", "Train SOM"),
+                 h3("Train new map:"),
+                 actionButton("trainbutton", HTML("<b>Train SOM</b>"), width= "100%"),
+                 hr(),
                  fluidRow(column(4, numericInput('kohDimx', "Rows", 4, min= 1)),
                           column(4, numericInput('kohDimy', "Cols", 4, min= 1)),
                           column(4, selectInput('kohTopo', "Topology",
