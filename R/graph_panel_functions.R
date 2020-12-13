@@ -212,7 +212,7 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
 #' aweSOM::aweSOMscreeplot(ok.som, method = 'hierarchical', hmethod = 'ward.D2', nclass = 2)
-aweSOMscreeplot <- function(ok.som, nclass= 2, method= hierarchical, hmethod= "ward.D2"){
+aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= "ward.D2"){
   if (is.null(ok.som)) return()
   
   if (method == "hierarchical")
@@ -894,7 +894,8 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
                       plotSize = plotSize, 
                       palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
   
-  res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadLink")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadPng")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadSvg")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget"))) # formely padding bottom 10%
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
