@@ -2285,7 +2285,7 @@ if(typeof(element_b) != 'undefined' && element != null){
                   .transition()
                   .duration(50)
                   .style("fill-opacity", function(d, i){
-                    console.log(d.label);
+                    //console.log(d.label);
                     //this conditional is probably the right way of doing it
 
                     return 1
@@ -2361,7 +2361,7 @@ if(typeof(element_b) != 'undefined' && element != null){
                   .transition()
                   .duration(50)
                   .style("fill-opacity", function(d, i){
-                    console.log(d.label);
+                    //console.log(d.label);
                     //this conditional is probably the right way of doing it
 
                     return 1
