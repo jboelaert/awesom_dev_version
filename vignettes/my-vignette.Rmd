@@ -12,8 +12,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-library(aweSOM)
-library(kohonen)
 ```
 
 
@@ -123,7 +121,7 @@ aweSOMplot creates a variety of different interactive SOM visualizations. Using 
 
 Thus, using 'Hitmap' as the argument for _graphType_ generates an interactive Hitmap that displays the distribution of observations on the SOM. _ok.sc_ is used to pass superclasses that are visualized. 
 
-```{r}
+```{r, results='asis'}
 aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses_pam, ok.data = ok.data,
                    graphType = 'Hitmap', 
                    plotSize = 200)
@@ -153,7 +151,7 @@ Additionally, _omitRows_ can be used an argument to omit certain rows in the ok.
 
 
 
-```{r}
+```{r, results='asis'}
 aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses_pam, ok.data = ok.data,
                    graphType = 'Radar',  
                    plotVarMult = c("Sepal.Length", "Sepal.Width",  

@@ -452,7 +452,7 @@ HTMLWidgets.widget({
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
     document.getElementById("plot-names").innerHTML = "-";
-    document.getElementById("awesom_legend_svg").innerHTML = ""; //remove old legend?
+    //document.getElementById("awesom_legend_svg").innerHTML = ""; //remove old legend?
 
    
     
