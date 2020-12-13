@@ -2135,8 +2135,11 @@ if(typeof(element_b) != 'undefined' && element != null){
           // Hexagonal Boxplot
           //////////////////////////////////////////////////////////////////////////
 
-          var width = (hexCellSize*80/100)/(nbBox)-(hexCellSize*10/100),
+          var width = (hexCellSize*2)/(nbBox)-(hexCellSize*10/100),
       			height = (hexCellSize*50/100);
+
+          console.log(width);
+
       		if(nbBox==1){width = (hexCellSize*20/100);
       					 height = (hexCellSize*30/100);}
       		var min = Infinity,
@@ -2233,16 +2236,73 @@ if(typeof(element_b) != 'undefined' && element != null){
       					.attr("stroke-width",1);
 
       				focus.on('mouseenter', function (d, i) {
+
+                  var label_point_boxplot = d.label;
+                  test  = d3.select("body").selectAll(".y").data();
+                  //console.log(test);
+                  //console.log(label_point_boxplot);
+
+                  d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+          					.transition()
+          					.duration(50)
+          					.style("fill-opacity", function(d, i){
+                      //console.log(d.label);
+                      //this conditional is probably the right way of doing it
+                      if(d.label == label_point_boxplot) {
+                      //console.log(this.labels_plot);
+                        return 0.8}
+                      else {return 0.1}
+
+                    });
+
+
+                    d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                      .transition()
+                      .duration(50)
+                      .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                        if(d.labels_plot == label_point_boxplot) {
+                        //console.log(this.labels_plot);
+                          return 0.8}
+                        else {return 0.1}
+
+                      });
+
+
+
       					d3.select('#plot-message').text(function () {
       						var ch=d.label+": " + d.realValues;
       						return ch;
       					});
-      					d3.select(this) //this
-      						.transition()
-      						.duration(50)
-      						.attr("stroke-width",2)
+
+
+
+
+
       				});
       				focus.on('mouseleave', function (d, i) {
+
+                d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                  .transition()
+                  .duration(50)
+                  .style("fill-opacity", function(d, i){
+                    console.log(d.label);
+                    //this conditional is probably the right way of doing it
+
+                    return 1
+
+                  });
+
+
+
+                d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                  .transition()
+                  .duration(50)
+                  .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                     return 1
+
+                  });
+
+
                 d3.select('#plot-message').text(function () {
                   return "-";
                 });
@@ -2263,14 +2323,29 @@ if(typeof(element_b) != 'undefined' && element != null){
               //console.log(selected);
               //console.log(selected[0].labels_plot);
 
+
+                                d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                        					.transition()
+                        					.duration(50)
+                        					.style("fill-opacity", function(d, i){
+                                    //console.log(d.label);
+                                    //this conditional is probably the right way of doing it
+                                    if(d.label == selected) {
+                                    //console.log(this.labels_plot);
+                                      return 0.8}
+                                    else {return 0.1}
+
+                                  });
+
+
       				d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
       					.transition()
       					.duration(50)
-      					.attr("stroke-width", function(d, i){ //this conditional is probably the right way of doing it
+      					.style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
                   if(d.labels_plot == selected) {
                   //console.log(this.labels_plot);
-                    return 4}
-                  else {return 1}
+                    return 0.8}
+                  else {return 0.1}
 
                 });
       			});
@@ -2280,7 +2355,20 @@ if(typeof(element_b) != 'undefined' && element != null){
               });
       				d3.selectAll("g.box").transition()
       					.duration(50)
-      					.attr("stroke-width",1);
+      					.style("fill-opacity",1);
+
+                d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                  .transition()
+                  .duration(50)
+                  .style("fill-opacity", function(d, i){
+                    console.log(d.label);
+                    //this conditional is probably the right way of doing it
+
+                    return 1
+
+                  });
+
+
       			});
       		}
         } else if(plotType.localeCompare("Star")==0) {
