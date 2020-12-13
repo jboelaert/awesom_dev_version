@@ -2135,10 +2135,10 @@ if(typeof(element_b) != 'undefined' && element != null){
           // Hexagonal Boxplot
           //////////////////////////////////////////////////////////////////////////
 
-          var width = (hexCellSize*2)/(nbBox)-(hexCellSize*10/100),
+          var var width = (hexCellSize*80/100)/(nbBox)-(hexCellSize*10/100),
       			height = (hexCellSize*50/100);
 
-          console.log(width);
+          //console.log(width);
 
       		if(nbBox==1){width = (hexCellSize*20/100);
       					 height = (hexCellSize*30/100);}
