@@ -442,19 +442,15 @@ HTMLWidgets.widget({
 
     document.getElementById("cell-info").style.textAlign = "center";
     document.getElementById("plot-message").style.textAlign = "center";
-    
+    document.getElementById("plot-names").style.textAlign = "center";
     
     //document.getElementById("cell-info").style.color = '#d00';
-    
-
 
     document.getElementById("theWidget").innerHTML = ""; //remove the old graph
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
     document.getElementById("plot-names").innerHTML = "-";
-    //document.getElementById("awesom_legend_svg").innerHTML = ""; //remove old legend?
-
-   
+    document.getElementById("awesom_legend_svg").innerHTML = ""; //remove old legend
     
 
     // Import common data
@@ -597,45 +593,41 @@ if(typeof(element_b) != 'undefined' && element != null){
 
 
 
-        //svg.selectAll("#awesom_legend_svg").remove();
-        if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Heat" ){
-        
-        
-        
-
+        if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Star")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
         
         // create the legend
-        var Svg = d3.select("#awesom_legend_svg")
+        var legend = d3.select("#awesom_legend_svg");
+        legend.attr({height: height});
         // create a list of keys
-        var keys = data.label;
-        var  colors  = data.labelColor;
-        Svg.selectAll("mydots")
+        var keys = label;
+        var  colors  = labelColor;
+        legend.selectAll("mydots")
           .data(keys)
           .enter()
           .append("circle")
             .attr("cx", function(d,i){
               //return 100
-              return (Math.floor(i/5) * 200 + 100)
+              return (Math.floor(i/10) * 200 + 10)
             })
             .attr("cy", function(d,i){
-              return i % 5 * 20 + 10
+              return i % 10 * 20 + 10
             }) // 100 is where the first dot appears. 25 is the distance between dots
             .attr("r", 7)
             .style("fill", function(d,i){return colors[i]})
-            Svg.selectAll("mylabels")
+            legend.selectAll("mylabels")
             .data(keys)
             .enter()
             .append("text")
               .attr("x", function(d,i){
-                return (Math.floor(i/5) * 200 + 115)
+                return (Math.floor(i/10) * 200 + 25)
               })
               .attr("y", function(d,i){
-                return i % 5 * 20 + 15
+                return i % 10 * 20 + 15
               }) // 100 is where the first dot appears. 25 is the distance between dots
               .style("fill", "black")
               .text(function(d){ return d})
               .attr("text-anchor", "left")
-              .style("alignment-baseline", "middle")
+              .style("alignment-baseline", "left")
 
 
         }

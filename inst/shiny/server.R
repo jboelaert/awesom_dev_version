@@ -12,10 +12,9 @@ plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
                                # "Names"= "Names", 
                                "Superclass Dendrogram"= "Dendrogram",
                                "Superclass Scree plot"= "Screeplot",
+                               "Superclass Silhouette"= "Silhouette",
                                "Neighbour distance"= "UMatrix", 
-                               "Silhouette"= "Silhouette",
-                               "Smooth distance"= "SmoothDist", 
-                               "Abstraction"= "Abstraction"), 
+                               "Smooth distance"= "SmoothDist"), 
                     Numeric= c("Radar"= "Radar", 
                                "Barplot"= "Barplot", 
                                "Boxplot"= "Boxplot",
@@ -733,7 +732,7 @@ shinyServer(function(input, output, session) {
   
   output$report <- downloadHandler(
     # For PDF output, change this to "report.pdf"
-    filename = "reproducible_code.html",
+    filename = "aweSOM-report.html",
     content = function(file) {
       # Copy the report file to a temporary directory before processing it, in
       # case we don't have write permissions to the current working dir (which

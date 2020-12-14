@@ -46,106 +46,6 @@ getPalette <- function(pal, n, reverse= F) {
 
 
 
-#' Generate R-based legend
-#'
-#' @param plot.data 
-#' @param input_plotNames 
-#' @param ok.clust 
-#' @param input_graphType 
-#' @param input_plotVarMult 
-#' @param input_plotVarOne 
-#' @param ok.som 
-#' @param input_plotEqualSize 
-#' @param input_contrast 
-#' @param input_average_format 
-#' @param ok.sc 
-#' @param input_plotSize 
-#' @param input_palsc 
-#' @param input_palplot 
-#' @param input_plotOutliers 
-#' @param input_plotRevPal 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_graphType, input_plotVarMult, input_plotVarOne,
-                                ok.som, input_plotEqualSize, input_contrast, input_average_format, ok.sc,
-                                input_plotSize, input_palsc, input_palplot,
-                                input_plotOutliers, input_plotRevPal){
-  
-  
-  if (input_plotNames == "(rownames)") {
-    plotNames.var <- rownames(plot.data)
-  } else 
-    plotNames.var <- as.character(plot.data[, input_plotNames])
-  cellNames <- unname(lapply(split(plotNames.var, ok.clust), 
-                             function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
-  
-  
-  
-  if (input_graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
-    if (is.null(input_plotVarMult)) return(NULL)
-    plotVar <- input_plotVarMult
-    data <- plot.data[, plotVar]
-  } 
-  
-  else if (input_graphType %in% c("Color", "Camembert", "CatBarplot")) {
-    if (is.null(input_plotVarOne)) return(NULL)
-    plotVar <- input_plotVarOne
-    data <- plot.data[, plotVar]
-  } 
-  
-  
-  else if (input_graphType %in% c("Hitmap")) {
-    plotVar <- NULL
-    data <- NULL
-  } 
-  
-  else if (input_graphType %in% c("Names")) {
-    plotVar <- NULL
-    data <- as.character(plot.data[, input_plotVarOne])
-  } 
-  
-  else if (input_graphType == "UMatrix") {
-    plotVar <- NULL
-    proto.gridspace.dist <- as.matrix(dist(ok.som$grid$pts))
-    proto.dataspace.dist <- as.matrix(dist(ok.som$codes[[1]]))
-    proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
-    proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
-    data <- rowMeans(proto.dataspace.dist, na.rm= T)[ok.clust]
-    plotVar <- "Mean distance to neighbours"
-  }
-  
-  options <- list(equalSize= input_plotEqualSize)
-  
-  graphType <- ifelse(input_graphType == "UMatrix", "Color", input_graphType)
-  res <- aweSOM::getPlotParams(graphType, ok.som, ok.sc,  
-                       data, input_plotSize, plotVar, input_contrast,
-                       input_palsc, input_palplot, cellNames,
-                       input_plotOutliers, input_plotRevPal, 
-                       options, input_average_format)
-  
-  
-  
-  
-  
-  legend_data <- data.frame(cbind(res$label, res$labelColor, seq(1,length(res$label))))
-  try(grab_legend(ggplot(data = legend_data, aes(x = X3, y = X3))+
-                geom_tile(aes(fill = X2))+
-                scale_fill_identity(guide = "legend", labels = res$label)+
-                theme(legend.position = "bottom",
-                      legend.title = element_blank(),
-                      legend.key.size = unit(2,"line"),
-                      legend.text = element_text(size = 20))), silent = TRUE)
-  
-}
-
-
-
-
-
-
 #' Plot dendogram for hierarchical clustering of SOM cells
 #'
 #' @param ok.som SOM data object
@@ -497,7 +397,10 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     ##########
     
     if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
-      prototypes <- som$codes[[1]][, varnames]
+      if (all(varnames == "Mean distance to neighbours")) {
+        prototypes <- som$codes[[1]]
+      } else
+        prototypes <- som$codes[[1]][, varnames]
       
       ## realValues are the one displayed in the text info above the plot
       if (valueFormat == "mean") {
@@ -741,17 +644,8 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
     plotNames.var <- as.character(plot.data[, plotNames])
   }
   
-  cellNames <- unname(lapply(split(plotNames.var, ok.clust), 
-                             function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
-  
-   a <- seq(1, ok.som$grid$xdim*ok.som$grid$ydim)
-   b <- unique(ok.clust)
-   empty_cells <- setdiff(a,b)
-   #insert empty cells with specified label to cellNames list which is short of these missing cells prior
-   for(empty_cell in empty_cells){
-     cellNames <- list.insert(cellNames, index = empty_cell, "NA")
-   }
-  
+  cellNames <- unname(lapply(split(plotNames.var, factor(ok.clust, levels= 1:nrow(ok.som$codes[[1]]))), 
+                             function(x) paste(x, collapse= ", "))) # "&#13;&#10;" "<br />"
   
   
   
@@ -777,17 +671,16 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
     proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
     data <- rowMeans(proto.dataspace.dist, na.rm= T)[ok.clust]
     plotVar <- "Mean distance to neighbours"
+    graphType <- "Color"
   }
   
   options <- list(equalSize= plotEqualSize)
   
-  graphType <- ifelse(graphType == "UMatrix", "Color", graphType)
-  
-  plotParams <- aweSOM:::getPlotParams(graphType, ok.som, ok.sc,  
-                                       data, plotSize, plotVar, contrast,
-                                       palsc, palplot, cellNames,
-                                       plotOutliers, plotRevPal, options, 
-                                       average_format)
+  plotParams <- getPlotParams(graphType, ok.som, ok.sc,  
+                              data, plotSize, plotVar, contrast,
+                              palsc, palplot, cellNames,
+                              plotOutliers, plotRevPal, options, 
+                              average_format)
   
   # create the widget
   htmlwidgets::createWidget("aweSOMwidget", plotParams, width = plotSize, 
@@ -864,7 +757,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Boxplot', plotVarMult = variables, plotSize = 100)
 #' #Lineplot
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Line', plotVarMult = variables, plotSize = 100)
-aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL, 
+aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL, 
                        graphType= "Hitmap", 
                        plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
                        plotOutliers= T, plotEqualSize= F,
@@ -874,6 +767,7 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
   ok.trainrows <- rep(T, nrow(ok.data))
   if (length(omitRows) > 0) ok.trainrows[omitRows] <- F
   
+  if (is.null(ok.sc)) ok.sc <- rep(1, nrow(ok.data))
 
   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
                       ok.trainrows = ok.trainrows, graphType = graphType, 
@@ -884,21 +778,12 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
                       plotSize = plotSize, 
                       palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
   
-  #res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadPng")))
-  #res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadSvg")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget"))) # formely padding bottom 10%
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
-  
-  if(graphType != "Hitmap"){
-  res <- htmlwidgets::appendContent(res, 
-                                    (htmltools::tag("svg", list(id= "awesom_legend_svg",
-                                                                width = "100%"))))
-  }
-  
-  
+  res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= "awesom_legend_svg", width = "100%")))
 
   res
 }

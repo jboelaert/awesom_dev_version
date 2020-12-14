@@ -1,5 +1,5 @@
 ---
-title: "Reproducible Code"
+title: "aweSOM report"
 output: html_document
 params:
   code: NA
@@ -37,7 +37,7 @@ Train SOM
 
 
 Quality measures
-```{r}
+```{r, echo=FALSE}
 map_trained <- ifelse(!is.null(ok.som), TRUE, FALSE)
 ```
 

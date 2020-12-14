@@ -11,7 +11,7 @@ shinyUI(fluidPage(
   tabsetPanel(
     #### Panel 'Welcome, Import Data'
     #########################################################################
-    tabPanel("Data", 
+    tabPanel("Import Data", 
              # includeHTML("js/hexbin.js"),
              # includeHTML("js/lodash.min.js"), 
              # includeHTML("js/d3.min.js"),
@@ -26,11 +26,11 @@ shinyUI(fluidPage(
              # data_import -------------------------------------------------------------
              
              
-             h2("aweSOM"), 
-             h4("interactive self-organizing maps"),
-             
              fluidRow(
                column(4,
+                      h2("aweSOM"), 
+                      h4("interactive self-organizing maps"),
+                      
                       wellPanel(
                         h4("Import Data"), 
                         selectInput('file_type', NULL, 
@@ -144,27 +144,22 @@ shinyUI(fluidPage(
                                            fluidRow(column(4, p('Skip rows')), 
                                                     column(8, numericInput('skip_spss', NULL, 0, min= 0)))),
                           
-                          # ## Options for SAS files
-                          # conditionalPanel("input.file_type == 'sas_data'",
-                          #                  ###specs and params here
-                          #                  
-                          # ),
-                          # 
-                          # ## Options for Stata files
-                          # conditionalPanel("input.file_type == 'stata'",
-                          #                  ###specs and params here
-                          #                  
-                          # ),
                           
-                        ),
-                        uiOutput("Teuvo")
+                        )
                         
-                      )),
+                      ), 
+                      HTML("<h4>General instructions:</h4>",
+                           "<ol>",
+                           "<li> Import data </li>",
+                           "<li> Train a map </li>",
+                           "<li> Plot the map </li>",
+                           "<li> Export clusters, plots, code... </li>",
+                           "</ol>"),
+               ),
                column(8, 
                       uiOutput("dataImportMessage"), 
                       DT::dataTableOutput("dataView"))
-               
-              
+
                )),
     
     
@@ -239,7 +234,7 @@ shinyUI(fluidPage(
     
     # map visuals -------------------------------------------------------------
     
-    tabPanel("Graph", 
+    tabPanel("Plot", 
              fluidRow(column(4, 
                              ## Sélection du graphique et des variables
                              h4("Plot options:"),
@@ -254,8 +249,8 @@ shinyUI(fluidPage(
                                                                        "Superclass Scree plot"= "Screeplot",
                                                                        "Superclass Silhouette"= "Silhouette",
                                                                        "Neighbour distance"= "UMatrix", 
-                                                                       "Smooth distance"= "SmoothDist", 
-                                                                       "Abstraction (experimental)"= "Abstraction"
+                                                                       "Smooth distance"= "SmoothDist"#, 
+                                                                       #"Abstraction (experimental)"= "Abstraction"
                                                             ), 
                                                             selected= "Hitmap"))),
                              
@@ -370,26 +365,28 @@ shinyUI(fluidPage(
                              
                              # D3-based plots
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              HTML('<h4 id="cell-info"></h4>'),
-                                              HTML('<h4 id="plot-message"></h4>'),
                                               
-                                              aweSOM:::aweSOMoutput("theWidget"),
-                                             
                                               
-                                              #uiOutput("plot_legend_margin"),
+                                              fluidRow(column(9, 
+                                                              HTML('<h4 id="cell-info"></h4>'),
+                                                              HTML('<h4 id="plot-message"></h4>'),
+                                                              aweSOM:::aweSOMoutput("theWidget")),
+                                                       column(3, conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
+                                                                                  HTML('<svg id="awesom_legend_svg", width="100%"></svg>')))),
+                                              # aweSOM:::aweSOMoutput("theWidget"),
+
                                               
-                                              #HTML('<br />'), 
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
-                                              #HTML('<br />'),
                                               #plotOutput("theLegend"),
-                                              #needs conditional as not all plots require legend
-                                              conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"', 
-                                              HTML('<svg id="awesom_legend_svg", width="100%"></svg>'))
                                               
+                                              ## HTML legend
+                                              # conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
+                                              #                  HTML('<svg id="awesom_legend_svg", width="100%"></svg>'))
+                                              # 
 
                                               )
                              ))), 
-    tabPanel("Clustered data", 
+    tabPanel("Export data", 
              
              fluidRow(
                column(4,
@@ -404,14 +401,22 @@ shinyUI(fluidPage(
                       uiOutput("clustVariables")),
                column(8, DT::dataTableOutput("clustTable")))),
     
-    tabPanel("Reproducible Scripts",
+    tabPanel("R Script",
              fluidRow(column(6, h4("Run this script in R to reproduce the results.")),
                       column(3, uiOutput("copycode")), 
                       column(3, downloadButton("report", "Save html report"))),
              verbatimTextOutput("codeTxt")), 
     tabPanel("About", 
-             h2("aweSOM"), 
-             h4("interactive self-organizing maps"))
+             fluidRow(column(6, 
+                             h2("aweSOM"), 
+                             h4("interactive self-organizing maps")), 
+                      column(6, img(src = "Teuvo-Kohonen.jpg",
+                                    alt= "Here a portrait of Teuvo Kohonen.",
+                                    width= "100%",
+                                    style = "margin:10px; padding: 0px 0px"), 
+                             HTML("<p>Teuvo Kohonen, inventor of the SOM, in the early 1980s. \
+                                  Image source: wikipedia, <a href='https://creativecommons.org/licenses/by/4.0/deed.en'> CC-BY 4.0 </a></p>")))
+             )
 
   )
 ))
