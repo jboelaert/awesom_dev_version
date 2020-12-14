@@ -383,7 +383,7 @@ shinyUI(fluidPage(
                                               #HTML('<br />'),
                                               #plotOutput("theLegend"),
                                               #needs conditional as not all plots require legend
-                                              conditionalPanel(input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap", 
+                                              conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"', 
                                               HTML('<svg id="awesom_legend_svg", width="100%"></svg>'))
                                               
 
