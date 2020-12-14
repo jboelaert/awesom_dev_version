@@ -600,7 +600,12 @@ if(typeof(element_b) != 'undefined' && element != null){
         //svg.selectAll("#awesom_legend_svg").remove();
         if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Heat" ){
         
+        
+        svg.selectAll("mylabels").remove()
+        svg.selectAll("mydots").remove()
 
+        
+        
         // create the legend
         var Svg = d3.select("#awesom_legend_svg")
         // create a list of keys
@@ -619,7 +624,7 @@ if(typeof(element_b) != 'undefined' && element != null){
             }) // 100 is where the first dot appears. 25 is the distance between dots
             .attr("r", 7)
             .style("fill", function(d,i){return colors[i]})
-            Svg.selectAll("mylabels")
+            Svg.selectAll(c)
             .data(keys)
             .enter()
             .append("text")
