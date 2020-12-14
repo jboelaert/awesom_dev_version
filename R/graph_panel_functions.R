@@ -760,6 +760,10 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
   cellNames <- unname(lapply(split(plotNames.var, ok.clust), 
                              function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
   
+  #try to fix hitmap bug
+  cellNames <- rapply(cellNames,function(x) ifelse(x=="",NA,x), how = "replace")
+  
+  
   if (graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
     if (is.null(plotVarMult)) return(NULL)
     plotVar <- plotVarMult
