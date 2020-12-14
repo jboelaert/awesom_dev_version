@@ -156,8 +156,7 @@ shinyUI(fluidPage(
                           #                  
                           # ),
                           
-                        ),
-                        uiOutput("Teuvo")
+                        )
                         
                       )),
                column(8, 
@@ -373,8 +372,11 @@ shinyUI(fluidPage(
                                               HTML('<h4 id="cell-info"></h4>'),
                                               HTML('<h4 id="plot-message"></h4>'),
                                               
-                                              aweSOM:::aweSOMoutput("theWidget"),
-                                             
+                                              fluidRow(column(9, aweSOM:::aweSOMoutput("theWidget")),
+                                                       column(3, conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
+                                                                                  HTML('<svg id="awesom_legend_svg", width="100%"></svg>')))),
+                                              # aweSOM:::aweSOMoutput("theWidget"),
+
                                               
                                               #uiOutput("plot_legend_margin"),
                                               
@@ -382,14 +384,15 @@ shinyUI(fluidPage(
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
                                               #HTML('<br />'),
                                               #plotOutput("theLegend"),
-                                              #needs conditional as not all plots require legend
-                                              conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"', 
-                                              HTML('<svg id="awesom_legend_svg", width="100%"></svg>'))
                                               
+                                              #needs conditional as not all plots require legend
+                                              # conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
+                                              #                  HTML('<svg id="awesom_legend_svg", width="100%"></svg>'))
+                                              # 
 
                                               )
                              ))), 
-    tabPanel("Clustered data", 
+    tabPanel("Export data", 
              
              fluidRow(
                column(4,
@@ -404,14 +407,22 @@ shinyUI(fluidPage(
                       uiOutput("clustVariables")),
                column(8, DT::dataTableOutput("clustTable")))),
     
-    tabPanel("Reproducible Scripts",
+    tabPanel("R Script",
              fluidRow(column(6, h4("Run this script in R to reproduce the results.")),
                       column(3, uiOutput("copycode")), 
                       column(3, downloadButton("report", "Save html report"))),
              verbatimTextOutput("codeTxt")), 
     tabPanel("About", 
-             h2("aweSOM"), 
-             h4("interactive self-organizing maps"))
+             fluidRow(column(6, 
+                             h2("aweSOM"), 
+                             h4("interactive self-organizing maps")), 
+                      column(6, img(src = "Teuvo-Kohonen.jpg",
+                                    alt= "Here a portrait of Teuvo Kohonen.",
+                                    width= "100%",
+                                    style = "margin:10px; padding: 0px 0px"), 
+                             HTML("<p>Teuvo Kohonen, inventor of the SOM, in the early 1980s. \
+                                  Image source: wikipedia, <a href='https://creativecommons.org/licenses/by/4.0/deed.en'> CC-BY 4.0 </a></p>")))
+             )
 
   )
 ))
