@@ -9,7 +9,6 @@ Train
 
 
 Plots
-* display the legend
 * Reverse-order issue for rectangular grid
 * boxplot contours and whiskers do not show
 
@@ -21,11 +20,11 @@ Reproducible Scripts:
 .
 
 Vignette
-* Describing what the functions do and how the package works (Jan: I can create a first draft)
+
+
 
 
 Other: 
 * Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?)
-* UI Panel Element for Meta Information -> About panel
 * Roxygen Skeletons functions
 * (Julien) Clean code, and make CRAN-ready

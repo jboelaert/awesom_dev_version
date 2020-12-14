@@ -442,12 +442,19 @@ HTMLWidgets.widget({
 
     document.getElementById("cell-info").style.textAlign = "center";
     document.getElementById("plot-message").style.textAlign = "center";
+    
+    
+    //document.getElementById("cell-info").style.color = '#d00';
+    
+
 
     document.getElementById("theWidget").innerHTML = ""; //remove the old graph
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
     document.getElementById("plot-names").innerHTML = "-";
-    
+    //document.getElementById("awesom_legend_svg").innerHTML = ""; //remove old legend?
+
+   
     
 
     // Import common data
@@ -569,13 +576,69 @@ HTMLWidgets.widget({
           }
       })
     }
+    
+    
+    
+var element = document.getElementById("downloadPng");
+var element_b = document.getElementById("downloadSvg");
+
+if(typeof(element) != 'undefined' && element != null){
+
     document.getElementById('downloadPng').addEventListener('click', function() {
         downloadPng(this, 'somplot.png');}, false);
+
+}
+
+if(typeof(element_b) != 'undefined' && element != null){
+
     document.getElementById('downloadSvg').addEventListener('click', function() {
         downloadSvg(this, 'somplot.svg');}, false);
+      }
+
+
+
+        //svg.selectAll("#awesom_legend_svg").remove();
+        if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Heat" ){
         
         
         
+
+        
+        // create the legend
+        var Svg = d3.select("#awesom_legend_svg")
+        // create a list of keys
+        var keys = data.label;
+        var  colors  = data.labelColor;
+        Svg.selectAll("mydots")
+          .data(keys)
+          .enter()
+          .append("circle")
+            .attr("cx", function(d,i){
+              //return 100
+              return (Math.floor(i/5) * 200 + 100)
+            })
+            .attr("cy", function(d,i){
+              return i % 5 * 20 + 10
+            }) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("r", 7)
+            .style("fill", function(d,i){return colors[i]})
+            Svg.selectAll("mylabels")
+            .data(keys)
+            .enter()
+            .append("text")
+              .attr("x", function(d,i){
+                return (Math.floor(i/5) * 200 + 115)
+              })
+              .attr("y", function(d,i){
+                return i % 5 * 20 + 15
+              }) // 100 is where the first dot appears. 25 is the distance between dots
+              .style("fill", "black")
+              .text(function(d){ return d})
+              .attr("text-anchor", "left")
+              .style("alignment-baseline", "middle")
+
+
+        }
 
     // Call grid following topology and type
     if(topology.localeCompare('rectangular')==0){
@@ -1374,7 +1437,7 @@ HTMLWidgets.widget({
             //////////////////////////////////////////////////////////////////////
             // Square Boxplot
             ///////////////////////////////////////////////////////////////////////
-            var width = (cellSize*80/100)/(nbBox)-(cellSize*10/100),
+           var width = (cellSize*80/100)/(nbBox)-(cellSize*10/100),
       				height = (cellSize*70/100);
       			if(nbBox==1){width = (cellSize*20/100);
       						 height = (cellSize*40/100);}
@@ -1486,18 +1549,68 @@ HTMLWidgets.widget({
       						});
 
 
+                  var label_point_boxplot = d.label;
+                  test  = d3.select("body").selectAll(".y").data();
 
 
-      						d3.select(this)
-      							.transition()
-      							.duration(50)
-      							.attr("stroke-width",2)
+                  d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                                .transition()
+                                .duration(50)
+                                .style("fill-opacity", function(d, i){
+
+                                    if(d.label == label_point_boxplot) {
+                                          return 0.8}
+                                    else {return 0.1}
+
+                                                        });
+
+
+                    d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                                .transition()
+                                .duration(50)
+                                .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                                        if(d.labels_plot == label_point_boxplot) {
+                                                              return 0.8}
+                                                            else {return 0.1}
+
+                                                          });
+
+
+
+
       					});
 
       					focus.on('mouseleave', function (d, i) {
-      						d3.select(this).transition()
-      							.duration(50)
-      							.attr("stroke-width",1);
+
+                  d3.select('#plot-message').text(function () {
+                                    return "-";
+                                  });
+
+
+
+
+
+                  d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                 .transition()
+                 .duration(50)
+                 .style("fill-opacity", function(d, i){
+                   //console.log(d.label);
+                   //this conditional is probably the right way of doing it
+
+                   return 1
+
+                 });
+
+
+
+               d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                 .transition()
+                 .duration(50)
+                 .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                    return 1
+
+                 });
+
       					});
       				}
 
@@ -1509,31 +1622,54 @@ HTMLWidgets.widget({
       						return ch;
       					});
 
-
                 var selected = d3.select(this).data()[0].labels_plot;
-                //console.log(selected);
 
-      					//svg.selectAll("path.r"+i)
-    						d3.selectAll("g.box")
-      						.transition()
-      						.duration(50)
-                  .attr("stroke-width", function(d, i){ //this conditional is probably the right way of doing it
-                    if(d.labels_plot == selected) {
-                    //console.log(this.labels_plot);
-                      return 2}
-                    else {return 1}
+                d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                                       					.transition()
+                                       					.duration(50)
+                                       					.style("fill-opacity", function(d, i){
+                                                   //console.log(d.label);
+                                                   //this conditional is probably the right way of doing it
+                                                   if(d.label == selected) {
+                                                   //console.log(this.labels_plot);
+                                                     return 0.8}
+                                                   else {return 0.1}
 
-                  });
+                                                 });
+
+
+                     				d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                     					.transition()
+                     					.duration(50)
+                     					.style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                                 if(d.labels_plot == selected) {
+                                 //console.log(this.labels_plot);
+                                   return 0.8}
+                                 else {return 0.1}
+
+                               });
+
+
+
       				});
       				boxs.on('mouseleave', function (d, i) {
       					d3.select('#plot-message').text(function () {
       						return "-";
       					});
-      					//svg.selectAll("path.r"+i)
-    						d3.select(this)
-      					  .transition()
-      						.duration(50)
-      						.attr("stroke-width",1);
+                d3.selectAll("g.box").transition()
+              .duration(50)
+              .style("fill-opacity",1);
+
+              d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                .transition()
+                .duration(50)
+                .style("fill-opacity", function(d, i){
+                  //console.log(d.label);
+                  //this conditional is probably the right way of doing it
+
+                  return 1
+
+                });
       				});
       			}
           } else if(plotType.localeCompare("Star")==0) {
@@ -2077,6 +2213,9 @@ HTMLWidgets.widget({
 
           var width = (hexCellSize*80/100)/(nbBox)-(hexCellSize*10/100),
       			height = (hexCellSize*50/100);
+
+          //console.log(width);
+
       		if(nbBox==1){width = (hexCellSize*20/100);
       					 height = (hexCellSize*30/100);}
       		var min = Infinity,
@@ -2173,16 +2312,73 @@ HTMLWidgets.widget({
       					.attr("stroke-width",1);
 
       				focus.on('mouseenter', function (d, i) {
+
+                  var label_point_boxplot = d.label;
+                  test  = d3.select("body").selectAll(".y").data();
+                  //console.log(test);
+                  //console.log(label_point_boxplot);
+
+                  d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+          					.transition()
+          					.duration(50)
+          					.style("fill-opacity", function(d, i){
+                      //console.log(d.label);
+                      //this conditional is probably the right way of doing it
+                      if(d.label == label_point_boxplot) {
+                      //console.log(this.labels_plot);
+                        return 0.8}
+                      else {return 0.1}
+
+                    });
+
+
+                    d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                      .transition()
+                      .duration(50)
+                      .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                        if(d.labels_plot == label_point_boxplot) {
+                        //console.log(this.labels_plot);
+                          return 0.8}
+                        else {return 0.1}
+
+                      });
+
+
+
       					d3.select('#plot-message').text(function () {
       						var ch=d.label+": " + d.realValues;
       						return ch;
       					});
-      					d3.select(this) //this
-      						.transition()
-      						.duration(50)
-      						.attr("stroke-width",2)
+
+
+
+
+
       				});
       				focus.on('mouseleave', function (d, i) {
+
+                d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                  .transition()
+                  .duration(50)
+                  .style("fill-opacity", function(d, i){
+                    //console.log(d.label);
+                    //this conditional is probably the right way of doing it
+
+                    return 1
+
+                  });
+
+
+
+                d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                  .transition()
+                  .duration(50)
+                  .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                     return 1
+
+                  });
+
+
                 d3.select('#plot-message').text(function () {
                   return "-";
                 });
@@ -2203,14 +2399,29 @@ HTMLWidgets.widget({
               //console.log(selected);
               //console.log(selected[0].labels_plot);
 
+
+                                d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                        					.transition()
+                        					.duration(50)
+                        					.style("fill-opacity", function(d, i){
+                                    //console.log(d.label);
+                                    //this conditional is probably the right way of doing it
+                                    if(d.label == selected) {
+                                    //console.log(this.labels_plot);
+                                      return 0.8}
+                                    else {return 0.1}
+
+                                  });
+
+
       				d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
       					.transition()
       					.duration(50)
-      					.attr("stroke-width", function(d, i){ //this conditional is probably the right way of doing it
+      					.style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
                   if(d.labels_plot == selected) {
                   //console.log(this.labels_plot);
-                    return 4}
-                  else {return 1}
+                    return 0.8}
+                  else {return 0.1}
 
                 });
       			});
@@ -2220,7 +2431,20 @@ HTMLWidgets.widget({
               });
       				d3.selectAll("g.box").transition()
       					.duration(50)
-      					.attr("stroke-width",1);
+      					.style("fill-opacity",1);
+
+                d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                  .transition()
+                  .duration(50)
+                  .style("fill-opacity", function(d, i){
+                    //console.log(d.label);
+                    //this conditional is probably the right way of doing it
+
+                    return 1
+
+                  });
+
+
       			});
       		}
         } else if(plotType.localeCompare("Star")==0) {
