@@ -601,8 +601,8 @@ if(typeof(element_b) != 'undefined' && element != null){
         if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Heat" ){
         
         
-        d3.selectAll("mylabels").remove()
-                d3.selectAll("mydots").remove()
+        d3.selectAll("mylabels").remove();
+                d3.selectAll("mydots").remove();
 
 
         
