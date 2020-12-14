@@ -902,7 +902,8 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
   res <- htmlwidgets::appendContent(res, 
-                                    (htmltools::tag("svg", list(id= "awesom_legend_svg"))))
+                                    (htmltools::tag("svg", list(id= "awesom_legend_svg",
+                                                                width = "100%"))))
   
   
 
