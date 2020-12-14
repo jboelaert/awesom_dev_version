@@ -760,10 +760,16 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
   #this command misses empty cells, that's why there's the hitmap bug
   cellNames <- unname(lapply(split(plotNames.var, ok.clust), 
                              function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
-  print(length(cellNames))
-  #try to fix hitmap bug
-  #cellNames <- rapply(cellNames,function(x) ifelse(x=="NA",c(1),x), how = "replace")
   
+    library(rlist) #yeah i know
+   a <- seq(1, ok.som$grid$xdim*ok.som$grid$ydim)
+   b <- unique(ok.clust)
+   empty_cells <- setdiff(a,b)
+   #insert empty cells with specified label to cellNames list which is short of these missing cells prior
+   for(empty_cell in empty_cells){
+     
+     cellNames <- list.insert(cellNames, index = empty_cell, "NA")
+   }
   
   
   
