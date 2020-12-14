@@ -397,7 +397,10 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     ##########
     
     if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
-      prototypes <- som$codes[[1]][, varnames]
+      if (all(varnames == "Mean distance to neighbours")) {
+        prototypes <- som$codes[[1]]
+      } else
+        prototypes <- som$codes[[1]][, varnames]
       
       ## realValues are the one displayed in the text info above the plot
       if (valueFormat == "mean") {
@@ -668,17 +671,16 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
     proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
     data <- rowMeans(proto.dataspace.dist, na.rm= T)[ok.clust]
     plotVar <- "Mean distance to neighbours"
+    graphType <- "Color"
   }
   
   options <- list(equalSize= plotEqualSize)
   
-  graphType <- ifelse(graphType == "UMatrix", "Color", graphType)
-  
-  plotParams <- aweSOM:::getPlotParams(graphType, ok.som, ok.sc,  
-                                       data, plotSize, plotVar, contrast,
-                                       palsc, palplot, cellNames,
-                                       plotOutliers, plotRevPal, options, 
-                                       average_format)
+  plotParams <- getPlotParams(graphType, ok.som, ok.sc,  
+                              data, plotSize, plotVar, contrast,
+                              palsc, palplot, cellNames,
+                              plotOutliers, plotRevPal, options, 
+                              average_format)
   
   # create the widget
   htmlwidgets::createWidget("aweSOMwidget", plotParams, width = plotSize, 
