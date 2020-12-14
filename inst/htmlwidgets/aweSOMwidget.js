@@ -596,17 +596,14 @@ if(typeof(element_b) != 'undefined' && element != null){
 
 
         //svg.selectAll("#awesom_legend_svg").remove();
-        if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Heat" ){
-        
-        
-        
-
+        //if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Heat" ){
+        if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Star")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
         
         // create the legend
         var Svg = d3.select("#awesom_legend_svg")
         // create a list of keys
-        var keys = data.label;
-        var  colors  = data.labelColor;
+        var keys = label;
+        var  colors  = labelColor;
         Svg.selectAll("mydots")
           .data(keys)
           .enter()
