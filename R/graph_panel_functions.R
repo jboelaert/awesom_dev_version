@@ -741,17 +741,8 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
     plotNames.var <- as.character(plot.data[, plotNames])
   }
   
-  cellNames <- unname(lapply(split(plotNames.var, ok.clust), 
-                             function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
-  
-   a <- seq(1, ok.som$grid$xdim*ok.som$grid$ydim)
-   b <- unique(ok.clust)
-   empty_cells <- setdiff(a,b)
-   #insert empty cells with specified label to cellNames list which is short of these missing cells prior
-   for(empty_cell in empty_cells){
-     cellNames <- list.insert(cellNames, index = empty_cell, "NA")
-   }
-  
+  cellNames <- unname(lapply(split(plotNames.var, factor(ok.clust, levels= 1:nrow(ok.som$codes[[1]]))), 
+                             function(x) paste(x, collapse= ", "))) # "&#13;&#10;" "<br />"
   
   
   
