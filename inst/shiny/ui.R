@@ -382,7 +382,7 @@ shinyUI(fluidPage(
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
                                               #HTML('<br />'),
                                               plotOutput("theLegend"),
-                                              HTML('<svg id="awesom_legend_svg"></svg>')
+                                              HTML('<svg id="awesom_legend_svg", width="100%"></svg>')
                                               
 
                                               )
