@@ -442,17 +442,15 @@ HTMLWidgets.widget({
 
     document.getElementById("cell-info").style.textAlign = "center";
     document.getElementById("plot-message").style.textAlign = "center";
-    
+    document.getElementById("plot-names").style.textAlign = "center";
     
     //document.getElementById("cell-info").style.color = '#d00';
-    
-
 
     document.getElementById("theWidget").innerHTML = ""; //remove the old graph
     document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
     document.getElementById("plot-message").innerHTML = "-";
     document.getElementById("plot-names").innerHTML = "-";
-    document.getElementById("awesom_legend_svg").innerHTML = ""; //remove old legend?
+    document.getElementById("awesom_legend_svg").innerHTML = ""; //remove old legend
 
    
     
