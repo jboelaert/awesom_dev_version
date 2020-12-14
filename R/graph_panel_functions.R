@@ -757,6 +757,7 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
     plotNames.var <- as.character(plot.data[, plotNames])
   }
   
+  #this command misses empty cells, that's why there's the hitmap bug
   cellNames <- unname(lapply(split(plotNames.var, ok.clust), 
                              function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
   print(length(cellNames))
