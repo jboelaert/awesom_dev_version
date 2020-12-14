@@ -597,9 +597,9 @@ if(typeof(element_b) != 'undefined' && element != null){
 
 
 
-
-        if(plotType !== "Hitmap"){
-
+        //svg.selectAll("#awesom_legend_svg").remove();
+        if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Heat" ){
+        
 
         // create the legend
         var Svg = d3.select("#awesom_legend_svg")
@@ -1434,7 +1434,7 @@ if(typeof(element_b) != 'undefined' && element != null){
             //////////////////////////////////////////////////////////////////////
             // Square Boxplot
             ///////////////////////////////////////////////////////////////////////
-            var width = (cellSize*80/100)/(nbBox)-(cellSize*10/100),
+           var width = (cellSize*80/100)/(nbBox)-(cellSize*10/100),
       				height = (cellSize*70/100);
       			if(nbBox==1){width = (cellSize*20/100);
       						 height = (cellSize*40/100);}
@@ -1546,18 +1546,68 @@ if(typeof(element_b) != 'undefined' && element != null){
       						});
 
 
+                  var label_point_boxplot = d.label;
+                  test  = d3.select("body").selectAll(".y").data();
 
 
-      						d3.select(this)
-      							.transition()
-      							.duration(50)
-      							.attr("stroke-width",2)
+                  d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                                .transition()
+                                .duration(50)
+                                .style("fill-opacity", function(d, i){
+
+                                    if(d.label == label_point_boxplot) {
+                                          return 0.8}
+                                    else {return 0.1}
+
+                                                        });
+
+
+                    d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                                .transition()
+                                .duration(50)
+                                .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                                        if(d.labels_plot == label_point_boxplot) {
+                                                              return 0.8}
+                                                            else {return 0.1}
+
+                                                          });
+
+
+
+
       					});
 
       					focus.on('mouseleave', function (d, i) {
-      						d3.select(this).transition()
-      							.duration(50)
-      							.attr("stroke-width",1);
+
+                  d3.select('#plot-message').text(function () {
+                                    return "-";
+                                  });
+
+
+
+
+
+                  d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                 .transition()
+                 .duration(50)
+                 .style("fill-opacity", function(d, i){
+                   //console.log(d.label);
+                   //this conditional is probably the right way of doing it
+
+                   return 1
+
+                 });
+
+
+
+               d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                 .transition()
+                 .duration(50)
+                 .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                    return 1
+
+                 });
+
       					});
       				}
 
@@ -1569,31 +1619,54 @@ if(typeof(element_b) != 'undefined' && element != null){
       						return ch;
       					});
 
-
                 var selected = d3.select(this).data()[0].labels_plot;
-                //console.log(selected);
 
-      					//svg.selectAll("path.r"+i)
-    						d3.selectAll("g.box")
-      						.transition()
-      						.duration(50)
-                  .attr("stroke-width", function(d, i){ //this conditional is probably the right way of doing it
-                    if(d.labels_plot == selected) {
-                    //console.log(this.labels_plot);
-                      return 2}
-                    else {return 1}
+                d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                                       					.transition()
+                                       					.duration(50)
+                                       					.style("fill-opacity", function(d, i){
+                                                   //console.log(d.label);
+                                                   //this conditional is probably the right way of doing it
+                                                   if(d.label == selected) {
+                                                   //console.log(this.labels_plot);
+                                                     return 0.8}
+                                                   else {return 0.1}
 
-                  });
+                                                 });
+
+
+                     				d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                     					.transition()
+                     					.duration(50)
+                     					.style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                                 if(d.labels_plot == selected) {
+                                 //console.log(this.labels_plot);
+                                   return 0.8}
+                                 else {return 0.1}
+
+                               });
+
+
+
       				});
       				boxs.on('mouseleave', function (d, i) {
       					d3.select('#plot-message').text(function () {
       						return "-";
       					});
-      					//svg.selectAll("path.r"+i)
-    						d3.select(this)
-      					  .transition()
-      						.duration(50)
-      						.attr("stroke-width",1);
+                d3.selectAll("g.box").transition()
+              .duration(50)
+              .style("fill-opacity",1);
+
+              d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                .transition()
+                .duration(50)
+                .style("fill-opacity", function(d, i){
+                  //console.log(d.label);
+                  //this conditional is probably the right way of doing it
+
+                  return 1
+
+                });
       				});
       			}
           } else if(plotType.localeCompare("Star")==0) {

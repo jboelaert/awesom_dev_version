@@ -17,7 +17,7 @@ library(kohonen)
 ```
 
 
-__aweSOM__ is an R package offering a set of comprehensive tools to explore and analyze datasets with Self-Organizing Maps (also known as [https://en.wikipedia.org/wiki/Self-organizing_map](Kohonen maps)), an artificial neural network created by [https://en.wikipedia.org/wiki/Teuvo_Kohonen](Teuvo Kohonen) in the 1980s. 
+__aweSOM__ is an R package offering a set of comprehensive tools to explore and analyze datasets with Self-Organizing Maps (also known as [Kohonen maps](https://en.wikipedia.org/wiki/Self-organizing_map)), an artificial neural network created by [Teuvo Kohonen](https://en.wikipedia.org/wiki/Teuvo_Kohonen) in the 1980s. 
 
 __aweSOM__ provides a variety of functions to visualize, and assess the quality of self-organizing Kohonen map (SOM)through a shiny application. It relies on the R kohonen package. 
 
@@ -39,13 +39,7 @@ dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" 
 ### Scale training data
 dat <- scale(dat)
 ### Initialization (PCA grid)
-data.pca <- prcomp(dat, center= F, scale.= F)
-init.x <- seq(from= quantile(data.pca$x[,1], .025), 
-              to= quantile(data.pca$x[,1], .975), length.out= 4)
-init.y <- seq(from= quantile(data.pca$x[,2], .025), 
-              to= quantile(data.pca$x[,2], .975), length.out= 4)
-init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
-init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+init <- aweSOM::somInit(dat, 4, 4)
 ## Train SOM
 ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01),
                        radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
@@ -165,7 +159,7 @@ aweSOM provides inbuilt functions to create three different plots that allow ass
 
 ###  aweSOMdendrogram
 aweSOMdendrogram returns a dendogram for hierarchical clustering performed on an SOM object. For the example below, the hierarchical clustering performed in the previous section is used and 2 superclasses are visualized. This function is only valid for hierarchical clustering.
-```{r}
+```{r, fig.width=7, fig.height=4}
 aweSOM::aweSOMdendrogram(ok.som = ok.som, ok.hclust = superclust_hclust, 
                          input_kohSuperclass = 2)
 ```
@@ -173,7 +167,7 @@ aweSOM::aweSOMdendrogram(ok.som = ok.som, ok.hclust = superclust_hclust,
 ### aweSOMscreeplot
 aweSOMscreeplot [tbd] JULIEN TU PEUX EXPLIQUER?
 
-```{r}
+```{r, fig.width=7, fig.height=4 } 
 aweSOM::aweSOMscreeplot(ok.som = ok.som, method = 'hierarchical', 
                         hmethod = 'ward.D2', nclass = 2)
 ```
@@ -182,7 +176,7 @@ aweSOM::aweSOMscreeplot(ok.som = ok.som, method = 'hierarchical',
 aweSOMsilhouette returns a silhouette for PAM clustering performed on an SOM object. For the example below, the PAM clustering is the same as the one performed in the previous section.  This function is only valid for PAM clustering.
 
 
-```{r}
+```{r, fig.width=7, fig.height=6}
 aweSOM::aweSOMsilhouette(ok.som, superclasses_pam)
 ```
 

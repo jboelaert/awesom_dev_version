@@ -163,11 +163,7 @@ the.legend.function <- function(plot.data, input_plotNames, ok.clust, input_grap
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' data.pca <- prcomp(dat, center= F, scale.= F)
-#' init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 4)
-#' init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 4)
-#' init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
-#' init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+#' init <- aweSOM::somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (hierarchical clustering)
 #' superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
@@ -202,11 +198,7 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' data.pca <- prcomp(dat, center= F, scale.= F)
-#' init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 4)
-#' init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 4)
-#' init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
-#' init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+#' init <- aweSOM::somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
@@ -287,11 +279,7 @@ aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot= "Set3", input_plotR
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' data.pca <- prcomp(dat, center= F, scale.= F)
-#' init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 4)
-#' init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 4)
-#' init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
-#' init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+#' init <- aweSOM::somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
 #' aweSOMabstraction(ok.som, dat, cutoff = 0)
 aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F){
@@ -394,11 +382,7 @@ aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' data.pca <- prcomp(dat, center= F, scale.= F)
-#' init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 4)
-#' init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 4)
-#' init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
-#' init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+#' init <- aweSOM::somInit(dat,4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
@@ -760,6 +744,17 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
   cellNames <- unname(lapply(split(plotNames.var, ok.clust), 
                              function(x) paste(sort(x), collapse= ", "))) # "&#13;&#10;" "<br />"
   
+   a <- seq(1, ok.som$grid$xdim*ok.som$grid$ydim)
+   b <- unique(ok.clust)
+   empty_cells <- setdiff(a,b)
+   #insert empty cells with specified label to cellNames list which is short of these missing cells prior
+   for(empty_cell in empty_cells){
+     cellNames <- list.insert(cellNames, index = empty_cell, "NA")
+   }
+  
+  
+  
+  
   if (graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
     if (is.null(plotVarMult)) return(NULL)
     plotVar <- plotVarMult
@@ -853,16 +848,11 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' data.pca <- prcomp(dat, center= F, scale.= F)
-#' init.x <- seq(from= quantile(data.pca$x[,1], .025), to= quantile(data.pca$x[,1], .975), length.out= 4)
-#' init.y <- seq(from= quantile(data.pca$x[,2], .025), to= quantile(data.pca$x[,2], .975), length.out= 4)
-#' init.base <- as.matrix(expand.grid(x= init.x, y= init.y))
-#' init <- tcrossprod(init.base, data.pca$rotation[, 1:2])
+#' init <- aweSOM::somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
-#' 
 #' variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
 #' #Hitmap
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Hitmap', plotSize = 100)
@@ -901,8 +891,12 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
+  
+  if(graphType != "Hitmap"){
   res <- htmlwidgets::appendContent(res, 
-                                    (htmltools::tag("svg", list(id= "awesom_legend_svg"))))
+                                    (htmltools::tag("svg", list(id= "awesom_legend_svg",
+                                                                width = "100%"))))
+  }
   
   
 
