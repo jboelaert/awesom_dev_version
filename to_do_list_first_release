@@ -9,7 +9,6 @@ Train
 
 
 Plots
-* display the legend (for not in Shiny-app html legend is in place, sizing issues though)
 * Reverse-order issue for rectangular grid
 * boxplot contours and whiskers do not show
 
@@ -21,9 +20,8 @@ Reproducible Scripts:
 .
 
 Vignette
-* Describing what the functions do and how the package works (Jan: I can create a first draft)
-  * There is a weird bug that the rendered markdown in the vignette, for the two JS-based plots, are messed up, while when you run in in the console, it's working fine
-  
+
+
 
 
 Other: 
