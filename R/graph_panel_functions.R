@@ -901,9 +901,12 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
+  
+  if(graphType != "Hitmap"){
   res <- htmlwidgets::appendContent(res, 
                                     (htmltools::tag("svg", list(id= "awesom_legend_svg",
                                                                 width = "100%"))))
+  }
   
   
 
