@@ -598,7 +598,7 @@ if(typeof(element_b) != 'undefined' && element != null){
 
 
 
-        if(plotType !== "Hitmap"){
+        if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Radar" && plotType !== "Heat" ){
 
 
         // create the legend
