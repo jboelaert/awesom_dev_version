@@ -11,7 +11,7 @@ shinyUI(fluidPage(
   tabsetPanel(
     #### Panel 'Welcome, Import Data'
     #########################################################################
-    tabPanel("Data", 
+    tabPanel("Import Data", 
              # includeHTML("js/hexbin.js"),
              # includeHTML("js/lodash.min.js"), 
              # includeHTML("js/d3.min.js"),
@@ -26,11 +26,11 @@ shinyUI(fluidPage(
              # data_import -------------------------------------------------------------
              
              
-             h2("aweSOM"), 
-             h4("interactive self-organizing maps"),
-             
              fluidRow(
                column(4,
+                      h2("aweSOM"), 
+                      h4("interactive self-organizing maps"),
+                      
                       wellPanel(
                         h4("Import Data"), 
                         selectInput('file_type', NULL, 
@@ -144,26 +144,22 @@ shinyUI(fluidPage(
                                            fluidRow(column(4, p('Skip rows')), 
                                                     column(8, numericInput('skip_spss', NULL, 0, min= 0)))),
                           
-                          # ## Options for SAS files
-                          # conditionalPanel("input.file_type == 'sas_data'",
-                          #                  ###specs and params here
-                          #                  
-                          # ),
-                          # 
-                          # ## Options for Stata files
-                          # conditionalPanel("input.file_type == 'stata'",
-                          #                  ###specs and params here
-                          #                  
-                          # ),
                           
                         )
                         
-                      )),
+                      ), 
+                      HTML("<h4>General instructions:</h4>",
+                           "<ol>",
+                           "<li> Import data </li>",
+                           "<li> Train a map </li>",
+                           "<li> Plot the map </li>",
+                           "<li> Export clusters, plots, code... </li>",
+                           "</ol>"),
+               ),
                column(8, 
                       uiOutput("dataImportMessage"), 
                       DT::dataTableOutput("dataView"))
-               
-              
+
                )),
     
     
@@ -238,7 +234,7 @@ shinyUI(fluidPage(
     
     # map visuals -------------------------------------------------------------
     
-    tabPanel("Graph", 
+    tabPanel("Plot", 
              fluidRow(column(4, 
                              ## Sélection du graphique et des variables
                              h4("Plot options:"),
