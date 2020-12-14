@@ -2208,7 +2208,7 @@ if(typeof(element_b) != 'undefined' && element != null){
           // Hexagonal Boxplot
           //////////////////////////////////////////////////////////////////////////
 
-          var var width = (hexCellSize*80/100)/(nbBox)-(hexCellSize*10/100),
+          var width = (hexCellSize*80/100)/(nbBox)-(hexCellSize*10/100),
       			height = (hexCellSize*50/100);
 
           //console.log(width);
