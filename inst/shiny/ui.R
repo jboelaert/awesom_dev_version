@@ -249,8 +249,8 @@ shinyUI(fluidPage(
                                                                        "Superclass Scree plot"= "Screeplot",
                                                                        "Superclass Silhouette"= "Silhouette",
                                                                        "Neighbour distance"= "UMatrix", 
-                                                                       "Smooth distance"= "SmoothDist", 
-                                                                       "Abstraction (experimental)"= "Abstraction"
+                                                                       "Smooth distance"= "SmoothDist"#, 
+                                                                       #"Abstraction (experimental)"= "Abstraction"
                                                             ), 
                                                             selected= "Hitmap"))),
                              
