@@ -369,23 +369,21 @@ shinyUI(fluidPage(
                              
                              # D3-based plots
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              HTML('<h4 id="cell-info"></h4>'),
-                                              HTML('<h4 id="plot-message"></h4>'),
                                               
-                                              fluidRow(column(9, aweSOM:::aweSOMoutput("theWidget")),
+                                              
+                                              fluidRow(column(9, 
+                                                              HTML('<h4 id="cell-info"></h4>'),
+                                                              HTML('<h4 id="plot-message"></h4>'),
+                                                              aweSOM:::aweSOMoutput("theWidget")),
                                                        column(3, conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
                                                                                   HTML('<svg id="awesom_legend_svg", width="100%"></svg>')))),
                                               # aweSOM:::aweSOMoutput("theWidget"),
 
                                               
-                                              #uiOutput("plot_legend_margin"),
-                                              
-                                              #HTML('<br />'), 
                                               wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
-                                              #HTML('<br />'),
                                               #plotOutput("theLegend"),
                                               
-                                              #needs conditional as not all plots require legend
+                                              ## HTML legend
                                               # conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
                                               #                  HTML('<svg id="awesom_legend_svg", width="100%"></svg>'))
                                               # 

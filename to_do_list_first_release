@@ -11,6 +11,7 @@ Train
 Plots
 * Reverse-order issue for rectangular grid
 * boxplot contours and whiskers do not show
+* Julien: rename arguments
 
 
 Clustered Data
@@ -28,3 +29,4 @@ Other:
 * Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?)
 * Roxygen Skeletons functions
 * (Julien) Clean code, and make CRAN-ready
+* Remove unused packages from DESCRIPTION (tidyverse?)
