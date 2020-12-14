@@ -875,20 +875,13 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
                       plotSize = plotSize, 
                       palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
   
-  #res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadPng")))
-  #res <- htmlwidgets::prependContent(res, htmltools::tag("a", list(id= "downloadSvg")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget"))) # formely padding bottom 10%
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
-  
-  if(graphType != "Hitmap"){
-  res <- htmlwidgets::appendContent(res, 
-                                    (htmltools::tag("svg", list(id= "awesom_legend_svg",
-                                                                width = "100%"))))
-  }
-  
+  res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= "awesom_legend_svg", width = "100%")))
+
   
 
   res
