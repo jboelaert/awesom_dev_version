@@ -597,7 +597,7 @@ if(typeof(element_b) != 'undefined' && element != null){
 
 
 
-        svg.selectAll("#awesom_legend_svg").remove();
+        //svg.selectAll("#awesom_legend_svg").remove();
         if(plotType !== "Hitmap" && plotType !== "Star" && plotType !== "Line" && plotType !== "Heat" ){
 
 
