@@ -588,35 +588,35 @@ shinyServer(function(input, output, session) {
   
   ## R-Based legend
   
-  output$theLegend <- renderPlot({
-    
-    if (is.null(ok.som()) | !(input$graphType %in% c("Radar",
-                                                     "Camembert", "CatBarplot",
-                                                     "Barplot", "Boxplot",
-                                                     "Color", "Star",
-                                                     "Line",
-                                                     "Names", "UMatrix")))
-      return(NULL) # si on n'a pas calculé, on donne NULL à JS
-    
-    plot.data <- isolate(ok.data()[ok.trainrows(), ])
-    if(is.null(plot.data)) return(NULL)
-    
-    # Obs names per cell for message box
-    if (is.null(input$plotNames)){
-      return(NULL)
-    }
-    
-      aweSOM:::the.legend.function(plot.data = plot.data, 
-                                 input_plotNames = input$plotNames, ok.clust = ok.clust(), 
-                                 input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
-                                 input_plotVarOne = input$plotVarOne,
-                                 ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
-                                 input_contrast = input$contrast, input_average_format = input$average_format, 
-                                 ok.sc = ok.sc(),
-                                 input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
-                                 input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
-  },
-  width = reactive({input$plotSize + 900}))
+  # output$theLegend <- renderPlot({
+  #   
+  #   if (is.null(ok.som()) | !(input$graphType %in% c("Radar",
+  #                                                    "Camembert", "CatBarplot",
+  #                                                    "Barplot", "Boxplot",
+  #                                                    "Color", "Star",
+  #                                                    "Line",
+  #                                                    "Names", "UMatrix")))
+  #     return(NULL) # si on n'a pas calculé, on donne NULL à JS
+  #   
+  #   plot.data <- isolate(ok.data()[ok.trainrows(), ])
+  #   if(is.null(plot.data)) return(NULL)
+  #   
+  #   # Obs names per cell for message box
+  #   if (is.null(input$plotNames)){
+  #     return(NULL)
+  #   }
+  #   
+  #     aweSOM:::the.legend.function(plot.data = plot.data, 
+  #                                input_plotNames = input$plotNames, ok.clust = ok.clust(), 
+  #                                input_graphType = input$graphType, input_plotVarMult = input$plotVarMult, 
+  #                                input_plotVarOne = input$plotVarOne,
+  #                                ok.som = ok.som(), input_plotEqualSize = input$plotEqualSize, 
+  #                                input_contrast = input$contrast, input_average_format = input$average_format, 
+  #                                ok.sc = ok.sc(),
+  #                                input_plotSize = input$plotSize, input_palsc = input$palsc, input_palplot = input$palplot,
+  #                                input_plotOutliers = input$plotOutliers, input_plotRevPal = input$plotRevPal)
+  # },
+  # width = reactive({input$plotSize + 900}))
   
 
   # map cluster function -------------------------------------------------------------
