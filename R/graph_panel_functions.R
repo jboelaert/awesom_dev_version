@@ -757,7 +757,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Boxplot', plotVarMult = variables, plotSize = 100)
 #' #Lineplot
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Line', plotVarMult = variables, plotSize = 100)
-aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL, 
+aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL, 
                        graphType= "Hitmap", 
                        plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
                        plotOutliers= T, plotEqualSize= F,
@@ -767,6 +767,7 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
   ok.trainrows <- rep(T, nrow(ok.data))
   if (length(omitRows) > 0) ok.trainrows[omitRows] <- F
   
+  if (is.null(ok.sc)) ok.sc <- rep(1, nrow(ok.data))
 
   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
                       ok.trainrows = ok.trainrows, graphType = graphType, 
@@ -783,8 +784,6 @@ aweSOMplot <- function(ok.som, ok.sc, ok.data, omitRows= NULL,
   
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
   res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= "awesom_legend_svg", width = "100%")))
-
-  
 
   res
 }

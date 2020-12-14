@@ -30,3 +30,6 @@ Other:
 * Roxygen Skeletons functions
 * (Julien) Clean code, and make CRAN-ready
 * Remove unused packages from DESCRIPTION (tidyverse?)
+
+For later?
+* neighbourhood distance is based on means?!
