@@ -9,7 +9,7 @@ Train
 
 
 Plots
-* boxplot contours and whiskers do not show
+* boxplot contours and whiskers do not show (Jan)
 * Julien: rename arguments
 
 
@@ -25,11 +25,11 @@ Vignette
 
 
 Other: 
-* Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?)
-* Roxygen Skeletons functions
+* Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?) (@Julien: Agree to exporting these to txt file?)
+* Roxygen Skeletons functions (I'll finish these tonight, (also for the vignette) by inserting some info on the function arguments)
 * (Julien) Clean code, and make CRAN-ready
-* Remove unused packages from DESCRIPTION (tidyverse?)
+* Remove unused packages from DESCRIPTION (tidyverse? Jan: I'll check, don't think we need it anymore, otherwise I'll specify which package)
 
 For later?
 * neighbourhood distance is based on means?!
-* line hex plot : circles are a bit above the line
+* line hex plot : circles are a bit above the line (Jan: yes, I'm fixing this hopefully soon, should not be too much work)
