@@ -9,7 +9,6 @@ Train
 
 
 Plots
-* Reverse-order issue for rectangular grid
 * boxplot contours and whiskers do not show
 * Julien: rename arguments
 
@@ -33,3 +32,4 @@ Other:
 
 For later?
 * neighbourhood distance is based on means?!
+* line hex plot : circles are a bit above the line

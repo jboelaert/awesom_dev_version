@@ -106,17 +106,6 @@ shinyServer(function(input, output, session) {
     
   })
   
-  output$Teuvo <- renderUI({
-    img(
-      src = "Teuvo-Kohonen.jpg",
-      title = "Teuvo Kohonen, inventor of the SOM, in the early 1980s.",
-      alt= "Here a portrait of Teuvo Kohonen.",
-      width= "100%",
-      style = paste0("margin:10px; padding: 0px 0px;", 
-                     ifelse(!is.null(ok.data()), "transform: scaleX(-1);", ""))
-    )
-  })
-  
   
   
   

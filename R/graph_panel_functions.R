@@ -149,7 +149,7 @@ aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot= "Set3", input_plotR
                    ok.som$grid$ydim, ok.som$grid$xdim)
   filled.contour(1:ok.som$grid$ydim, 1:ok.som$grid$xdim, #function generating the plot
                  #only accepts square grid
-                 values[, ok.som$grid$xdim:1],
+                 values[, 1:ok.som$grid$xdim],
                  
                  
                  color.palette= function(x) paste0(getPalette(input_palplot, x, input_plotRevPal), "FF"))
@@ -397,10 +397,10 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     ##########
     
     if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
-      if (all(varnames == "Mean distance to neighbours")) {
-        prototypes <- som$codes[[1]]
-      } else
+      if (all(varnames %in% colnames(som$codes[[1]]))) {
         prototypes <- som$codes[[1]][, varnames]
+      } else
+        prototypes <- som$codes[[1]]
       
       ## realValues are the one displayed in the text info above the plot
       if (valueFormat == "mean") {
@@ -768,6 +768,7 @@ aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL,
   if (length(omitRows) > 0) ok.trainrows[omitRows] <- F
   
   if (is.null(ok.sc)) ok.sc <- rep(1, nrow(ok.data))
+  ok.sc <- unname(ok.sc)
 
   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
                       ok.trainrows = ok.trainrows, graphType = graphType, 

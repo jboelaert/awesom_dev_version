@@ -831,7 +831,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     ////////////////////////////////////////////////////////////////////////////
     function commonSquareGrid(){
       var svg = d3.select(el).append('svg')
-      .attr("style"," display:block; margin:auto; margin-top:30px")
+      .attr("style"," display:block; margin:auto; margin-top:30px;")
       .attr({width: Math.min(width, cellSize * nbColumns), 
              height: Math.min(height, cellSize * nbRows)});
 
@@ -857,7 +857,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     				x: function(d, i) {
     					return i * cellSize;
     				},
-    				y: n * cellSize,
+    				y: cellSize * (nbRows - n - 1),
     				fill: function(d, i) {
               return colorNormalizedValues[(n*nbColumns)+i];
     				}, 
@@ -866,7 +866,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       		if(activate){ // Superclass numbers on cells for Color plot
       			rows.append("text")
       				.attr("x", function(d, i) { return i * cellSize + cellSize*45/100; })
-      				.attr("y", n * cellSize + cellSize*50/100)
+      				.attr("y", cellSize * (nbRows - n - 1) + cellSize*50/100)
       				.text(function(d, i) { return superclass[n*nbColumns+i]; })
       				.attr("font-family", "sans-serif")
       				.attr("font-size", cellSize*20/100)
@@ -918,7 +918,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     					x: function(d, i) {
     						return i * cellSize;
     					},
-    					y: n * cellSize,
+    					y: cellSize * (nbRows - n - 1),
     					fill: function(d, i) {
     						var indice = superclass[(n*nbColumns)+i]; 
     						return superclassColor[indice-1];
@@ -946,7 +946,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     					return (i * cellSize + cellSize/2 - (hitmapNormalizedValues[(n*nbColumns)+i]*cellSize)*0.97/2);
     				  },
     				  y: function(d, i) {
-    					return (n * cellSize + cellSize/2 - (hitmapNormalizedValues[(n*nbColumns)+i]*cellSize)*0.97/2);
+    					return (cellSize * (nbRows - n - 1) + cellSize/2 - (hitmapNormalizedValues[(n*nbColumns)+i]*cellSize)*0.97/2);
     				  },
     				  fill: '#112E45',
     				  });
@@ -957,7 +957,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1+ ((nbRows-n-1)*nbColumns) + i) + ', Superclass ' + //fixed
+      				return 'Cell ' + (1+ (n*nbColumns) + i) + ', Superclass ' + //fixed
       				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
       				});
       			d3.select('#plot-names').text(function () {
@@ -978,7 +978,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1+ ((nbRows-n-1)*nbColumns) + i) + ', Superclass ' + //fixed
+      				return 'Cell ' + (1+ (n*nbColumns) + i) + ', Superclass ' + //fixed
       				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
       				});
       			d3.select('#plot-names').text(function () {
@@ -1015,7 +1015,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     					x: function(d, i) {
     						return i * cellSize;
     					},
-    					y: n * cellSize,
+    					y: cellSize * (nbRows - n - 1),
     					fill: function(d, i) {
     						var indice = superclass[(n*nbColumns)+i];
     						return superclassColor[indice-1];
@@ -1043,7 +1043,7 @@ if(typeof(element_b) != 'undefined' && element != null){
 
     					var lineFunction = d3.svg.line()
                             .x(function(d) { return d.px+i*cellSize; })
-                            .y(function(d) { return -d.py+(n+1)*cellSize; })
+                            .y(function(d) { return -d.py+(nbRows - n)*cellSize; })
                             .interpolate("linear");
 
     					return lineFunction(arrayValues);
@@ -1067,7 +1067,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     				})
     				.attr("cy", function(d, i) {
     					innerArrayNormalizedValues= lineNormalizedValues[(n*nbColumns)+i];
-    					var py = (-innerArrayNormalizedValues[0]*cellSize)+(n+1)*cellSize;
+    					var py = (-innerArrayNormalizedValues[0]*cellSize)+(nbRows - n)*cellSize;
     					return py;
     				})
     				//.attr("r", 4) //.attr("r", 4)
@@ -1095,7 +1095,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       				return cellNames[(n*nbColumns)+i];
       				});
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1+ ((nbRows-n-1)*nbColumns) + i) + ', Superclass ' + //fixed
+      				return 'Cell ' + (1+ (n*nbColumns) + i) + ', Superclass ' + //fixed
       				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
       				});
     			});
@@ -1170,7 +1170,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     				x: function(d, i) {
     					return i * cellSize;
     				},
-    				y: n * cellSize,
+    				y: cellSize * (nbRows - n - 1),
     				fill: function(d, i) {
     					var indice = superclass[(n*nbColumns)+i];
     					return superclassColor[indice-1];
@@ -1185,7 +1185,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1+ ((nbRows-n-1)*nbColumns) + i) + ', Superclass ' + //fixed
+      				return 'Cell ' + (1+ (n*nbColumns) + i) + ', Superclass ' + //fixed
       				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
       				});
       			d3.select('#plot-names').text(function () {
@@ -1240,7 +1240,7 @@ if(typeof(element_b) != 'undefined' && element != null){
             	})
     					.attr('d', arc)
     					.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) +
-    						',' + (n * cellSize + cellSize/2) + ')')
+    						',' + (cellSize * (nbRows - n - 1) + cellSize/2) + ')')
     					.attr('fill', function(d, i) {
     						return labelColor[i];
     					});
@@ -1303,7 +1303,7 @@ if(typeof(element_b) != 'undefined' && element != null){
               					return "r"+i;
               	})
     						.attr('d', arc)
-    						.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) + ',' + (n * cellSize + cellSize/2) + ')')
+    						.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) + ',' + (cellSize * (nbRows - n - 1) + cellSize/2) + ')')
     						.attr('fill', function(d, i) {
     							return labelColor[i];
     						});
@@ -1388,7 +1388,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       						return i*((width-(cellSize*40/100))/nbBatons)+k+(cellSize*20/100);
       					})
       					.attr("y", function (d, i) {
-                  return (cellSize - (cellSize*5/100) - (innerArrayNormalizedValues[i]*0.9)*cellSize +n*cellSize); // same here see below
+                  return (cellSize - (cellSize*5/100) - (innerArrayNormalizedValues[i]*0.9)*cellSize +cellSize * (nbRows - n - 1)); // same here see below
                 })
       					.attr("width", function (d) { return ((width-(cellSize*40/100))/nbBatons)-(cellSize*2/100)})
       					.attr("height", function (d, i) {
@@ -1483,9 +1483,9 @@ if(typeof(element_b) != 'undefined' && element != null){
       					.attr("height", height)
       					.attr('transform', function(d, i) {
       						if(nbBox==1){
-      							return 'translate(' + (cellSize*40/100+i*((cellSize*40/100)/(nbBox)) + p*cellSize) + ',' + (n * cellSize + cellSize*30/100) + ')';
+      							return 'translate(' + (cellSize*40/100+i*((cellSize*40/100)/(nbBox)) + p*cellSize) + ',' + (cellSize * (nbRows - n - 1) + cellSize*30/100) + ')';
       						}else{
-      							return 'translate(' + ((cellSize*15/100+i*((cellSize*80/100)/(nbBox))) + p*cellSize) + ',' + (n * cellSize + cellSize*15/100) + ')';
+      							return 'translate(' + ((cellSize*15/100+i*((cellSize*80/100)/(nbBox))) + p*cellSize) + ',' + (cellSize * (nbRows - n - 1) + cellSize*15/100) + ')';
       						}
       					})
       					.attr('fill', function(d, i) {
@@ -1521,9 +1521,9 @@ if(typeof(element_b) != 'undefined' && element != null){
       						.attr("class", "y")
       						.attr('transform', function(d, i) {
       							if(nbBox==1){
-      								return 'translate(' + (cellSize*40/100+j*(cellSize*40/100) + width/2 + p*cellSize) + ',' + (cellSize*0.9 - d.normalizedValues*cellSize*0.9 + n * cellSize) + ')';
+      								return 'translate(' + (cellSize*40/100+j*(cellSize*40/100) + width/2 + p*cellSize) + ',' + (cellSize*0.9 - d.normalizedValues*cellSize*0.9 + cellSize * (nbRows - n - 1)) + ')';
       							}else{
-      								return 'translate(' + ((cellSize*15/100+j*((cellSize*80/100)/(nbBox)) + width/2) + p*cellSize) + ',' + (cellSize*0.90 - d.normalizedValues*cellSize*0.85 + n * cellSize) + ')';
+      								return 'translate(' + ((cellSize*15/100+j*((cellSize*80/100)/(nbBox)) + width/2) + p*cellSize) + ',' + (cellSize*0.90 - d.normalizedValues*cellSize*0.85 + cellSize * (nbRows - n - 1)) + ')';
       							}
       						})
       						.attr("r", cellSize*4/100)
@@ -1696,7 +1696,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       					ExtraWidthX: cellSize,
       					radius: cellSize*5/100,
       					x: (p * cellSize)+cellSize*10/100,
-      					y: (n * cellSize)+cellSize*10/100.
+      					y: (cellSize * (nbRows - n - 1))+cellSize*10/100.
       				}
       				//Call function to draw the Radar chart
       				//Will expect that data is in %'s
@@ -1712,7 +1712,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     						.data(words)
     						.enter()
     						.append("g")
-    						.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) + ',' + (n * cellSize + cellSize/2 ) + ')')
+    						.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) + ',' + (cellSize * (nbRows - n - 1) + cellSize/2 ) + ')')
     						.append("text")
     						.style("font-size", function(d) { return d.size + "px"; })
     						.style("fill", function(d) { return "#112E45"; })
