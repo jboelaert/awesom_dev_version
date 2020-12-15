@@ -1,8 +1,8 @@
 ---
-title: "aweSOM vignette"
+title: "aweSOM package description"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{aweSOM-package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,24 +13,23 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(aweSOM)
-library(kohonen)
-library(rlist) #<- not sure why this has to be imported
 ```
 
 
-__aweSOM__ is an R package offering a set of comprehensive tools to explore and analyze datasets with Self-Organizing Maps (also known as [Kohonen maps](https://en.wikipedia.org/wiki/Self-organizing_map)), an artificial neural network created by [Teuvo Kohonen](https://en.wikipedia.org/wiki/Teuvo_Kohonen) in the 1980s. 
+__aweSOM__ is an R package offering a set of tools to explore and analyze datasets with Self-Organizing Maps (also known as [Kohonen maps](https://en.wikipedia.org/wiki/Self-organizing_map)), a form of artificial neural network originally created by [Teuvo Kohonen](https://en.wikipedia.org/wiki/Teuvo_Kohonen) in the 1980s. The package introduces interactive plots, making analysis of the SOM easier.
 
-__aweSOM__ provides a variety of functions to visualize, and assess the quality of self-organizing Kohonen map (SOM)through a shiny application. It relies on the R kohonen package. 
+__aweSOM__ provides a variety of functions to analyze and visualize SOMs. They can be used either through the web-based interface (called by ```aweSOM()```) or through command-line functions. The package relies on the ```kohonen``` package for the training of SOMs.
 
-This vignette details some of the most important functions of the aweSOM package, along the workflow of training a SOM, assessing its quality measures and visualizing both the SOM as well superclusters within it.
+This vignette details some of the most important functions of the aweSOM package, along with the workflow of training a SOM, assessing its quality measures and visualizing the SOM as well superclusters within it.
 
 
 ## Creating a dataset and training a Self-Organizig Map
-For the purpose of this example, the iris dataset is used to train a SOM of a 4x4 dimension. 
 
-Before training the SOM using the kohonen::som function, an initial grid is approximated using principal component analysis (PCA). This is not a necessary procedure, but has been shown to improve convergence and fit of the kohonen::som function.
+For the purpose of this example, the iris dataset is used to train a 4x4 hexagonal SOM. 
 
-In this example we use a hexagonal SOM grid. 
+After selecting and pre-processing the training data (here by scaling each variable), the ```somInit``` function is used to initialize the map's prototypes. By default, this is done by initializing the grid on the first two principal components (PCA), but other schemes are available.
+
+The training data, initial prototypes and other parameters are then passed to the ```kohonen::som``` function for training.
 
 
 ```{r}
@@ -40,7 +39,7 @@ dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" 
 ### Scale training data
 dat <- scale(dat)
 ### Initialization (PCA grid)
-init <- aweSOM::somInit(dat, 4, 4)
+init <- somInit(dat, 4, 4)
 ## Train SOM
 ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01),
                        radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
@@ -52,18 +51,19 @@ superclust <- hclust(dist(ok.som$codes[[1]]), 'complete')
 superclasses <- unname(cutree(superclust, 1))
 ```
 
-## Assessing the Quality of the Map #
-aweSOM provides a function that returns quality measures for any SOM object (based on the kohonen package). In particular, quantization error, the percentage of explained variance, the topographic error and the Kaski-Lagus error are calculated as well as the number of observations per cell. 
+## Assessing the Quality of the Map
+
+The ```somQuality``` function can be used to assess the quality of a SOM object created by ```kohonen::som```, according to several measures.
 
 ```{r}
 aweSOM::somQuality(ok.som = ok.som, traindat = dat)
 ```
-* **Percentage of explained variance**: As with other dimensionality reduction methods, this classic measure outputs the share of information preserved after the procedure was carried out. 
 
-* **Quantization error**: Average distance between the data points and the
-map nodes to which they are mapped. 
+* **Percentage of explained variance**: Similar to other clustering methods, the share of total variance that is explained by the clustering.
 
-* **Topographic error**: One of the goal of a SOM is to preserve the topology of the initial cloud of points. The topographic error is measured by finding for each input the best-matching and the second best-matching neurons. If these nodes are close to one another on the map, then we consider that the topography is preserved. 
+* **Quantization error**: Average distance between the data points and the map's prototypes to which they are mapped. 
+
+* **Topographic error**: Share of observations for which the best-matching node is not a neighbor of the second-best matching node on the map. 0 indicates excellent topographic representation (all best and second-best matching nodes are neighbours), 1 is the maximum error (best and second-best nodes are never neighbours).
 
 * **Kaski-Lagus error**: Combines the quantization error and the topographic error
 
