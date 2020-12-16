@@ -2490,8 +2490,8 @@ HTMLWidgets.widget({
       			var arrayValues = [];
       			for(var j=0; j<nbPoints; j++){
       				arrayValues[j] = [];
-      				arrayValues[j].px = hexCellSize*20/100+j*((hexCellSize-(hexCellSize*40/100))/(nbPoints-1));
-      				arrayValues[j].py = innerArrayNormalizedValues[j]*hexCellSize*0.5;
+      				arrayValues[j].px = hexCellSize * (0.2 + j*0.6/(nbPoints-1));
+      				arrayValues[j].py = hexCellSize * 0.5 * innerArrayNormalizedValues[j];
       				arrayValues[j].realValue = innerArrayRealValues[j];
       			}
       			var points = svg.append("g").selectAll(".hexagon")
@@ -2534,50 +2534,40 @@ HTMLWidgets.widget({
       				.style("fill", "none")
       				.style("stroke", "#112E45");
 
-      			hexa.on('mousemove', function (d, i) { //responsible for the information
-      				for(var k=0; k<nbRows; k++){
-      					for(var l=0; l<nbColumns; l++){
-      						var indice = (parseInt((i/nbRows),10)*nbColumns)+ parseInt((i%nbRows),10);
-      						innerArrayNormalizedValues= lineNormalizedValues[(k*nbColumns)+l];
-      						innerArrayRealValues= lineRealValues[(k*nbColumns)+l];
+      			hexa.on('mousemove', function (d, i) { 
+  						
+        			var mouseX = d3.mouse(this)[0];
+        			var chosenPoint = 0;
+        			for (var j=0; j<nbPoints; j++){
+        			  if (mouseX > coordinatesArray[i].x + hexCellSize * (0.2 - 0.5 + (j+0.5) *0.6/(nbPoints-1))) {
+        			    chosenPoint= j + 1;
+        			  }
+        			}
+        			chosenPoint= chosenPoint == nbPoints ? chosenPoint-1 : chosenPoint;
+  						console.log("chosen " + chosenPoint);
+  						
+      			  for (var indiceM = 0; indiceM < nbRows*nbColumns; indiceM++) {
+    						innerArrayNormalizedValues= lineNormalizedValues[indiceM];
+    						innerArrayRealValues= lineRealValues[indiceM];
+    						
+    						var chosenValue = [];
+    						chosenValue.px = hexCellSize * (0.2 + chosenPoint*0.6/(nbPoints-1))
+        				chosenValue.py = hexCellSize * 0.5 * innerArrayNormalizedValues[chosenPoint];
+        				var zeropointY = hexCellSize * 0.5 * innerArrayNormalizedValues[0];
+        				chosenValue.realValue = innerArrayRealValues[chosenPoint];
 
-      						var arrayValues = [];
-      						for(var j=0; j<nbPoints; j++){
-      							arrayValues[j] = [];
-      							arrayValues[j].px = hexCellSize*20/100+j*((hexCellSize-(hexCellSize*40/100))/(nbPoints-1))+coordinatesArray[(k*nbColumns)+l].x-hexCellSize/2;
-      							arrayValues[j].py = -(innerArrayNormalizedValues[j]*hexCellSize*0.5)+coordinatesArray[(k*nbColumns)+l].y+hexCellSize*25/100;
-      							arrayValues[j].realValue = innerArrayRealValues[j];
-      						}
+    						svg.select("circle.y"+indiceM)
+    							.attr("transform", "translate(" + (chosenValue.px + coordinatesArray[indiceM].x - hexCellSize*0.7) + "," + 
+    							        (zeropointY - chosenValue.py + coordinatesArray[indiceM].y + hexCellSize*0.25) + ")");
 
-      						var bisectPoints = d3.bisector(function(d) { return d.px; }).left;
-      						var x = d3.time.scale().range([arrayValues[0].px, arrayValues[arrayValues.length - 1].px]);
-      						x.domain([arrayValues[0].px, arrayValues[arrayValues.length - 1].px]);
+      			  }
+      			  
+      			  d3.select('#plot-message').text(function () {
+  								return label[chosenPoint] + ': ' + lineRealValues[i][chosenPoint];
+							});
 
-      						var additionalX = coordinatesArray[(k*nbColumns)+l].x - coordinatesArray[indice].x;
-
-      						var x0 = x.invert(d3.mouse(this)[0] + additionalX),
-      							p = bisectPoints(arrayValues, x0, 1),
-      							d0 = arrayValues[p - 1],
-      							d1 = arrayValues[p];
-      							if(p<nbColumns){
-      								d = x0 - d0.px > d1.px - x0 ? d1 : d0;
-      							}
-      							d = d0;
-
-      						svg.select("circle.y"+(k*nbColumns+l))
-      							.attr("transform", "translate(" + (d.px-hexCellSize*20/100) + "," + 
-      							        (d.py-arrayValues[0].py+(hexCellSize*0.25)+(nbRows-k)*hexCellSize*0.75) + ")");
-
-      						if(l==parseInt((i%nbRows),10) && k==parseInt((i/nbRows),10)){
-      							d3.select('#plot-message').text(function () {
-      								var pointValue = d == d0 ? arrayValues[p-1].realValue : arrayValues[p].realValue;
-      								var pointLabel = d == d0 ? label[p-1] : label[p];
-      								return pointLabel + ': ' + pointValue;
-      							});
-      						}
-      					}
-      				}
       			});
+
       		}
         } else if (plotType.localeCompare("Names")==0) {
           //////////////////////////////////////////////////////////////////////////
