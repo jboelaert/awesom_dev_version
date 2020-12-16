@@ -231,7 +231,6 @@ ok.som.function <- function(ok.traindat,  input_trainSeed, input_kohInit,
 #' @examples somDist(ok.som = ok.som)
 somDist <- function(ok.som){
   if (is.null(ok.som)) return(NULL)
-  # proto.gridspace.dist <- as.matrix(dist(ok.som()$grid$pts))
   proto.gridspace.dist <- kohonen::unit.distances(ok.som$grid, F)
   proto.dataspace.dist <- as.matrix(dist(ok.som$codes[[1]]))
   neigh <- round(proto.gridspace.dist, 3) == 1

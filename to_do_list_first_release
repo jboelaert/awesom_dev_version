@@ -22,8 +22,6 @@ Reproducible Scripts:
 Vignette
 
 
-
-
 Other: 
 * Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?)
 * Roxygen Skeletons functions
@@ -31,5 +29,4 @@ Other:
 * Remove unused packages from DESCRIPTION (tidyverse?)
 
 For later?
-* neighbourhood distance is based on means?!
 * line hex plot : circles are a bit above the line
