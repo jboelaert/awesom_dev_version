@@ -422,6 +422,188 @@ function boxQuartiles(d) {
   ];
 }
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Common Star function
+    ////////////////////////////////////////////////////////////////////////////
+      function StarChart(id, d, options) {
+        var cfg = {
+      	 radius: 5,
+      	 w: 600,
+      	 h: 600,
+      	 factor: 1,
+      	 factorLegend: .85,
+      	 levels: 3,
+      	 maxValue: 0,
+      	 radians: 2 * Math.PI,
+      	 opacityArea: 0.5,
+      	 ToRight: 5,
+      	 TranslateX: 80,
+      	 TranslateY: 30,
+      	 ExtraWidthX: 100,
+      	 ExtraWidthY: 100,
+      	 color: d3.scale.category10(),
+      	 x : 0,
+      	 y : 0
+      	};
+
+      	if('undefined' !== typeof options){
+      	  for(var i in options){
+        		if('undefined' !== typeof options[i]){
+        		  cfg[i] = options[i];
+        		}
+      	  }
+      	}
+      	cfg.maxValue = Math.max(cfg.maxValue, d3.max(d, function(i){return d3.max(i.map(function(o){return o.value;}))}));
+      	var allAxis = (d[0].map(function(i, j){return i.axis}));
+      	var total = allAxis.length;
+      	var radius = cfg.factor*Math.min(cfg.w/2, cfg.h/2);
+      	var Format = d3.format('%');
+      	var g = d3.select(id).select("svg").append("g").attr("transform", "translate("+cfg.x+","+cfg.y+")");
+      	var tooltip;
+
+      	//Circular segments
+      	for(var j=0; j<cfg.levels; j++){
+      	  var levelFactor = cfg.factor*radius*((j+1)/cfg.levels);
+      	  g.selectAll(".levels")
+      	   .data(allAxis)
+      	   .enter()
+      	   .append("line")
+      	   .attr("x1", function(d, i){return levelFactor*(1-cfg.factor*Math.sin(i*cfg.radians/total));})
+      	   .attr("y1", function(d, i){return levelFactor*(1-cfg.factor*Math.cos(i*cfg.radians/total));})
+      	   .attr("x2", function(d, i){return levelFactor*(1-cfg.factor*Math.sin((i+1)*cfg.radians/total));})
+      	   .attr("y2", function(d, i){return levelFactor*(1-cfg.factor*Math.cos((i+1)*cfg.radians/total));})
+      	   .attr("class", "line")
+      	   .style("stroke", "#414141")
+      	   .style("stroke-opacity", "0.75")
+      	   .style("stroke-width", "0.3px")
+      	   .attr("transform", "translate(" + ((cfg.w/2)-levelFactor) + ", " + (cfg.h/2-levelFactor) + ")");
+      	}
+
+      	series = 0;
+      	var axis = g.selectAll(".axis")
+      			.data(allAxis)
+      			.enter()
+      			.append("g")
+      			.attr("class", "axis");
+      	axis.append("line")
+      		.attr("x1", cfg.w/2)
+      		.attr("y1", cfg.h/2)
+      		.attr("x2", function(d, i){return cfg.w/2*(1-cfg.factor*Math.sin(i*cfg.radians/total));})
+      		.attr("y2", function(d, i){return cfg.h/2*(1-cfg.factor*Math.cos(i*cfg.radians/total));})
+      		.attr("class", "line")
+      		.style("stroke", "grey")
+      		.style("stroke-width", "1px");
+
+      	d.forEach(function(y, x){
+      	  dataValues = [];
+      	  g.selectAll(".nodes")
+        		.data(y, function(j, i){
+        		  dataValues.push([
+        			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
+        			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
+        		  ]);
+        		});
+      	  dataValues.push(dataValues[0]);
+
+      	  g.selectAll(".area")
+      					 .data([dataValues])
+      					 .enter()
+      					 .append("polygon")
+      					 .attr("class", "radar-chart-serie"+series)
+      					 .style("stroke-width", "1px")
+      					 .style("stroke", "#112E45")
+      					 .attr("points",function(d) {
+      						 var str="";
+      						 for(var pti=0;pti<d.length;pti++){
+      							 str=str+d[pti][0]+","+d[pti][1]+" ";
+      						 }
+
+      						 return str;
+      					  })
+      					 .style("fill", function(j, i){return "#77ADD9"})
+      					 .style("fill-opacity", cfg.opacityArea)
+      					 /*.on('mouseover', function (d){
+      										z = "polygon."+d3.select(this).attr("class");
+      										g.selectAll("polygon")
+      										 .transition(200)
+      										 .style("fill-opacity", 0.3);
+      										g.selectAll(z)
+      										 .transition(200)
+      										 .style("fill-opacity", 0.2);
+      									  })
+      					 .on('mouseout', function(){
+      										g.selectAll("polygon")
+      										 .transition(200)
+      										 .style("fill-opacity", cfg.opacityArea);
+      					 })*/;
+      	  series++;
+      	});
+      	series=0;
+
+      	d.forEach(function(y, x){
+      	  var circles= g.selectAll(".nodes")
+      		.data(y).enter()
+      		.append("circle")
+      		.attr("class", "radar-chart-serie"+series)
+      		.attr('r', cfg.radius)
+      		.attr("alt", function(j){return Math.max(j.value, 0)})
+      		.attr("cx", function(j, i){
+      		  dataValues.push([
+      			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
+      			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
+      		]);
+      		return cfg.w/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total));
+      		})
+      		.attr("cy", function(j, i){
+      		  return cfg.h/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total));
+      		})
+      		.attr("data-id", function(j){return j.axis})
+      		.style("fill", "#112E45").style("fill-opacity", .9)
+      		//.on('mouseover', function (d){
+      		;
+      		circles.append("path").attr("class", function(j, i) {return "tavu"+i;});
+      		circles.on('mouseover', function (j, i){
+      					newX =  parseFloat(d3.select(this).attr('cx')) - 10;
+      					newY =  parseFloat(d3.select(this).attr('cy')) - 5;
+
+      					// Highlight
+      					//d3.select(this).style("fill", "#C9E5FC");
+      					g.selectAll("path.tavu"+i).style("fill", "#C9E5FC");
+      					//g.selectAll("circle.radar-chart-serie"+series).style("fill", "#C9E5FC");
+
+      					d3.select('#plot-message').text(function () {
+      						var ch = j.axis+': ' + j.realValue;
+      						return ch;
+      					});
+
+      					z = "polygon."+d3.select(this).attr("class");
+      					g.selectAll("polygon")
+      						.transition(200)
+      						.style("fill-opacity", 0.3);
+      					g.selectAll(z)
+      						.transition(200)
+      						.style("fill-opacity", 0.2);
+      				  })
+      		.on('mouseout', function(j, i){
+      					//d3.select(this).style("fill", "#112E45");
+      					g.selectAll("path.tavu"+i).style("fill", "#112E45");
+
+      					g.selectAll("polygon")
+      						.transition(200)
+      						.style("fill-opacity", cfg.opacityArea);
+      				  })
+      		.append("title");
+
+      	  series++;
+      	});
+      	//Tooltip
+      	tooltip = g.append('text')
+      			   .style('opacity', 0)
+      			   .style('font-family', 'sans-serif')
+      			   .style('font-size', '13px');
+      }
+
+
 
 
 
@@ -639,187 +821,6 @@ if(typeof(element_b) != 'undefined' && element != null){
       commonHexGrid();
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Common Star function
-    ////////////////////////////////////////////////////////////////////////////
-      function StarChart(id, d, options) {
-        var cfg = {
-      	 radius: 5,
-      	 w: 600,
-      	 h: 600,
-      	 factor: 1,
-      	 factorLegend: .85,
-      	 levels: 3,
-      	 maxValue: 0,
-      	 radians: 2 * Math.PI,
-      	 opacityArea: 0.5,
-      	 ToRight: 5,
-      	 TranslateX: 80,
-      	 TranslateY: 30,
-      	 ExtraWidthX: 100,
-      	 ExtraWidthY: 100,
-      	 color: d3.scale.category10(),
-      	 x : 0,
-      	 y : 0
-      	};
-
-      	if('undefined' !== typeof options){
-      	  for(var i in options){
-        		if('undefined' !== typeof options[i]){
-        		  cfg[i] = options[i];
-        		}
-      	  }
-      	}
-      	cfg.maxValue = Math.max(cfg.maxValue, d3.max(d, function(i){return d3.max(i.map(function(o){return o.value;}))}));
-      	var allAxis = (d[0].map(function(i, j){return i.axis}));
-      	var total = allAxis.length;
-      	var radius = cfg.factor*Math.min(cfg.w/2, cfg.h/2);
-      	var Format = d3.format('%');
-      	var g = d3.select(id).select("svg").append("g").attr("transform", "translate("+cfg.x+","+cfg.y+")");
-      	var tooltip;
-
-      	//Circular segments
-      	for(var j=0; j<cfg.levels; j++){
-      	  var levelFactor = cfg.factor*radius*((j+1)/cfg.levels);
-      	  g.selectAll(".levels")
-      	   .data(allAxis)
-      	   .enter()
-      	   .append("line")
-      	   .attr("x1", function(d, i){return levelFactor*(1-cfg.factor*Math.sin(i*cfg.radians/total));})
-      	   .attr("y1", function(d, i){return levelFactor*(1-cfg.factor*Math.cos(i*cfg.radians/total));})
-      	   .attr("x2", function(d, i){return levelFactor*(1-cfg.factor*Math.sin((i+1)*cfg.radians/total));})
-      	   .attr("y2", function(d, i){return levelFactor*(1-cfg.factor*Math.cos((i+1)*cfg.radians/total));})
-      	   .attr("class", "line")
-      	   .style("stroke", "#414141")
-      	   .style("stroke-opacity", "0.75")
-      	   .style("stroke-width", "0.3px")
-      	   .attr("transform", "translate(" + ((cfg.w/2)-levelFactor) + ", " + (cfg.h/2-levelFactor) + ")");
-      	}
-
-      	series = 0;
-      	var axis = g.selectAll(".axis")
-      			.data(allAxis)
-      			.enter()
-      			.append("g")
-      			.attr("class", "axis");
-      	axis.append("line")
-      		.attr("x1", cfg.w/2)
-      		.attr("y1", cfg.h/2)
-      		.attr("x2", function(d, i){return cfg.w/2*(1-cfg.factor*Math.sin(i*cfg.radians/total));})
-      		.attr("y2", function(d, i){return cfg.h/2*(1-cfg.factor*Math.cos(i*cfg.radians/total));})
-      		.attr("class", "line")
-      		.style("stroke", "grey")
-      		.style("stroke-width", "1px");
-
-      	d.forEach(function(y, x){
-      	  dataValues = [];
-      	  g.selectAll(".nodes")
-        		.data(y, function(j, i){
-        		  dataValues.push([
-        			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
-        			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
-        		  ]);
-        		});
-      	  dataValues.push(dataValues[0]);
-
-      	  g.selectAll(".area")
-      					 .data([dataValues])
-      					 .enter()
-      					 .append("polygon")
-      					 .attr("class", "radar-chart-serie"+series)
-      					 .style("stroke-width", "1px")
-      					 .style("stroke", "#112E45")
-      					 .attr("points",function(d) {
-      						 var str="";
-      						 for(var pti=0;pti<d.length;pti++){
-      							 str=str+d[pti][0]+","+d[pti][1]+" ";
-      						 }
-
-      						 return str;
-      					  })
-      					 .style("fill", function(j, i){return "#77ADD9"})
-      					 .style("fill-opacity", cfg.opacityArea)
-      					 /*.on('mouseover', function (d){
-      										z = "polygon."+d3.select(this).attr("class");
-      										g.selectAll("polygon")
-      										 .transition(200)
-      										 .style("fill-opacity", 0.3);
-      										g.selectAll(z)
-      										 .transition(200)
-      										 .style("fill-opacity", 0.2);
-      									  })
-      					 .on('mouseout', function(){
-      										g.selectAll("polygon")
-      										 .transition(200)
-      										 .style("fill-opacity", cfg.opacityArea);
-      					 })*/;
-      	  series++;
-      	});
-      	series=0;
-
-      	d.forEach(function(y, x){
-      	  var circles= g.selectAll(".nodes")
-      		.data(y).enter()
-      		.append("circle")
-      		.attr("class", "radar-chart-serie"+series)
-      		.attr('r', cfg.radius)
-      		.attr("alt", function(j){return Math.max(j.value, 0)})
-      		.attr("cx", function(j, i){
-      		  dataValues.push([
-      			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
-      			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
-      		]);
-      		return cfg.w/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total));
-      		})
-      		.attr("cy", function(j, i){
-      		  return cfg.h/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total));
-      		})
-      		.attr("data-id", function(j){return j.axis})
-      		.style("fill", "#112E45").style("fill-opacity", .9)
-      		//.on('mouseover', function (d){
-      		;
-      		circles.append("path").attr("class", function(j, i) {return "tavu"+i;});
-      		circles.on('mouseover', function (j, i){
-      					newX =  parseFloat(d3.select(this).attr('cx')) - 10;
-      					newY =  parseFloat(d3.select(this).attr('cy')) - 5;
-
-      					// Highlight
-      					//d3.select(this).style("fill", "#C9E5FC");
-      					g.selectAll("path.tavu"+i).style("fill", "#C9E5FC");
-      					//g.selectAll("circle.radar-chart-serie"+series).style("fill", "#C9E5FC");
-
-      					d3.select('#plot-message').text(function () {
-      						var ch = j.axis+': ' + j.realValue;
-      						return ch;
-      					});
-
-      					z = "polygon."+d3.select(this).attr("class");
-      					g.selectAll("polygon")
-      						.transition(200)
-      						.style("fill-opacity", 0.3);
-      					g.selectAll(z)
-      						.transition(200)
-      						.style("fill-opacity", 0.2);
-      				  })
-      		.on('mouseout', function(j, i){
-      					//d3.select(this).style("fill", "#112E45");
-      					g.selectAll("path.tavu"+i).style("fill", "#112E45");
-
-      					g.selectAll("polygon")
-      						.transition(200)
-      						.style("fill-opacity", cfg.opacityArea);
-      				  })
-      		.append("title");
-
-      	  series++;
-      	});
-      	//Tooltip
-      	tooltip = g.append('text')
-      			   .style('opacity', 0)
-      			   .style('font-family', 'sans-serif')
-      			   .style('font-size', '13px');
-      }
-
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -839,35 +840,35 @@ if(typeof(element_b) != 'undefined' && element != null){
         ////////////////////////////////////////////////////////////////////////
         // Square color plot
         ////////////////////////////////////////////////////////////////////////
-      	_.times(nbRows, function(n) {
-    			var rows = svg.selectAll('rect' + ' .row-' + (n + 1))
+      	_.times(nbRows, function(theRow) {
+    			var rows = svg.selectAll('rect' + ' .row-' + (theRow + 1))
     				.data(d3.range(nbColumns))
     				.enter().append("g");
 
           rows.append('rect')
     			.attr({
     				class: function(d, i) {
-    					return 'Square row-' + (n + 1) + ' ' + 'col-' + (i + 1);
+    					return 'Square row-' + (theRow + 1) + ' ' + 'col-' + (i + 1);
     				},
     				id: function(d, i) {
-    					return 's-' + (n + 1) + (i + 1);
+    					return 's-' + (theRow + 1) + (i + 1);
     				},
     				width: cellSize,
     				height: cellSize,
     				x: function(d, i) {
     					return i * cellSize;
     				},
-    				y: cellSize * (nbRows - n - 1),
+    				y: cellSize * (nbRows - theRow - 1),
     				fill: function(d, i) {
-              return colorNormalizedValues[(n*nbColumns)+i];
+              return colorNormalizedValues[(theRow*nbColumns)+i];
     				}, 
     				stroke: '#FFFFFF'
     			});
       		if(activate){ // Superclass numbers on cells for Color plot
       			rows.append("text")
       				.attr("x", function(d, i) { return i * cellSize + cellSize*45/100; })
-      				.attr("y", cellSize * (nbRows - n - 1) + cellSize*50/100)
-      				.text(function(d, i) { return superclass[n*nbColumns+i]; })
+      				.attr("y", cellSize * (nbRows - theRow - 1) + cellSize*50/100)
+      				.text(function(d, i) { return superclass[theRow*nbColumns+i]; })
       				.attr("font-family", "sans-serif")
       				.attr("font-size", cellSize*20/100)
       				.attr("fill", "#112E45");
@@ -878,14 +879,14 @@ if(typeof(element_b) != 'undefined' && element != null){
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1 + (n*nbColumns)+i) + ', Superclass ' +
-      				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
+      				return 'Cell ' + (1 + (theRow*nbColumns)+i) + ', Superclass ' +
+      				  superclass[(theRow*nbColumns)+i] + ', N= ' + cellPop[(theRow*nbColumns)+i];
       				});
       			d3.select('#plot-message').text(function () {
-      				return label + ': ' + colorRealValues[(n*nbColumns)+i];
+      				return label + ': ' + colorRealValues[(theRow*nbColumns)+i];
       				});
       			d3.select('#plot-names').text(function () { //for the box below
-      				return cellNames[(n*nbColumns)+i];
+      				return cellNames[(theRow*nbColumns)+i];
       				});
         		});
         	rows.on('mouseout', function (d, i) {
@@ -902,51 +903,51 @@ if(typeof(element_b) != 'undefined' && element != null){
         //////////////////////////////////////////////////////////////////////
         // Square Hitmap
         //////////////////////////////////////////////////////////////////////
-      	_.times(nbRows, function(n) {
-    			var rows = svg.selectAll('rect' + ' .row-' + (n + 1))
+      	_.times(nbRows, function(theRow) {
+    			var rows = svg.selectAll('rect' + ' .row-' + (theRow + 1))
     				.data(d3.range(nbColumns))
     				.enter().append('rect')
     				.attr({
     					class: function(d, i) {
-    						return 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1);
+    						return 'square row-' + (theRow + 1) + ' ' + 'col-' + (i + 1);
     					},
     					id: function(d, i) {
-    						return 's-' + (n + 1) + (i + 1);
+    						return 's-' + (theRow + 1) + (i + 1);
     					},
     					width: cellSize,
     					height: cellSize,
     					x: function(d, i) {
     						return i * cellSize;
     					},
-    					y: cellSize * (nbRows - n - 1),
+    					y: cellSize * (nbRows - theRow - 1),
     					fill: function(d, i) {
-    						var indice = superclass[(n*nbColumns)+i]; 
+    						var indice = superclass[(theRow*nbColumns)+i]; 
     						return superclassColor[indice-1];
     					},
     					stroke: '#FFFFFF'
     				});
-    			var inside = svg.selectAll('rect' + ' .row-' + (n + 1)) //to this object add the mouseover effect
+    			var inside = svg.selectAll('rect' + ' .row-' + (theRow + 1)) //to this object add the mouseover effect
     				.data(d3.range(nbColumns))
     				.enter().append('rect')
     				.attr("class", "squareIn")
     				.attr({
     				  class: function(d, i) {
-    					return 'row-' + (n + 1) + ' ' + 'col-' + (i + 1);
+    					return 'row-' + (theRow + 1) + ' ' + 'col-' + (i + 1);
     				  },
     				  id: function(d, i) {
-    					return 's-' + (n + 1) + (i + 1);
+    					return 's-' + (theRow + 1) + (i + 1);
     				  },
     				  width: function(d, i) {
-    					return hitmapNormalizedValues[(n*nbColumns)+i]*cellSize*0.97;
+    					return hitmapNormalizedValues[(theRow*nbColumns)+i]*cellSize*0.97;
     				  },
     				  height: function(d, i) {
-    					return hitmapNormalizedValues[(n*nbColumns)+i]*cellSize;
+    					return hitmapNormalizedValues[(theRow*nbColumns)+i]*cellSize;
     				  },
     				  x: function(d, i) {
-    					return (i * cellSize + cellSize/2 - (hitmapNormalizedValues[(n*nbColumns)+i]*cellSize)*0.97/2);
+    					return (i * cellSize + cellSize/2 - (hitmapNormalizedValues[(theRow*nbColumns)+i]*cellSize)*0.97/2);
     				  },
     				  y: function(d, i) {
-    					return (cellSize * (nbRows - n - 1) + cellSize/2 - (hitmapNormalizedValues[(n*nbColumns)+i]*cellSize)*0.97/2);
+    					return (cellSize * (nbRows - theRow - 1) + cellSize/2 - (hitmapNormalizedValues[(theRow*nbColumns)+i]*cellSize)*0.97/2);
     				  },
     				  fill: '#112E45',
     				  });
@@ -957,11 +958,11 @@ if(typeof(element_b) != 'undefined' && element != null){
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1+ (n*nbColumns) + i) + ', Superclass ' + //fixed
-      				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
+      				return 'Cell ' + (1+ (theRow*nbColumns) + i) + ', Superclass ' + //fixed
+      				  superclass[(theRow*nbColumns)+i] + ', N= ' + cellPop[(theRow*nbColumns)+i];
       				});
       			d3.select('#plot-names').text(function () {
-      				return cellNames[(n*nbColumns)+i];
+      				return cellNames[(theRow*nbColumns)+i];
       				});
         		});
 
@@ -978,11 +979,11 @@ if(typeof(element_b) != 'undefined' && element != null){
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1+ (n*nbColumns) + i) + ', Superclass ' + //fixed
-      				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
+      				return 'Cell ' + (1+ (theRow*nbColumns) + i) + ', Superclass ' + //fixed
+      				  superclass[(theRow*nbColumns)+i] + ', N= ' + cellPop[(theRow*nbColumns)+i];
       				});
       			d3.select('#plot-names').text(function () {
-      				return cellNames[(n*nbColumns)+i];
+      				return cellNames[(theRow*nbColumns)+i];
       				});
         		});
         		
@@ -999,39 +1000,39 @@ if(typeof(element_b) != 'undefined' && element != null){
         //////////////////////////////////////////////////////////////////////
         // Square Lines
         //////////////////////////////////////////////////////////////////////
-        _.times(nbRows, function(n) {
-    			var rows = svg.selectAll('rect' + ' .row-' + (n + 1))
+        _.times(nbRows, function(theRow) {
+    			var rows = svg.selectAll('rect' + ' .row-' + (theRow + 1))
     				.data(d3.range(nbColumns))
     				.enter().append('rect')
     				.attr({
     					class: function(d, i) {
-    						return 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1);
+    						return 'square row-' + (theRow + 1) + ' ' + 'col-' + (i + 1);
     					},
     					id: function(d, i) {
-    						return 's-' + (n + 1) + (i + 1);
+    						return 's-' + (theRow + 1) + (i + 1);
     					},
     					width: cellSize,
     					height: cellSize,
     					x: function(d, i) {
     						return i * cellSize;
     					},
-    					y: cellSize * (nbRows - n - 1),
+    					y: cellSize * (nbRows - theRow - 1),
     					fill: function(d, i) {
-    						var indice = superclass[(n*nbColumns)+i];
+    						var indice = superclass[(theRow*nbColumns)+i];
     						return superclassColor[indice-1];
     					},
     					stroke: '#FFFFFF'
     				});
 
-    			var points = svg.selectAll('rect' + ' .row-' + (n + 1))
+    			var points = svg.selectAll('rect' + ' .row-' + (theRow + 1))
     				.data(d3.range(nbColumns))
     				.enter()
     				.append("path")
     				.attr("class", "ligne")
     				.attr("d", function(d, i) {
-    				  if (cellPop[(n*nbColumns)+i] == 0) return null;
-    					innerArrayNormalizedValues= lineNormalizedValues[(n*nbColumns)+i];
-    					innerArrayRealValues= lineRealValues[(n*nbColumns)+i];
+    				  if (cellPop[(theRow*nbColumns)+i] == 0) return null;
+    					innerArrayNormalizedValues= lineNormalizedValues[(theRow*nbColumns)+i];
+    					innerArrayRealValues= lineRealValues[(theRow*nbColumns)+i];
 
     					var arrayValues = [];
     					for(var j=0; j<nbPoints; j++){
@@ -1043,7 +1044,7 @@ if(typeof(element_b) != 'undefined' && element != null){
 
     					var lineFunction = d3.svg.line()
                             .x(function(d) { return d.px+i*cellSize; })
-                            .y(function(d) { return -d.py+(nbRows - n)*cellSize; })
+                            .y(function(d) { return -d.py+(nbRows - theRow)*cellSize; })
                             .interpolate("linear");
 
     					return lineFunction(arrayValues);
@@ -1059,20 +1060,20 @@ if(typeof(element_b) != 'undefined' && element != null){
     				.enter()
     				.append("circle")
     				.attr("class", function(d, i) {
-    					return "y"+(n*nbColumns+i);
+    					return "y"+(theRow*nbColumns+i);
     				})
     				.attr("cx", function(d, i) {
     					var px = cellSize*10/100+i*cellSize;
     					return px;
     				})
     				.attr("cy", function(d, i) {
-    					innerArrayNormalizedValues= lineNormalizedValues[(n*nbColumns)+i];
-    					var py = (-innerArrayNormalizedValues[0]*cellSize)+(nbRows - n)*cellSize;
+    					innerArrayNormalizedValues= lineNormalizedValues[(theRow*nbColumns)+i];
+    					var py = (-innerArrayNormalizedValues[0]*cellSize)+(nbRows - theRow)*cellSize;
     					return py;
     				})
     				//.attr("r", 4) //.attr("r", 4)
             .attr("r", function(d,i){
-              if(lineNormalizedValues[(n*nbColumns)+i][i] != null &&  lineNormalizedValues[(n*nbColumns)+i][i] != 0){ 
+              if(lineNormalizedValues[(theRow*nbColumns)+i][i] != null &&  lineNormalizedValues[(theRow*nbColumns)+i][i] != 0){ 
 
                 return 4;
               }
@@ -1092,11 +1093,11 @@ if(typeof(element_b) != 'undefined' && element != null){
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#plot-names').text(function () {
-      				return cellNames[(n*nbColumns)+i];
+      				return cellNames[(theRow*nbColumns)+i];
       				});
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1+ (n*nbColumns) + i) + ', Superclass ' + //fixed
-      				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
+      				return 'Cell ' + (1+ (theRow*nbColumns) + i) + ', Superclass ' + //fixed
+      				  superclass[(theRow*nbColumns)+i] + ', N= ' + cellPop[(theRow*nbColumns)+i];
       				});
     			});
     			rows.on('mouseout', function(d, i) {
@@ -1137,7 +1138,7 @@ if(typeof(element_b) != 'undefined' && element != null){
     						svg.select("circle.y"+(k*nbColumns+l))
     							.attr("transform", "translate(" + (d.px-cellSize*10/100-l*cellSize)+ "," + (d.py-arrayValues[0].py) + ")");
 
-    						if(l==i && k==n){
+    						if(l==i && k==theRow){
     							d3.select('#plot-message').text(function () {
     								var pointValue = d == d0 ? arrayValues[p-1].realValue : arrayValues[p].realValue;
     								var pointLabel = d == d0 ? label[p-1] : label[p];
@@ -1154,25 +1155,25 @@ if(typeof(element_b) != 'undefined' && element != null){
         //////////////////////////////////////////////////////////////////////
 //merge this together with the previous ones or look for similar elements
         // Loop on rows
-        _.times(nbRows, function(n) {
-          var rows = svg.selectAll('rect' + ' .row-' + (n + 1))
+        _.times(nbRows, function(theRow) {
+          var rows = svg.selectAll('rect' + ' .row-' + (theRow + 1))
           .data(d3.range(nbColumns))
     			.enter().append('rect')
     			.attr({
     				class: function(d, i) {
-    					return 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1);
+    					return 'square row-' + (theRow + 1) + ' ' + 'col-' + (i + 1);
     				},
     				id: function(d, i) {
-    					return 's-' + (n + 1) + (i + 1);
+    					return 's-' + (theRow + 1) + (i + 1);
     				},
     				width: cellSize,
     				height: cellSize,
     				x: function(d, i) {
     					return i * cellSize;
     				},
-    				y: cellSize * (nbRows - n - 1),
+    				y: cellSize * (nbRows - theRow - 1),
     				fill: function(d, i) {
-    					var indice = superclass[(n*nbColumns)+i];
+    					var indice = superclass[(theRow*nbColumns)+i];
     					return superclassColor[indice-1];
     				},
     				stroke: '#FFFFFF'
@@ -1185,11 +1186,11 @@ if(typeof(element_b) != 'undefined' && element != null){
       				.duration(10)
       				.style("fill-opacity", 0.8);
       			d3.select('#cell-info').text(function () {
-      				return 'Cell ' + (1+ (n*nbColumns) + i) + ', Superclass ' + //fixed
-      				  superclass[(n*nbColumns)+i] + ', N= ' + cellPop[(n*nbColumns)+i];
+      				return 'Cell ' + (1+ (theRow*nbColumns) + i) + ', Superclass ' + //fixed
+      				  superclass[(theRow*nbColumns)+i] + ', N= ' + cellPop[(theRow*nbColumns)+i];
       				});
       			d3.select('#plot-names').text(function () {
-      				return cellNames[(n*nbColumns)+i];
+      				return cellNames[(theRow*nbColumns)+i];
       				});
         		});
       		rows.on('mouseout', function (d, i) {
@@ -1200,7 +1201,7 @@ if(typeof(element_b) != 'undefined' && element != null){
         		});
 
       		var array = d3.range(nbColumns);
-          svg.selectAll('rect' + ' .row-' + (n + 1))
+          svg.selectAll('rect' + ' .row-' + (theRow + 1))
           .data(d3.range(nbColumns))
     			.append('g')
 
@@ -1216,9 +1217,9 @@ if(typeof(element_b) != 'undefined' && element != null){
               var arc = d3.svg.arc().outerRadius(function function_name(d,i) {
                 return d.data.normalizedValue*0.4;});
               var innerArrayNormalizedValues = [];
-              innerArrayNormalizedValues= radarNormalizedValues[(n*nbColumns)+p];
+              innerArrayNormalizedValues= radarNormalizedValues[(theRow*nbColumns)+p];
               var innerArrayRealValues = [];
-              innerArrayRealValues= radarRealValues[(n*nbColumns)+p];
+              innerArrayRealValues= radarRealValues[(theRow*nbColumns)+p];
 
               var arrayValues = [];
               for(var j=0; j<parts; j++){
@@ -1231,7 +1232,7 @@ if(typeof(element_b) != 'undefined' && element != null){
               .value(function(d) {  return 100/parts; })
               .sort(null);
 
-              var pieParts = svg.selectAll('rect' + ' .row-' + (n + 1))
+              var pieParts = svg.selectAll('rect' + ' .row-' + (theRow + 1))
               .data(pie(arrayValues))
       				.enter()
       				.append("path")
@@ -1240,7 +1241,7 @@ if(typeof(element_b) != 'undefined' && element != null){
             	})
     					.attr('d', arc)
     					.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) +
-    						',' + (cellSize * (nbRows - n - 1) + cellSize/2) + ')')
+    						',' + (cellSize * (nbRows - theRow - 1) + cellSize/2) + ')')
     					.attr('fill', function(d, i) {
     						return labelColor[i];
     					});
@@ -1277,25 +1278,25 @@ if(typeof(element_b) != 'undefined' && element != null){
             var height = cellSize*.5;
             var radius = Math.min(width, height) / 2;
             for (p = 0; p < array.length; p++) {
-              var arc = d3.svg.arc().outerRadius(pieNormalizedSize[(n*nbColumns)+p]*(cellSize*50/100));
+              var arc = d3.svg.arc().outerRadius(pieNormalizedSize[(theRow*nbColumns)+p]*(cellSize*50/100));
               var innerArrayNormalizedValues = [];
-              innerArrayNormalizedValues= pieNormalizedValues[(n*nbColumns)+p];
+              innerArrayNormalizedValues= pieNormalizedValues[(theRow*nbColumns)+p];
               var innerArrayRealValues = [];
-              innerArrayRealValues= pieRealValues[(n*nbColumns)+p];
+              innerArrayRealValues= pieRealValues[(theRow*nbColumns)+p];
 
     					var arrayValues = [];
     					for(var j=0; j<parts; j++){
     						arrayValues[j] = [];
     						arrayValues[j].normalizedValue = innerArrayNormalizedValues[j]*cellSize;
     						arrayValues[j].realValue = innerArrayRealValues[j];
-    						arrayValues[j].innerCellPop = cellPop[(n*nbColumns)+p];
+    						arrayValues[j].innerCellPop = cellPop[(theRow*nbColumns)+p];
     					}
 
     					var pie = d3.layout.pie()
     						.value(function(d) { return d.normalizedValue; })
     						.sort(null);
 
-    					var pieParts = svg.selectAll('rect' + ' .row-' + (n + 1))
+    					var pieParts = svg.selectAll('rect' + ' .row-' + (theRow + 1))
     						.data(pie(arrayValues))
     						.enter()
     						.append('path')
@@ -1303,7 +1304,7 @@ if(typeof(element_b) != 'undefined' && element != null){
               					return "r"+i;
               	})
     						.attr('d', arc)
-    						.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) + ',' + (cellSize * (nbRows - n - 1) + cellSize/2) + ')')
+    						.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) + ',' + (cellSize * (nbRows - theRow - 1) + cellSize/2) + ')')
     						.attr('fill', function(d, i) {
     							return labelColor[i];
     						});
@@ -1312,7 +1313,7 @@ if(typeof(element_b) != 'undefined' && element != null){
               pieParts.on('mouseenter', function (d, i) {
                 d3.select('#plot-message').text(function () {
                   var innerArrayRealValues = [];
-                  var ch=label[i]+": n= " + d.data.realValue + " (" +
+                  var ch=label[i]+": theRow= " + d.data.realValue + " (" +
     						    (100 * d.data.realValue / d.data.innerCellPop).toFixed(1) + "%)";
                   return ch;
                 });
@@ -1342,8 +1343,8 @@ if(typeof(element_b) != 'undefined' && element != null){
       			var height = cellSize*.6;
             for (var cpt = 0; cpt < array.length; cpt++) {
 
-      				var innerArrayNormalizedValues= batonNormalizedValues[(n*nbColumns)+cpt];
-      				var innerArrayRealValues= batonRealValues[(n*nbColumns)+cpt];
+      				var innerArrayNormalizedValues= batonNormalizedValues[(theRow*nbColumns)+cpt];
+      				var innerArrayRealValues= batonRealValues[(theRow*nbColumns)+cpt];
       				// Check if single variable
       				if (!Array.isArray(innerArrayNormalizedValues)) {
       				  innerArrayNormalizedValues= [innerArrayNormalizedValues];
@@ -1357,7 +1358,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       					arrayValues[j] = [];
       					arrayValues[j].normalizedValue = innerArrayNormalizedValues[j]*cellSize;
       					arrayValues[j].realValue = innerArrayRealValues[j];
-      					arrayValues[j].innerCellPop = cellPop[(n*nbColumns)+cpt]
+      					arrayValues[j].innerCellPop = cellPop[(theRow*nbColumns)+cpt]
       				}
 
       				var y = d3.scale.linear()
@@ -1377,7 +1378,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       						.value(function(d) { return d.normalizedValue; })
       						.sort(null);
 
-      				var bars = svg.selectAll('rect' + ' .row-' + (n + 1))
+      				var bars = svg.selectAll('rect' + ' .row-' + (theRow + 1))
       					.data(layout(arrayValues))
       					.enter()
       					.append("rect")
@@ -1388,7 +1389,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       						return i*((width-(cellSize*40/100))/nbBatons)+k+(cellSize*20/100);
       					})
       					.attr("y", function (d, i) {
-                  return (cellSize - (cellSize*5/100) - (innerArrayNormalizedValues[i]*0.9)*cellSize +cellSize * (nbRows - n - 1)); // same here see below
+                  return (cellSize - (cellSize*5/100) - (innerArrayNormalizedValues[i]*0.9)*cellSize +cellSize * (nbRows - theRow - 1)); // same here see below
                 })
       					.attr("width", function (d) { return ((width-(cellSize*40/100))/nbBatons)-(cellSize*2/100)})
       					.attr("height", function (d, i) {
@@ -1441,11 +1442,11 @@ if(typeof(element_b) != 'undefined' && element != null){
       			var array = d3.range(nbColumns);
 
       			for (p = 0; p < array.length; p++) {
-      			  if (cellPop[(n*nbColumns)+p] == 0) {continue;}
-      				var innerArrayNormalizedValues = boxPlotNormalizedValues[(n*nbColumns)+p];
-      				var innerArrayRealValues = boxPlotRealValues[(n*nbColumns)+p];
-      				var innerArrayExtremesNormalizedValues = boxNormalizedExtremesValues[(n*nbColumns)+p];
-      				var innerArrayExtremesRealValues = boxRealExtremesValues[(n*nbColumns)+p];
+      			  if (cellPop[(theRow*nbColumns)+p] == 0) {continue;}
+      				var innerArrayNormalizedValues = boxPlotNormalizedValues[(theRow*nbColumns)+p];
+      				var innerArrayRealValues = boxPlotRealValues[(theRow*nbColumns)+p];
+      				var innerArrayExtremesNormalizedValues = boxNormalizedExtremesValues[(theRow*nbColumns)+p];
+      				var innerArrayExtremesRealValues = boxRealExtremesValues[(theRow*nbColumns)+p];
 
       				var arrayValues = [];
       				var data = [];
@@ -1474,7 +1475,7 @@ if(typeof(element_b) != 'undefined' && element != null){
 
       				chart.domain([min, max]);
 
-      				var boxs = svg.selectAll('rect' + ' .row-' + (n + 1))
+      				var boxs = svg.selectAll('rect' + ' .row-' + (theRow + 1))
       					.data(data)
       					.enter()
       					.append("g")
@@ -1483,9 +1484,9 @@ if(typeof(element_b) != 'undefined' && element != null){
       					.attr("height", height)
       					.attr('transform', function(d, i) {
       						if(nbBox==1){
-      							return 'translate(' + (cellSize*40/100+i*((cellSize*40/100)/(nbBox)) + p*cellSize) + ',' + (cellSize * (nbRows - n - 1) + cellSize*30/100) + ')';
+      							return 'translate(' + (cellSize*40/100+i*((cellSize*40/100)/(nbBox)) + p*cellSize) + ',' + (cellSize * (nbRows - theRow - 1) + cellSize*30/100) + ')';
       						}else{
-      							return 'translate(' + ((cellSize*15/100+i*((cellSize*80/100)/(nbBox))) + p*cellSize) + ',' + (cellSize * (nbRows - n - 1) + cellSize*15/100) + ')';
+      							return 'translate(' + ((cellSize*15/100+i*((cellSize*80/100)/(nbBox))) + p*cellSize) + ',' + (cellSize * (nbRows - theRow - 1) + cellSize*15/100) + ')';
       						}
       					})
       					.attr('fill', function(d, i) {
@@ -1521,9 +1522,9 @@ if(typeof(element_b) != 'undefined' && element != null){
       						.attr("class", "y")
       						.attr('transform', function(d, i) {
       							if(nbBox==1){
-      								return 'translate(' + (cellSize*40/100+j*(cellSize*40/100) + width/2 + p*cellSize) + ',' + (cellSize*0.9 - d.normalizedValues*cellSize*0.9 + cellSize * (nbRows - n - 1)) + ')';
+      								return 'translate(' + (cellSize*40/100+j*(cellSize*40/100) + width/2 + p*cellSize) + ',' + (cellSize*0.9 - d.normalizedValues*cellSize*0.9 + cellSize * (nbRows - theRow - 1)) + ')';
       							}else{
-      								return 'translate(' + ((cellSize*15/100+j*((cellSize*80/100)/(nbBox)) + width/2) + p*cellSize) + ',' + (cellSize*0.90 - d.normalizedValues*cellSize*0.85 + cellSize * (nbRows - n - 1)) + ')';
+      								return 'translate(' + ((cellSize*15/100+j*((cellSize*80/100)/(nbBox)) + width/2) + p*cellSize) + ',' + (cellSize*0.90 - d.normalizedValues*cellSize*0.85 + cellSize * (nbRows - theRow - 1)) + ')';
       							}
       						})
       						.attr("r", cellSize*4/100)
@@ -1670,8 +1671,11 @@ if(typeof(element_b) != 'undefined' && element != null){
             ////////////////////////////////////////////////////////////////////
   		      var array = d3.range(nbColumns);
         		for (p = 0; p < array.length; p++) {
-      				var innerArrayNormalizedValues= starPlotNormalizedValues[(n*nbColumns)+p];
-      				var innerArrayRealValues= starPlotRealValues[(n*nbColumns)+p];
+        		  // skip if no values
+        		  if (starPlotNormalizedValues[(theRow*nbColumns)+p][0] == null) continue;
+        		  
+      				var innerArrayNormalizedValues= starPlotNormalizedValues[(theRow*nbColumns)+p];
+      				var innerArrayRealValues= starPlotRealValues[(theRow*nbColumns)+p];
       				// Check if single variable
       				if (!Array.isArray(innerArrayNormalizedValues)) {
       				  innerArrayNormalizedValues= [innerArrayNormalizedValues];
@@ -1696,7 +1700,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       					ExtraWidthX: cellSize,
       					radius: cellSize*5/100,
       					x: (p * cellSize)+cellSize*10/100,
-      					y: (cellSize * (nbRows - n - 1))+cellSize*10/100.
+      					y: (cellSize * (nbRows - theRow - 1))+cellSize*10/100.
       				}
       				//Call function to draw the Radar chart
       				//Will expect that data is in %'s
@@ -1708,11 +1712,11 @@ if(typeof(element_b) != 'undefined' && element != null){
             // Square names wordcloud
             ////////////////////////////////////////////////////////////////////
       			function draw(words) {
-    					svg.selectAll('rect' + ' .row-' + (n + 1))
+    					svg.selectAll('rect' + ' .row-' + (theRow + 1))
     						.data(words)
     						.enter()
     						.append("g")
-    						.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) + ',' + (cellSize * (nbRows - n - 1) + cellSize/2 ) + ')')
+    						.attr('transform', 'translate(' + (array[p] * cellSize + cellSize/2) + ',' + (cellSize * (nbRows - theRow - 1) + cellSize/2 ) + ')')
     						.append("text")
     						.style("font-size", function(d) { return d.size + "px"; })
     						.style("fill", function(d) { return "#112E45"; })
@@ -1724,8 +1728,8 @@ if(typeof(element_b) != 'undefined' && element != null){
     				}
 
         		for (p = 0; p < array.length; p++) {
-      				var innerArrayWordClouds= wordClouds[(n*nbColumns)+p];
-      				var nbWordInnerArray = 	nbWord[(n*nbColumns)+p];
+      				var innerArrayWordClouds= wordClouds[(theRow*nbColumns)+p];
+      				var nbWordInnerArray = 	nbWord[(theRow*nbColumns)+p];
       				var arrayValues = [];
       				var wordWithMaxLetters=0;
       				for(var j=0; j<nbWordInnerArray; j++){
@@ -1775,7 +1779,7 @@ if(typeof(element_b) != 'undefined' && element != null){
       width = Math.min(widgetWidth, hexRadius * (Math.sqrt(3) * nbColumns + 1));
       height= Math.min(widgetHeight, hexRadius * (1.5 * nbRows + 1));
 
-      //Set the hexagon radius
+      // Set the hexagon radius
       var hexbin = d3.hexbin().radius(hexRadius);
       //Calculate the center positions of each hexagon
       var points = [];
@@ -1985,11 +1989,6 @@ if(typeof(element_b) != 'undefined' && element != null){
 					.duration(1000)
 					.style("fill-opacity", 1);
         });
-
-        //var array = d3.range(nbColumns);
-        //var width = hexRadius;
-        //var height = hexRadius;
-        //var radius = Math.min(width, height)/ 2;
 
         svg.selectAll(".hexagon").data(d3.range(nbColumns)).append('g')
         var coordinatesArray = hexbin(points);
@@ -2444,7 +2443,10 @@ if(typeof(element_b) != 'undefined' && element != null){
           // Hexagonal Star
           //////////////////////////////////////////////////////////////////////////
 
-        	for (p = 0; p < nbRows*nbColumns; p++) {
+        	for (p = 0; p < nbRows*nbColumns; p++) { 
+        	  // skip cells with no values
+        	  if (starPlotNormalizedValues[p][0] == null) continue; 
+        	  
       			var innerArrayNormalizedValues= starPlotNormalizedValues[p];
       			var innerArrayRealValues= starPlotRealValues[p];
     				// Check if single variable
@@ -2465,15 +2467,18 @@ if(typeof(element_b) != 'undefined' && element != null){
       			var w = hexCellSize*70/100,
       				h = hexCellSize*70/100;
 
-      			//Options for the Radar chart, other than default
+      			//Options for the Star chart, other than default
       			var mycfg = {
       				w: w,
       				h: h,
       				levels: 6,
       				ExtraWidthX: hexCellSize,
       				radius: hexCellSize*5/100,
-      				x: coordinatesArray[p].x+hexCellSize*15/100,
-      				y: coordinatesArray[p].y+hexCellSize*15/100
+      				//x: coordinatesArray[p].x+hexCellSize*15/100,
+      				//y: coordinatesArray[p].y+hexCellSize*15/100
+      				
+      				x: coordinatesArray[p].x - hexRadius * 0.68,
+      				y: coordinatesArray[p].y - hexRadius * 0.68
       			}
 
       			//Call function to draw the Radar chart
