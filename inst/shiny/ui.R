@@ -11,6 +11,7 @@ shinyUI(fluidPage(
              top: 80%;
              left: 0px;
              width: 25%;
+             font-size: 150%;
             
              }
              "
