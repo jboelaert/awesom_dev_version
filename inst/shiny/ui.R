@@ -4,6 +4,7 @@
 ## Organisation de la page
 shinyUI(fluidPage(
   tags$head(HTML("<title>aweSOM</title>")),
+  #to modify style of help messages (increase font etc. tbd after lunch)
   tags$style(
     HTML(".shiny-notification {
              position:fixed;
