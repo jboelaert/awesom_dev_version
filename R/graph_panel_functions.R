@@ -358,7 +358,10 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
                           cellNames, plotOutliers, reversePal, options= NULL, 
                           valueFormat) {
   
-  ## Paramètres communs à tous les graphiques
+  ##########
+  ## Common parameters for all plots
+  ##########
+  
   somsize <- nrow(som$grid$pts)
   clustering <- factor(som$unit.classif, 1:nrow(som$grid$pts))
   clust.table <- table(clustering)
@@ -377,12 +380,9 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
               cellNames= cellNames, 
               cellPop= unname(clust.table))
   
-  if (type %in% c("Camembert", "CatBarplot")) {
-    if (is.numeric(data)) if (length(unique(data)) > 100) data <- cut(data, 100)
-    data <- as.factor(data)
-    unique.values <- levels(data)
-    nvalues <- nlevels(data)
-  } else if (type %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "Star")) {
+  
+  
+  if (type %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "Star")) {
     if (is.null(dim(data))) {
       data <- data.frame(data)
       colnames(data) <- varnames
@@ -499,12 +499,30 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
       }
       data <- as.data.frame(apply(data, 2, as.numeric)) # To prevent weird JS error (when a type is in integer)
     }
+  } else if (type == "UMatrix") {
+    proto.gridspace.dist <- kohonen::unit.distances(som$grid)
+    proto.dataspace.dist <- as.matrix(dist(som$codes[[1]]))
+    proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
+    proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
+    realValues <- unname(rowMeans(proto.dataspace.dist, na.rm= T))
+    normValues <- (realValues - min(realValues)) / (max(realValues) - min(realValues))
+    normValues <- getPalette(palplot, 8, reversePal)[cut(normValues , seq(-.001, 1.001, length.out= 9))]
+    varnames <- "Mean distance to neighbours"
+    type <- "Color"
+    res$plotType <- "Color"
   }
   
   
   ##########
   ## Generate plot-type specific list of arguments
   ##########
+
+  if (type %in% c("Camembert", "CatBarplot")) {
+    if (is.numeric(data)) if (length(unique(data)) > 100) data <- cut(data, 100)
+    data <- as.factor(data)
+    unique.values <- levels(data)
+    nvalues <- nlevels(data)
+  }
   
   if (type == "Camembert") {
     res$parts <- nvalues
@@ -522,9 +540,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
                                              }))
     res$pieRealValues <- unname(lapply(split(data, clustering), 
                                        function(x) unname(table(x))))
-    
-    #print(res$labelColor)
-    
+
   } else if (type == "CatBarplot") {
     res$nbBatons <- nvalues
     res$isHist <- FALSE
@@ -598,11 +614,11 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   } else if (type == "Names") {
     res$wordClouds <- unname(split(data, clustering))
     res$nbWord <- unname(sapply(res$wordClouds, length))
-  }
+  } 
   
   if (type == "CatBarplot")
     res$plotType <- "Barplot"
-  
+
   res
 }
 
@@ -663,15 +679,15 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
   } else if (graphType %in% c("Names")) {
     plotVar <- NULL
     data <- as.character(plot.data[, plotVarOne])
-  } else if (graphType == "UMatrix") {
-    plotVar <- NULL
-    proto.gridspace.dist <- as.matrix(dist(ok.som$grid$pts))
-    proto.dataspace.dist <- as.matrix(dist(ok.som$codes[[1]]))
-    proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
-    proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
-    data <- rowMeans(proto.dataspace.dist, na.rm= T)[ok.clust]
-    plotVar <- "Mean distance to neighbours"
-    graphType <- "Color"
+  # } else if (graphType == "UMatrix") {
+  #   plotVar <- NULL
+  #   proto.gridspace.dist <- kohonen::unit.distances(ok.som$grid)
+  #   proto.dataspace.dist <- as.matrix(dist(ok.som$codes[[1]]))
+  #   proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
+  #   proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
+  #   data <- rowMeans(proto.dataspace.dist, na.rm= T)
+  #   plotVar <- "Mean distance to neighbours"
+  #   graphType <- "Color"
   }
   
   options <- list(equalSize= plotEqualSize)
