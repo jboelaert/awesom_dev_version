@@ -200,7 +200,7 @@ shinyUI(fluidPage(
             
                  
                  fluidRow(column(4, checkboxInput("trainAdvanced", "Advanced options", F)),
-                          column(4, actionButton("help_message_1", "", icon = icon("question"), width = NULL))),
+                          column(4, actionButton("help_message_training", "", icon = icon("question"), width = NULL))),
 
 
                  conditionalPanel("input.trainAdvanced", 
