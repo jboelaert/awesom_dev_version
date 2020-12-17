@@ -162,7 +162,7 @@ shinyUI(fluidPage(
                         
                       ), 
                       
-                      fluidRow(column(10,  HTML("<h4>How to use aweSOM:</h4>")),
+                      fluidRow(column(5,  HTML("<h4>How to use aweSOM:</h4>")),
                                column(2,  actionButton("help_message_intro_to_aweSOM", "", icon = icon("question"), width = NULL)))
                      
                ),

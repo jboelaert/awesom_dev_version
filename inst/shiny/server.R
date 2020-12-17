@@ -688,12 +688,16 @@ shinyServer(function(input, output, session) {
   
   
   observeEvent(input$help_message_intro_to_aweSOM, {
-    showNotification(HTML("<h3>Advanced Training Options</h3> <br>
-                          <strong>Initialization:</strong> Initialize the nodes of the SOM before training<br>
-                          <strong>Rlen:</strong>  number of times the complete data set will be presented to the network  <br>
-                          <strong>Alpha:</strong> Set the learning rate  <br>
-                          <strong>Radius:</strong> Neighborhood Radius <br>
-                          <strong>Random Seed:</strong> Allows for reproducibility of non-deterministic procedures <br>"
+    showNotification(HTML("<h3>Working with aweSOM</h3> <br>
+                          Within this aweSOM application self-organizing Kohonen maps (SOM) can be trained and visualized.
+                          The following functionalities are provided. <br>
+                          
+                          <strong>Import:</strong> Import the data to training dataset. <br>
+                          <strong>Train:</strong>  Train the SOM based on the kohonen package<br>
+                          <strong>Plot:</strong> Visualize the trained SOM <br>
+                          <strong>Export Data:</strong> Export the trained SOM <br>
+                          <strong>R Script:</strong> Access an R script to reproduce your code in R <br>
+                          <strong>About:</strong> Further information on this application <br>"
                           ), 
                      type = "message",
                      duration = 60 ) 
