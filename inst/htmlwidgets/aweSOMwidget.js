@@ -2481,94 +2481,82 @@ HTMLWidgets.widget({
           //////////////////////////////////////////////////////////////////////////
           // Hexagonal Line 
           //////////////////////////////////////////////////////////////////////////
+          
+          var lineArray = [];
         	for (var indice = 0; indice < nbRows*nbColumns; indice++) {
-        	  // skip cell if no values
-        	  if (lineNormalizedValues[indice][0] == null) { continue; }
-        	  
-      			innerArrayNormalizedValues= lineNormalizedValues[indice];
-      			innerArrayRealValues= lineRealValues[indice];
-      			var arrayValues = [];
+        	  lineArray[indice]= [];
+        	  var nullCell = lineNormalizedValues[indice][0] == null;
       			for(var j=0; j<nbPoints; j++){
-      				arrayValues[j] = [];
-      				arrayValues[j].px = hexCellSize * (0.2 + j*0.6/(nbPoints-1));
-      				arrayValues[j].py = hexCellSize * 0.5 * innerArrayNormalizedValues[j];
-      				arrayValues[j].realValue = innerArrayRealValues[j];
+          	  lineArray[indice][j] = [];
+      				lineArray[indice][j].px = nullCell ? null : hexCellSize * (0.2 + j*0.6/(nbPoints-1));
+      				lineArray[indice][j].py = nullCell ? null : -hexCellSize * 0.5 * lineNormalizedValues[indice][j];
       			}
-      			var points = svg.append("g").selectAll(".hexagon")
-      				.data(d3.range(1))
-      				.enter()
-      				.append("path")
-      				.attr("class", "ligne")
-      				.attr("d", function(d, i) {
-      					var lineFunction = d3.svg.line()
-      						.x(function(d) { return d.px; })
-      						.y(function(d) { return -d.py;})
-      						.interpolate("linear");
-      					return lineFunction(arrayValues);
-      				})
-      				.attr('transform', 'translate(' + (coordinatesArray[indice].x-hexCellSize/2) + ',' + (coordinatesArray[indice].y+hexCellSize*25/100) + ')')
-      				.attr("stroke", function(d) {
-      					return "#112E45";
-      				})
-      				.attr("stroke-width", 1.2)
-      				.attr("fill", "none");
+        	}
+        	
+    			var lines = svg.append("g").selectAll(".hexagon")
+    				.data(lineArray)
+    				.enter()
+    				.append("path")
+    				.attr("class", "ligne")
+    				.attr("d", function(d, i) {
+    					var lineFunction = d3.svg.line()
+    						.x(function(d) { return d.px; })
+    						.y(function(d) { return d.py;})
+    						.interpolate("linear");
+    					return lineFunction(lineArray[i]);
+    				})
+    				.attr('transform', function(d, i) {
+    				  return 'translate(' + (coordinatesArray[i].x-hexCellSize/2) + ',' + (coordinatesArray[i].y+hexCellSize*25/100) + ')';
+    				})
+    				.attr("stroke", function(d, i) {
+    					return "#112E45";
+    				})
+    				.attr("stroke-width", 1.2)
+    				.attr("fill", "none");
 
-      			var focus = points.select("path.ligne")
-      				.data(d3.range(1))
-      				.enter()
-      				.append("circle")
-      				.attr("class", function(d, i) {
-      					return "y"+(indice);
-      				})
-      				.attr("cx", function(d, i) {
-      					var px = (i + 0.2) * hexCellSize;
-      					return px;
-      				})
-      				.attr("cy", function(d, i) {
-      					innerArrayNormalizedValues= lineNormalizedValues[indice];
-      					var py = -innerArrayNormalizedValues[0]*hexCellSize*0.5;
-      					return py;
-      				})
-      				.attr('transform', 'translate(' + (coordinatesArray[indice].x-hexCellSize/2) + ',' + (coordinatesArray[indice].y+hexCellSize*25/100) + ')')
-      				.attr("r", 4)
-      				.style("fill", "none")
-      				.style("stroke", "#112E45");
+    			var circles = lines.select("path.ligne")
+    				.data(lineArray)
+    				.enter()
+    				.append("circle")
+    				.attr("class", function(d, i) {
+    					return "circ"+ i;
+    				})
+    				.attr("cx", function(d, i) {
+    					return lineArray[i][0].px;
+    				})
+    				.attr("cy", function(d, i) {
+    					return lineArray[i][0].py;
+    				})
+    				.attr('transform', function(d, i) {
+    				  return 'translate(' + (coordinatesArray[i].x-hexCellSize/2) + ',' + (coordinatesArray[i].y+hexCellSize*25/100) + ')';
+    				})
+    				.attr("r", Math.min(widgetHeight, widgetWidth) / 100)
+    				.style("fill", "none")
+    				.style("stroke", function(d, i) {
+    				  if (lineArray[i][0].px == null) return "none";
+    				  return "#112E45";
+    				});
 
-      			hexa.on('mousemove', function (d, i) { 
-  						
-        			var mouseX = d3.mouse(this)[0];
-        			var chosenPoint = 0;
-        			for (var j=0; j<nbPoints; j++){
-        			  if (mouseX > coordinatesArray[i].x + hexCellSize * (0.2 - 0.5 + (j+0.5) *0.6/(nbPoints-1))) {
-        			    chosenPoint= j + 1;
-        			  }
-        			}
-        			chosenPoint= chosenPoint == nbPoints ? chosenPoint-1 : chosenPoint;
-  						console.log("chosen " + chosenPoint);
-  						
-      			  for (var indiceM = 0; indiceM < nbRows*nbColumns; indiceM++) {
-    						innerArrayNormalizedValues= lineNormalizedValues[indiceM];
-    						innerArrayRealValues= lineRealValues[indiceM];
-    						
-    						var chosenValue = [];
-    						chosenValue.px = hexCellSize * (0.2 + chosenPoint*0.6/(nbPoints-1))
-        				chosenValue.py = hexCellSize * 0.5 * innerArrayNormalizedValues[chosenPoint];
-        				var zeropointY = hexCellSize * 0.5 * innerArrayNormalizedValues[0];
-        				chosenValue.realValue = innerArrayRealValues[chosenPoint];
-
-    						svg.select("circle.y"+indiceM)
-    							.attr("transform", "translate(" + (chosenValue.px + coordinatesArray[indiceM].x - hexCellSize*0.7) + "," + 
-    							        (zeropointY - chosenValue.py + coordinatesArray[indiceM].y + hexCellSize*0.25) + ")");
-
+    			hexa.on('mousemove', function (d, i) { 
+      			var mouseX = d3.mouse(this)[0];
+      			var chosenPoint = 0;
+      			for (var j=0; j<nbPoints; j++){
+      			  if (mouseX > coordinatesArray[i].x + hexCellSize * (0.2 - 0.5 + (j+0.5) *0.6/(nbPoints-1))) {
+      			    chosenPoint= j + 1;
       			  }
-      			  
-      			  d3.select('#plot-message').text(function () {
-  								return label[chosenPoint] + ': ' + lineRealValues[i][chosenPoint];
-							});
+      			}
+      			chosenPoint= chosenPoint == nbPoints ? chosenPoint-1 : chosenPoint;
+      			
+						svg.selectAll("circle")
+      				.attr("cx", function(cd, ci) {return lineArray[ci][chosenPoint].px;})
+      				.attr("cy", function(cd, ci) {return lineArray[ci][chosenPoint].py;});
 
-      			});
+    			  d3.select('#plot-message').text(function () {
+								return label[chosenPoint] + ': ' + (lineRealValues[i][chosenPoint]==null ? "-" : lineRealValues[i][chosenPoint]);
+						});
+						
+    			});
 
-      		}
         } else if (plotType.localeCompare("Names")==0) {
           //////////////////////////////////////////////////////////////////////////
           // Hexagonal Wordcloud of Names
