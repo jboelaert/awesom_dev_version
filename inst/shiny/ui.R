@@ -4,6 +4,15 @@
 ## Organisation de la page
 shinyUI(fluidPage(
   tags$head(HTML("<title>aweSOM</title>")),
+  tags$style(
+    HTML(".shiny-notification {
+             position:fixed;
+             top: calc(50%);
+             left: calc(50%);
+             }
+             "
+    )
+  ),
   rclipboard::rclipboardSetup(),
   
   # headerPanel(HTML("aweSOM")),
