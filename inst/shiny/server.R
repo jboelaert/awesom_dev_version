@@ -674,8 +674,15 @@ shinyServer(function(input, output, session) {
   
   ### HELP MESSAGES
   observeEvent(input$help_message_1, {
-    showNotification(HTML("Here is <strong>one</strong> way to insert <em>arbitrary</em> HTML."), type = "message",
-                     duration = 60 ) #<- closes after 60sek if not closed by user
+    showNotification(HTML("<h3>Advanced Training Options</h3> <br>
+                          <strong>Initialization:</strong> lorem ipsum bla bla  <br>
+                          <strong>Rlen:</strong> lorem ipsum bla bla  <br>
+                          <strong>Alpha:</strong> lorem ipsum bla bla  <br>
+                          <strong>Radius:</strong> lorem ipsum bla bla  <br>
+                          <strong>Random Seed:</strong> lorem ipsum bla bla  <br>"
+                          ), 
+                     type = "message",
+                     duration = 60 ) 
   })
   
   
