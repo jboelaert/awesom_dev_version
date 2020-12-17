@@ -278,6 +278,22 @@ shinyUI(fluidPage(
                                               uiOutput("plotNames")),
                              checkboxInput("plotAdvanced", "Advanced options", F),
                              conditionalPanel("input.plotAdvanced", 
+                                              ## Values to plot: means, medians, prototypes
+                                              conditionalPanel(paste0('input.graphType == "Radar" | ', 
+                                                                      'input.graphType == "Line" | ', 
+                                                                      'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "Color" | ', 
+                                                                      'input.graphType == "Star"'), 
+                                                               fluidRow(
+                                                                 column(4, p("Values")),
+                                                                 column(7, selectInput("average_format", NULL, 
+                                                                                       choices = c("Observation means" = "mean",
+                                                                                                   "Observation medians" = "median",
+                                                                                                   "Prototypes" = "prototypes"),
+                                                                                       selected = "mean")), 
+                                                                 column(1, actionButton("help_average_format", "", icon = icon("question"), width = NULL)))),
+                                              
+                                              ## Variable scales
                                               conditionalPanel(paste0('input.graphType == "CatBarplot" | ', 
                                                                       'input.graphType == "Radar" | ', 
                                                                       'input.graphType == "Line" | ', 
@@ -295,20 +311,6 @@ shinyUI(fluidPage(
                                                                                        selected = "contrast")),
                                                                  column(1, actionButton("help_contrast", "", icon = icon("question"), width = NULL)))), 
                                               
-                                              conditionalPanel(paste0('input.graphType == "Radar" | ', 
-                                                                      'input.graphType == "Line" | ', 
-                                                                      'input.graphType == "Barplot" | ', 
-                                                                      'input.graphType == "Color" | ', 
-                                                                      'input.graphType == "Star"'), 
-                                                               fluidRow(
-                                                                 column(4, p("Values")),
-                                                                 column(7, selectInput("average_format", NULL, 
-                                                                                       choices = c("Observation means" = "mean",
-                                                                                                   "Observation medians" = "median",
-                                                                                                   "Prototypes" = "prototypes"),
-                                                                                       selected = "mean")), 
-                                                                 column(1, actionButton("help_average_format", "", icon = icon("question"), width = NULL)))),
-
                                               conditionalPanel('input.graphType == "Boxplot"', 
                                                                checkboxInput("plotOutliers", "Plot outliers", value= T)),
                                               

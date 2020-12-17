@@ -11,7 +11,7 @@ Train
 Plots
 * boxplot contours and whiskers do not show (Jan)
 * Julien: rename arguments
-
+* Starplot and Hex Line plot: png download not working
 
 Clustered Data
 .
@@ -23,7 +23,7 @@ Vignette
 
 
 Other: 
-* Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?) (@Julien: Agree to exporting these to txt file?)
+* Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?) (@Julien: Agree to exporting these to txt file? @Jan: maybe not a txt file but a static list at the beginning of server.R, like plotChoices)
 * Roxygen Skeletons functions (I'll finish these tonight, (also for the vignette) by inserting some info on the function arguments)
 * (Julien) Clean code, and make CRAN-ready
 * Remove unused packages from DESCRIPTION 
