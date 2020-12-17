@@ -28,6 +28,9 @@ Other:
 
 
 * Roxygen Skeletons functions (I'll finish these tonight, (also for the vignette) by inserting some info on the function arguments)
+
+
+
 * (Julien) Clean code, and make CRAN-ready
 * Remove unused packages from DESCRIPTION 
 
