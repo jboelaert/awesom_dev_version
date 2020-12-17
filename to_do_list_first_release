@@ -13,17 +13,19 @@ Plots
 * Julien: rename arguments
 * Starplot and Hex Line plot: png download not working
 
+
+
+
 Clustered Data
 .
 
 Reproducible Scripts: 
-.
+*  reproducible script for aweSOM::aweSOMsmoothdist does not work  --> Error in rowMeans(ok.dist$proto.data.dist.neigh, na.rm = T) : 'x' must be an array of at least two dimensions)
 
 Vignette
 
 
 Other: 
-* Help Messages remain tbd for contrast and average format. 
 
 
 
