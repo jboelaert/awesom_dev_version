@@ -674,10 +674,7 @@ shinyServer(function(input, output, session) {
   
   ### HELP MESSAGES
   observeEvent(input$help_message_1, {
-    showNotification("This provides a help message \n
-                         It will pop-up and explain in different parts of the shiny app aweSOM 
-                         what some of the settings imply and what is behind the overall magic. 
-                         Actually, I only did dummy text right until here.", type = "message",
+    showNotification(HTML("Here is <strong>one</strong> way to insert <em>arbitrary</em> HTML."), type = "message",
                      duration = 60 ) #<- closes after 60sek if not closed by user
   })
   
