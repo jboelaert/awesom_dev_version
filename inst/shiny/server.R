@@ -675,11 +675,11 @@ shinyServer(function(input, output, session) {
   ### HELP MESSAGES
   observeEvent(input$help_message_1, {
     showNotification(HTML("<h3>Advanced Training Options</h3> <br>
-                          <strong>Initialization:</strong> lorem ipsum bla bla  <br>
-                          <strong>Rlen:</strong> lorem ipsum bla bla  <br>
-                          <strong>Alpha:</strong> lorem ipsum bla bla  <br>
-                          <strong>Radius:</strong> lorem ipsum bla bla  <br>
-                          <strong>Random Seed:</strong> lorem ipsum bla bla  <br>"
+                          <strong>Initialization:</strong> Initialize the nodes of the SOM before training<br>
+                          <strong>Rlen:</strong>  number of times the complete data set will be presented to the network  <br>
+                          <strong>Alpha:</strong> Set the learning rate  <br>
+                          <strong>Radius:</strong> Neighborhood Radius <br>
+                          <strong>Random Seed:</strong> Allows for reproducibility of non-deterministic procedures <br>"
                           ), 
                      type = "message",
                      duration = 60 ) 

@@ -8,10 +8,10 @@ shinyUI(fluidPage(
   tags$style(
     HTML(".shiny-notification {
              position:fixed;
-             top: 80%;
+             top: 50%;
              left: 0px;
-             width: 25%;
-             font-size: 150%;
+             width: 30%;
+             
             
              }
              "
