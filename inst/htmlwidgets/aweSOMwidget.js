@@ -1447,7 +1447,7 @@ HTMLWidgets.widget({
             //////////////////////////////////////////////////////////////////////
             // Square Boxplot
             ///////////////////////////////////////////////////////////////////////
-           var width = (cellSize*80/100)/(nbBox)-(cellSize*10/100),
+            var width = (cellSize*80/100)/(nbBox)- ((1/ nbBox) * (cellSize/10)),
       				height = (cellSize*70/100);
       			if(nbBox==1){width = (cellSize*20/100);
       						 height = (cellSize*40/100);}
