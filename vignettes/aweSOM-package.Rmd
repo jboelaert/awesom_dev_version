@@ -143,6 +143,8 @@ Additionally, _omitRows_ can be used an argument to omit certain rows from the v
 
 
 
+
+
 ## Superclasses of SOM
 SOM maps can be further clustered into superclasses, groups of cells with similar profiles. To do so, classic clustering algorithms are used.
 

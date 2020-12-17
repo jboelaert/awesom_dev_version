@@ -52,7 +52,7 @@ getPalette <- function(pal, n, reverse= F) {
 #' @param ok.hclust hierarchical clustering object
 #' @param input_kohSuperclass number of superclasses
 #'
-#' @return Dendogram plot of hierarchical clustering
+#' @return Dendogram plot of hierarchical superclass clustering
 #'
 #' @examples 
 #' ok.data <- iris
@@ -82,11 +82,11 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 
 #' Plot screeplot for clustering of superclasses
 #'
-#' @param ok.som 
-#' @param ok.hclust 
-#' @param input_kohSuperclass 
+#' @param ok.som SOM data object
+#' @param ok.hclust hierarchical clustering object
+#' @param input_kohSuperclass number of superclasses
 #'
-#' @return
+#' @return Screeplot of superclass clustering
 #' @export
 #'
 #' @examples
@@ -133,7 +133,7 @@ aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= 
 
 #' Smooth distance plot
 #'
-#' @param ok.som 
+#' @param ok.som SOM data object
 #' @param ok.dist 
 #' @param input_palplot 
 #' @param input_plotRevPal 
@@ -267,10 +267,10 @@ aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F
 
 #' Silhouette plot
 #'
-#' @param ok.som 
+#' @param ok.som SOM data object
 #' @param ok.sc
 #'
-#' @return
+#' @return Silhouette plot for superclass clustering
 #' @export
 #'
 #' @examples
@@ -297,26 +297,6 @@ aweSOMsilhouette <- function(ok.som, ok.sc){
 
 
 
-
-
-
-
-#' Help function
-#' Probably I should integrate this somewhere else
-#' @param test 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-json_edits <- function(test){
-  for(index in seq(1, length(test))){
-    for(index_2 in seq(1, length(test[[index]]))){
-      if(length(test[[index]][[index_2]]) == 0){
-        test[[index]][[index_2]] <- 0
-      }}}
-  return(test) 
-}
 
 
 
@@ -730,9 +710,9 @@ aweSOMwidget_html = function(id, style, class, ...){
 #'
 #' @param ok.som SOM data object
 #' @param ok.sc superclasses
-#' @param ok.data 
+#' @param ok.data SOM training dataset
 #' @param omitRows 
-#' @param graphType 
+#' @param graphType Graph type
 #' @param plotNames 
 #' @param plotVarMult 
 #' @param plotVarOne 
