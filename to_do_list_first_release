@@ -9,7 +9,7 @@ Train
 
 
 Plots
-* boxplot contours and whiskers do not show (Jan)
+* boxplot contours and whiskers do not show --> It whiskers and median line are witin the DOM (i.e. there are objects for those when exporting to HTML) though do not show
 * Julien: rename arguments
 * Starplot and Hex Line plot: png download not working
 
@@ -29,7 +29,7 @@ Other:
 
 
 
-* Roxygen Skeletons functions (I'll finish these tonight, (also for the vignette) by inserting some info on the function arguments)
+* Roxygen Skeletons functions documentation (I will wait until arguments are renamed, see plots tasks)
 
 
 
