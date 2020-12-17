@@ -23,7 +23,7 @@ Vignette
 
 
 Other: 
-* Help-Message Text and export to an external file (current places of Help Messages: Advanced Options for Training SOM. Are there other spots, maybe the visualization settings for 'contrast' etc.?) (@Julien: Agree to exporting these to txt file? @Jan: maybe not a txt file but a static list at the beginning of server.R, like plotChoices)
+* Help Messages remain tbd for contrast and average format. 
 
 
 
