@@ -1488,12 +1488,7 @@ HTMLWidgets.widget({
       					})
       					.call(chart);
 
-//              // Path for highlight
-//    					boxs
-//    					  .append("path")
-//    					  .attr("class", function(d, i) {
-//    					   return "r"+i;
-//    					  });
+
 
 
       				for(var j=0; j<nbBox; j++){
@@ -1535,45 +1530,39 @@ HTMLWidgets.widget({
       							return ch;
       						});
 
-
                   var label_point_boxplot = d.label;
-                  test  = d3.select("body").selectAll(".y").data();
 
-
-                  d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+                  d3.select("body").selectAll(".y")
                                 .transition()
                                 .duration(50)
                                 .style("fill-opacity", function(d, i){
-
                                     if(d.label == label_point_boxplot) {
                                           return 0.8}
                                     else {return 0.1}
+                                                        })
+                                  .style("visibility", function(d, i){
+                                        if(d.label == label_point_boxplot) {
+                                             return "visible"
+                                           }
+                                           else {return "hidden"}
+                                         });
 
-                                                        });
 
-
-                    d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
+                    d3.selectAll("g.box")
                                 .transition()
                                 .duration(50)
-                                .style("fill-opacity", function(d, i){ //this conditional is probably the right way of doing it
+                                .style("fill-opacity", function(d, i){
                                         if(d.labels_plot == label_point_boxplot) {
                                                               return 0.8}
                                                             else {return 0.1}
-
                                                           });
+                                                        });
 
-
-
-
-      					});
 
       					focus.on('mouseleave', function (d, i) {
-
                   d3.select('#plot-message').text(function () {
                                     return "-";
                                   });
-
-
 
 
 
@@ -1586,6 +1575,9 @@ HTMLWidgets.widget({
 
                    return 1
 
+                 })
+                 .style("visibility", function(d, i){
+                     return "visible"
                  });
 
 
@@ -1622,7 +1614,13 @@ HTMLWidgets.widget({
                                                      return 0.8}
                                                    else {return 0.1}
 
-                                                 });
+                                                 })
+                                                 .style("visibility", function(d, i){
+                                   if(d.label == selected) {
+                                     return "visible"
+                                   }
+                                   else {return "hidden"}
+                                 });
 
 
                      				d3.selectAll("g.box") // this is where it needs to be edited for the hex version!!!!
@@ -1647,16 +1645,15 @@ HTMLWidgets.widget({
               .duration(50)
               .style("fill-opacity",1);
 
-              d3.select("body").selectAll(".y") // this is where it needs to be edited for the hex version!!!!
+              d3.select("body").selectAll(".y") 
                 .transition()
                 .duration(50)
                 .style("fill-opacity", function(d, i){
-                  //console.log(d.label);
-                  //this conditional is probably the right way of doing it
-
                   return 1
-
-                });
+                })
+                .style("visibility", function(d, i){
+                     return "visible"
+                 });
       				});
       			}
           } else if(plotType.localeCompare("Star")==0) {
