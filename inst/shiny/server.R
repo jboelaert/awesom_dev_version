@@ -680,6 +680,20 @@ shinyServer(function(input, output, session) {
                           <strong>Alpha:</strong> Set the learning rate  <br>
                           <strong>Radius:</strong> Neighborhood Radius <br>
                           <strong>Random Seed:</strong> Allows for reproducibility of non-deterministic procedures <br>"
+    ), 
+    type = "message",
+    duration = 60 ) 
+  })
+  
+  
+  
+  observeEvent(input$help_message_intro_to_aweSOM, {
+    showNotification(HTML("<h3>Advanced Training Options</h3> <br>
+                          <strong>Initialization:</strong> Initialize the nodes of the SOM before training<br>
+                          <strong>Rlen:</strong>  number of times the complete data set will be presented to the network  <br>
+                          <strong>Alpha:</strong> Set the learning rate  <br>
+                          <strong>Radius:</strong> Neighborhood Radius <br>
+                          <strong>Random Seed:</strong> Allows for reproducibility of non-deterministic procedures <br>"
                           ), 
                      type = "message",
                      duration = 60 ) 

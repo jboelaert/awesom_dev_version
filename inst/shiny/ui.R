@@ -161,13 +161,8 @@ shinyUI(fluidPage(
                         )
                         
                       ), 
-                      HTML("<h4>General instructions:</h4>",
-                           "<ol>",
-                           "<li> Import data </li>",
-                           "<li> Train a map </li>",
-                           "<li> Plot the map </li>",
-                           "<li> Export clusters, plots, code... </li>",
-                           "</ol>"),
+                      HTML("<h4>How to use aweSOM:</h4>"), 
+                      actionButton("help_message_intro_to_aweSOM", "", icon = icon("question"), width = NULL)
                ),
                column(8, 
                       uiOutput("dataImportMessage"), 
