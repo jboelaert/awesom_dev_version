@@ -994,6 +994,7 @@ HTMLWidgets.widget({
         //////////////////////////////////////////////////////////////////////
         // Square Lines
         //////////////////////////////////////////////////////////////////////
+        
         _.times(nbRows, function(theRow) {
     			var rows = svg.selectAll('rect' + ' .row-' + (theRow + 1))
     				.data(d3.range(nbColumns))
@@ -1018,13 +1019,37 @@ HTMLWidgets.widget({
     					stroke: '#FFFFFF'
     				});
 
+      	var axes = svg.append("g").selectAll(".rect")
+  				.data(d3.range(nbColumns))
+  				.enter()
+  				.append("path")
+  				.attr("class", "axis")
+  				.attr("d", function(d, i) {
+  				  if (lineNormalizedValues[(theRow*nbColumns)+i][0] == null) return(null);
+  				  return ("M " + ((i + 0.1) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.1 * cellSize)+
+  				          " L " + ((i + 0.9) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.1 * cellSize) +
+  				          " M " + ((i + 0.1) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.3 * cellSize) +
+  				          " L" + ((i + 0.9) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.3 * cellSize) +
+  				          " M " + ((i + 0.1) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.5 * cellSize) +
+  				          " L" + ((i + 0.9) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.5 * cellSize) +
+  				          " M " + ((i + 0.1) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.7 * cellSize) +
+  				          " L " + ((i + 0.9) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.7 * cellSize) +
+  				          " M " + ((i + 0.1) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.9 * cellSize) +
+  				          " L" + ((i + 0.9) * cellSize) + " , " + (cellSize * (nbRows - theRow - 1) + 0.9 * cellSize)
+  				          );
+  				})
+          .attr("stroke", "#414141")
+          .attr("stroke-opacity", "0.6")
+          .attr("stroke-width", cellSize / 100);         
+
+            
     			var points = svg.selectAll('rect' + ' .row-' + (theRow + 1))
     				.data(d3.range(nbColumns))
     				.enter()
     				.append("path")
     				.attr("class", "ligne")
     				.attr("d", function(d, i) {
-    				  if (cellPop[(theRow*nbColumns)+i] == 0) return null;
+    				  if (lineNormalizedValues[(theRow*nbColumns)+i][0] == null) return null;
     					innerArrayNormalizedValues= lineNormalizedValues[(theRow*nbColumns)+i];
     					innerArrayRealValues= lineRealValues[(theRow*nbColumns)+i];
 
@@ -1046,7 +1071,7 @@ HTMLWidgets.widget({
     				.attr("stroke", function(d) {
     					return "#112E45";
     				})
-    				.attr("stroke-width", 1.2)
+    				.attr("stroke-width", 1.5 * cellSize / 100)
     				.attr("fill", "none");
 
     			var focus = points.select("path.ligne")
@@ -1065,19 +1090,17 @@ HTMLWidgets.widget({
     					var py = (-innerArrayNormalizedValues[0]*cellSize)+(nbRows - theRow)*cellSize;
     					return py;
     				})
-    				//.attr("r", 4) //.attr("r", 4)
             .attr("r", function(d,i){
               if(lineNormalizedValues[(theRow*nbColumns)+i][i] != null &&  lineNormalizedValues[(theRow*nbColumns)+i][i] != 0){ 
-
-                return 4;
+                return 4 * cellSize / 100;
               }
               else{
                 return 0;
               }
-
             })
     				.style("fill", "none")
-    				.style("stroke", "#112E45");
+    				.attr("stroke", "#112E45")
+    				.attr("stroke-width", cellSize / 100);
 
 
 
@@ -1118,7 +1141,7 @@ HTMLWidgets.widget({
     						var x = d3.time.scale().range([arrayValues[0].px, arrayValues[arrayValues.length - 1].px]);
     						x.domain([arrayValues[0].px, arrayValues[arrayValues.length - 1].px]);
 
-    						var additionalX = (l-i)*cellSize;
+    						var additionalX = (l-i + 0.5 / nbPoints)*cellSize;
 
     						var x0 = x.invert(d3.mouse(this)[0]+additionalX),
     							p = bisectPoints(arrayValues, x0, 1),
@@ -1799,7 +1822,7 @@ HTMLWidgets.widget({
     			.data(hexbin(points))
     			.enter().append("g");
 
-    		var coordinatesArray = hexbin(points); //what type of function is hexbin()
+    		var coordinatesArray = hexbin(points); 
 
     		hexa.append("path")
     			.attr("class", "hexagon")
@@ -2493,6 +2516,29 @@ HTMLWidgets.widget({
       			}
         	}
         	
+        	var axes = svg.append("g").selectAll(".hexagon")
+    				.data(lineArray)
+    				.enter()
+    				.append("path")
+    				.attr("class", "axis")
+    				.attr("d", function(d, i) {
+    				  if (lineArray[i][0].px == null) return(null);
+    				  return ("M " + (coordinatesArray[i].x - 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y + 0.25 * hexCellSize)+
+    				          " L " + (coordinatesArray[i].x + 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y + 0.25 * hexCellSize) +
+    				          " M " + (coordinatesArray[i].x - 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y + 0.125 * hexCellSize) +
+    				          " L" + (coordinatesArray[i].x + 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y + 0.125 * hexCellSize) +
+    				          " M " + (coordinatesArray[i].x - 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y) +
+    				          " L" + (coordinatesArray[i].x + 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y) +
+    				          " M " + (coordinatesArray[i].x - 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y - 0.125 * hexCellSize) +
+    				          " L " + (coordinatesArray[i].x + 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y - 0.125 * hexCellSize) +
+    				          " M " + (coordinatesArray[i].x - 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y - 0.25 * hexCellSize) +
+    				          " L" + (coordinatesArray[i].x + 0.35 * hexCellSize) + " , " + (coordinatesArray[i].y - 0.25 * hexCellSize)
+    				          );
+    				})
+            .attr("stroke", "#414141")
+            .attr("stroke-opacity", "0.6")
+            .attr("stroke-width", hexCellSize / 100); 
+        	
     			var lines = svg.append("g").selectAll(".hexagon")
     				.data(lineArray)
     				.enter()
@@ -2500,18 +2546,16 @@ HTMLWidgets.widget({
     				.attr("class", "ligne")
     				.attr("d", function(d, i) {
     					var lineFunction = d3.svg.line()
-    						.x(function(d) { return d.px; })
-    						.y(function(d) { return d.py;})
+    						.x(function(dd) { return dd.px; })
+    						.y(function(dd) { return dd.py;})
     						.interpolate("linear");
     					return lineFunction(lineArray[i]);
     				})
     				.attr('transform', function(d, i) {
     				  return 'translate(' + (coordinatesArray[i].x-hexCellSize/2) + ',' + (coordinatesArray[i].y+hexCellSize*25/100) + ')';
     				})
-    				.attr("stroke", function(d, i) {
-    					return "#112E45";
-    				})
-    				.attr("stroke-width", 1.2)
+    				.attr("stroke", "#112E45")
+    				.attr("stroke-width", 1.5 * hexCellSize / 100)
     				.attr("fill", "none");
 
     			var circles = lines.select("path.ligne")
@@ -2530,12 +2574,13 @@ HTMLWidgets.widget({
     				.attr('transform', function(d, i) {
     				  return 'translate(' + (coordinatesArray[i].x-hexCellSize/2) + ',' + (coordinatesArray[i].y+hexCellSize*25/100) + ')';
     				})
-    				.attr("r", Math.min(widgetHeight, widgetWidth) / 100)
+    				.attr("r", 4 * hexCellSize / 100)
     				.style("fill", "none")
-    				.style("stroke", function(d, i) {
+    				.attr("stroke", function(d, i) {
     				  if (lineArray[i][0].px == null) return "none";
     				  return "#112E45";
-    				});
+    				})
+    				.attr("stroke-width", hexCellSize / 100);
 
     			hexa.on('mousemove', function (d, i) { 
       			var mouseX = d3.mouse(this)[0];
@@ -2551,9 +2596,8 @@ HTMLWidgets.widget({
       				.attr("cx", function(cd, ci) {return lineArray[ci][chosenPoint].px;})
       				.attr("cy", function(cd, ci) {return lineArray[ci][chosenPoint].py;});
 
-    			  d3.select('#plot-message').text(function () {
-								return label[chosenPoint] + ': ' + (lineRealValues[i][chosenPoint]==null ? "-" : lineRealValues[i][chosenPoint]);
-						});
+    			  d3.select('#plot-message').text(label[chosenPoint] + ': ' + 
+    			      (lineRealValues[i][chosenPoint]==null ? "-" : lineRealValues[i][chosenPoint]));
 						
     			});
 
