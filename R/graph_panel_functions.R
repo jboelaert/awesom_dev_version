@@ -614,7 +614,7 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                          contrast= "contrast", average_format= "mean",
                          plotSize= 100, 
                          palsc= "Set3", palplot= "viridis", plotRevPal= F,
-                         width = NULL, height = NULL) {
+                         width = NULL, height = NULL, elementId = NULL) {
   
   if (is.null(ok.som) | !(graphType %in% c("Radar", "Camembert", "CatBarplot",
                                            "Barplot", "Boxplot", 
@@ -677,8 +677,8 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                               average_format)
   
   # create the widget
-  htmlwidgets::createWidget("aweSOMwidget", plotParams, width = plotSize, 
-                            height = plotSize, package = "aweSOM", 
+  htmlwidgets::createWidget("aweSOMwidget", plotParams, elementId = elementId, 
+                            width = plotSize, height = plotSize, package = "aweSOM", 
                             sizingPolicy = htmlwidgets::sizingPolicy(defaultWidth = "100%", defaultHeight = "auto", padding= 0))
 }
 
@@ -692,7 +692,6 @@ aweSOMoutput <- function(outputId, width = "100%", height = "auto") {
 renderaweSOM <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = TRUE)
-  # htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = F)
 }
 
 aweSOMwidget_html = function(id, style, class, ...){
@@ -771,9 +770,9 @@ aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL,
                       plotOutliers = plotOutliers, plotEqualSize = plotEqualSize, 
                       contrast = contrast, average_format = average_format, 
                       plotSize = plotSize, 
-                      palsc = palsc, palplot = palplot, plotRevPal = plotRevPal)
+                      palsc = palsc, palplot = palplot, plotRevPal = plotRevPal, 
+                      elementId = "theWidget")
   
-  res <- htmlwidgets::prependContent(res, htmltools::tag("p", list(id= "theWidget"))) # formely padding bottom 10%
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
   
