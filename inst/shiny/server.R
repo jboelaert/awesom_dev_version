@@ -504,11 +504,16 @@ shinyServer(function(input, output, session) {
   
   ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
-    values$codetxt$plot <- paste0("\n## Plot smooth distances\n", 
-                                  "aweSOM::aweSOMsmoothdist(ok.som, superclust, ", 
-                                  input$kohSuperclass, ")\n")
-    aweSOMsmoothdist(ok.som = ok.som(), ok.dist = ok.dist(), input_palplot = input$palplot, 
-                    input_plotRevPal = input$plotRevPal)
+    values$codetxt$plot <- paste0("\n## Plot smooth neighbour distances\n", 
+                                  "aweSOM::aweSOMsmoothdist(ok.som",
+                                  if (input$palplot != "viridis") {
+                                    paste0(", pal = '", input$palplot, "'")
+                                  },
+                                  if (input$plotRevPal) {
+                                    ", reversePal = T"
+                                  },
+                                  ")\n")
+    aweSOMsmoothdist(x = ok.som(), pal = input$palplot, reversePal = input$plotRevPal)
     
     },
   width = reactive({(input$plotSize / 4 + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job

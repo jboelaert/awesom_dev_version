@@ -224,15 +224,15 @@ ok.som.function <- function(ok.traindat,  input_trainSeed, input_kohInit,
 
 #' Distance measures
 #'
-#' @param ok.som SOM object created by ok.som.function
+#' @param x ```kohonen``` object, a SOM created by the ```som``` function.
 #'
 #' @return list with distance measures
 #'
-#' @examples somDist(ok.som = ok.som)
-somDist <- function(ok.som){
-  if (is.null(ok.som)) return(NULL)
-  proto.gridspace.dist <- kohonen::unit.distances(ok.som$grid, F)
-  proto.dataspace.dist <- as.matrix(dist(ok.som$codes[[1]]))
+#' @examples somDist(x = ok.som)
+somDist <- function(x){
+  if (is.null(x)) return(NULL)
+  proto.gridspace.dist <- kohonen::unit.distances(x$grid, F)
+  proto.dataspace.dist <- as.matrix(dist(x$codes[[1]]))
   neigh <- round(proto.gridspace.dist, 3) == 1
   proto.dataspace.dist.neigh <- proto.dataspace.dist
   proto.dataspace.dist.neigh[!neigh] <- NA
