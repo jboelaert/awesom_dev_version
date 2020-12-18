@@ -142,17 +142,15 @@ aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= 
 #' @export
 #'
 #' @examples
-aweSOMsmoothdist <- function(ok.som, ok.dist, input_palplot= "Set3", input_plotRevPal= F){
-  if (is.null(ok.som)) return()
+aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
+  if (is.null(x)) return(NULL)
   
-  values <- matrix(rowMeans(ok.dist$proto.data.dist.neigh, na.rm= T), 
-                   ok.som$grid$ydim, ok.som$grid$xdim)
-  filled.contour(1:ok.som$grid$ydim, 1:ok.som$grid$xdim, #function generating the plot
-                 #only accepts square grid
-                 values[, 1:ok.som$grid$xdim],
-                 
-                 
-                 color.palette= function(x) paste0(getPalette(input_palplot, x, input_plotRevPal), "FF"))
+  mapdist <- aweSOM::somDist(x)
+  values <- matrix(rowMeans(mapdist$proto.data.dist.neigh, na.rm= T), 
+                   x$grid$ydim, x$grid$xdim)
+  filled.contour(1:x$grid$ydim, 1:x$grid$xdim,
+                 values[, 1:x$grid$xdim],
+                 color.palette= function(y) paste0(getPalette(pal, y, reversePal), "FF"))
   
 }
 
