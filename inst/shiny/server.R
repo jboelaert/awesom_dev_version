@@ -264,23 +264,10 @@ shinyServer(function(input, output, session) {
     res
   })
   
-  
-  # output$plot_legend_margin <- renderUI({
-  #   
-  #   tags$p(style = paste0("padding-bottom:",input$kohDimx*60 ,"px"))
-  #   
-  # })
-  
-  
-  
-  
-  
-  ## Get clustering when ok.som changes
+  ## Get observations clustering when ok.som changes
   ok.clust <- reactive({
     factor(ok.som()$unit.classif, 1:nrow(ok.som()$grid$pts))
   })
-  
-  
   
   ## Compute superclasses when ok.som or superclass options changes
   ok.hclust <- reactive({
@@ -335,14 +322,6 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ## Current map distances and quality measures, triggered by ok.som
-  ok.dist <- reactive({
-    somDist(ok.som = ok.som())
-  })
-  ok.qual <- reactive({
-    somQuality(ok.som = ok.som(), traindat = ok.traindat()$dat)
-  })
-  
   ## Training message
   output$Message <- renderPrint({
     if (is.null(ok.data())) return(cat("Import data to train a SOM."))
@@ -351,7 +330,7 @@ shinyServer(function(input, output, session) {
                  paste("* ", ok.traindat()$msg, collapse= "\n"), 
                  "\n******************************\n\n"))
     }
-    if (is.null(ok.qual())) 
+    if (is.null(ok.som())) 
       return(cat("No map trained yet, click Train button."))
     
     cat("## SOM summary:\n")
@@ -361,7 +340,7 @@ shinyServer(function(input, output, session) {
                        "radius = (", input$trainRadius1, ", ", input$trainRadius2, "), ", 
                        "random seed = ", ok.som()$seed, ".\n")))
 
-    ok.qual()
+    somQuality(ok.som = ok.som(), traindat = ok.traindat()$dat)
   })
   
  
