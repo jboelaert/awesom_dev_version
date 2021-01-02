@@ -1,19 +1,5 @@
 
-#' Import .csv/txt data
-#'
-#'Based on data.table::fread
-#' We should create seperate functions that operate outside of shiny to not use the datapath thing
-#' @param input_dataFile shiny-related dataFile object 
-#' @param input_header character indicating if header is in file. one of c("auto", "TRUE", "FALSE")
-#' @param input_sep  chraracter indicating which seperator. one of  c("auto", "Comma", "Semicolon", "Tab", "Space")
-#' @param input_quote character indicating quotations. one of c("None", "Double Quote \", "Single Quote \", )
-#' @param input_dec character.... on of c("Period", "Comma")
-#' @param input_encoding file encoding. on of c("unknown", "UTF-8", "Latin-1")
-#' @param input_dataFile_datapath datapath
-#'
-#' @return dataframe object of imported data
-#'
-#' @examples
+
 ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, input_quote, input_dec, input_encoding,
                                      input_dataFile_datapath){
    if (is.null((input_dataFile))){ 
@@ -51,22 +37,7 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
 }
 
 
-#' Import .xlsx data
-#' based on read_excel {readxl}
-#' @param input_dataFile shiny-related dataFile object 
-#' @param input_column_names TRUE to use the first row as column names, FALSE to get default names
-#' @param input_trim_spaces Should leading and trailing whitespace be trimmed?
-#' @param input_range_specified_bol boolean to indicate if range should be specified
-#' @param input_range_specs A cell range to read from. See documentation ?read_xlsx
-#' @param input_worksheet_specified_bol boolean to indicate if worksheet should be specified
-#' @param input_worksheet_specs Sheet to read. See documentation ?read_xlsx
-#' @param input_dataFile_datapath datapath
-#' @param input_rows_to_skip Minimum number of rows to skip before reading anything. Default is 0
-#'
-#' @return
-#' @export
-#'
-#' @examples
+
 ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, input_trim_spaces, input_range_specified_bol,
                                         input_range_specs, input_worksheet_specified_bol,  input_worksheet_specs,
                                         input_dataFile_datapath, input_rows_to_skip){
@@ -107,22 +78,7 @@ ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, inpu
 }
 
 
-#' Import .xls data
-#'based on read_xls
-#' @param input_dataFile  shiny-related dataFile object 
-#' @param input_column_names_xls TRUE to use the first row as column names, FALSE to get default names
-#' @param input_trim_spaces_xls Should leading and trailing whitespace be trimmed?
-#' @param input_range_specified_bol_xls boolean to indicate if range should be specified
-#' @param input_range_specs_xls A cell range to read from. See documentation ?read_xls
-#' @param input_worksheet_specified_bol_xls boolean to indicate if worksheet should be specified
-#' @param input_worksheet_specs_xls Sheet to read. See documentation ?read_xls
-#' @param input_dataFile_datapath datapath
-#' @param input_rows_to_skip_xls Minimum number of rows to skip before reading anything. Default is 0
-#'
-#' @return
-#' @export
-#'
-#' @examples
+
 ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, input_trim_spaces_xls, input_range_specified_bol_xls,
                                        input_range_specs_xls, input_worksheet_specified_bol_xls, input_worksheet_specs_xls,
                                        input_dataFile_datapath, input_rows_to_skip_xls){
@@ -168,14 +124,7 @@ ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, i
 
 
 
-#' Import SPSS data
-#'based on haven::read_spss
-#' @param input_dataFile shiny-related dataFile object 
-#' @param input_dataFile_datapath datapath
-#'
-#' @return
-#'
-#' @examples
+
 ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath, input_skip_spss){
   if (is.null((input_dataFile))) return(NULL)
 
@@ -197,14 +146,7 @@ ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath, input
 }
 
 
-#' Import Stata data
-#' based on haven::read.dta
-#' @param input_dataFile   shiny-related dataFile object 
-#' @param input_dataFile_datapath datapath
-#'
-#' @return
-#'
-#' @examples
+
 ok.data.function.stata <- function(input_dataFile, input_dataFile_datapath){
   if (is.null((input_dataFile))){ 
     return(NULL)
@@ -219,13 +161,8 @@ ok.data.function.stata <- function(input_dataFile, input_dataFile_datapath){
 }
 
 
-#' Import SAS data
-#'based on haven::read_sas
-#' @param input_dataFile 
-#' @param input_dataFile_datapath 
-#' @return
-#'
-#' @examples
+
+
 ok.data.function.sas.data <- function(input_dataFile, input_dataFile_datapath ){
   if (is.null((input_dataFile))) return(NULL)
   

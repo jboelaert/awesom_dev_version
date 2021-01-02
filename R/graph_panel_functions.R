@@ -621,7 +621,7 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                                            "Color", "Star", 
                                            "Hitmap", "Line", 
                                            "Names", "UMatrix")))
-    return(NULL) # si on n'a pas calculé, on donne NULL à JS
+    return(NULL) # si on n'a pas calcule, on donne NULL a JS
   
   ok.clust <- ok.som$unit.classif
   plot.data <- ok.data[ok.trainrows, ]
