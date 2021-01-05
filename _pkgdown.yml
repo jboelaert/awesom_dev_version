@@ -12,10 +12,11 @@ navbar:
     - text: "Home"
       icon: fa-home
       href: index.html
+    - text: "Get Started"
+      href: articles/aweSOM-package.html
     - text: "Reference"
       href: reference/index.html
-    - text: "Vignette"
-      href: articles/aweSOM-package.html
+    
 
 
 

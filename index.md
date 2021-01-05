@@ -60,7 +60,7 @@ The web-based interface can be launched using the following function.
 The aweSOM package provides command-line functions that enable
 functionality similar to the web-based interface. Detailed documentation
 of the command-line functions and their usage within a typical workflow
-is documented within the vignette, [here](articles/aweSOM-package.html).
+is described [here](articles/aweSOM-package.html).
 
     
 
