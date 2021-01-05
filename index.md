@@ -9,9 +9,23 @@ Kohonen](https://en.wikipedia.org/wiki/Teuvo_Kohonen) in the 1980s. The
 package introduces interactive plots, making analysis of the SOM easier.
 
 **aweSOM** provides a variety of functions to analyze and visualize
-SOMs. They can be used either through the web-based interface (called by
+SOMs. 
+
+* Initializing on training data and training SOMs using the kohonen package.
+* Visualizing the distribution of observations and distribution of numeric as well as categorical variables of SOMs
+* Exporting interactive SOM visualizations as standalone HTML file, .png or .svg.
+* Performing and graphically evaluating superclustering on SOM using hierarchical and PAM clustering methods 
+
+These can be used either through the web-based interface (called by
 `aweSOM()`) or through command-line functions. The package relies on the
 `kohonen` package for the training of SOMs.
+
+
+
+
+
+
+
 
 ### Install
 
@@ -25,9 +39,18 @@ package
 An intuitive and user-friendly approach to training and analyzing
 datasets with self-organizing maps is enabled by the aweSOM web-based
 interface. It allows the user to import data, train a SOM, analyze via
-the interactive visualizations, download results, and access R-code to
-replicate results. The web-based interface can be launched using the
-following function.
+the interactive visualizations and download results. Plots can be exported 
+as interactive versions (HTML format), or static image files (.png or.svg).
+Additionally, it creates replicable R-code to perform the operations 
+using command-line functions of **aweSOM**.
+
+
+
+
+
+![](shiny_workflow.png)
+
+The web-based interface can be launched using the following function.
 
     aweSOM::aweSOM()
 

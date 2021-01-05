@@ -67,7 +67,14 @@
 <h2 class="hasAnchor">
 <a href="#awesom" class="anchor"></a>aweSOM</h2>
 <p><strong>aweSOM</strong> is an R package offering a set of tools to explore and analyze datasets with Self-Organizing Maps (also known as <a href="https://en.wikipedia.org/wiki/Self-organizing_map">Kohonen maps</a>), a form of artificial neural network originally created by <a href="https://en.wikipedia.org/wiki/Teuvo_Kohonen">Teuvo Kohonen</a> in the 1980s. The package introduces interactive plots, making analysis of the SOM easier.</p>
-<p><strong>aweSOM</strong> provides a variety of functions to analyze and visualize SOMs. They can be used either through the web-based interface (called by <code><a href="reference/aweSOM.html">aweSOM()</a></code>) or through command-line functions. The package relies on the <code>kohonen</code> package for the training of SOMs.</p>
+<p><strong>aweSOM</strong> provides a variety of functions to analyze and visualize SOMs.</p>
+<ul>
+<li>Initializing on training data and training SOMs using the kohonen package.</li>
+<li>Visualizing the distribution of observations and distribution of numeric as well as categorical variables of SOMs</li>
+<li>Exporting interactive SOM visualizations as standalone HTML file, .png or .svg.</li>
+<li>Performing and graphically evaluating superclustering on SOM using hierarchical and PAM clustering methods</li>
+</ul>
+<p>These can be used either through the web-based interface (called by <code><a href="reference/aweSOM.html">aweSOM()</a></code>) or through command-line functions. The package relies on the <code>kohonen</code> package for the training of SOMs.</p>
 <div id="install" class="section level3">
 <h3 class="hasAnchor">
 <a href="#install" class="anchor"></a>Install</h3>
@@ -77,7 +84,9 @@
 <div id="awesom-web-based-interface" class="section level3">
 <h3 class="hasAnchor">
 <a href="#awesom-web-based-interface" class="anchor"></a>aweSOM web-based interface</h3>
-<p>An intuitive and user-friendly approach to training and analyzing datasets with self-organizing maps is enabled by the aweSOM web-based interface. It allows the user to import data, train a SOM, analyze via the interactive visualizations, download results, and access R-code to replicate results. The web-based interface can be launched using the following function.</p>
+<p>An intuitive and user-friendly approach to training and analyzing datasets with self-organizing maps is enabled by the aweSOM web-based interface. It allows the user to import data, train a SOM, analyze via the interactive visualizations and download results. Additionally, it creates replicable R-code to perform the operations using command-line functions of <strong>aweSOM</strong>.</p>
+<p><img src="shiny_workflow.png"></p>
+<p>The web-based interface can be launched using the following function.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">aweSOM<span class="op">::</span><span class="kw">aweSOM</span>()</a></code></pre></div>
 </div>
 <div id="awesom-command-line-functions" class="section level3">

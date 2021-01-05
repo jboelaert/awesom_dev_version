@@ -32,7 +32,14 @@ devtools::install_github("jansodoge/awesom_dev_version")
 
 ### aweSOM web-based interface
 
-An intuitive and user-friendly approach to training and analyzing datasets with self-organizing maps is enabled by the aweSOM web-based interface. It allows the user to import data, train a SOM, analyze via the interactive visualizations, download results, and access R-code to replicate results. The web-based interface can be launched using the following function.
+An intuitive and user-friendly approach to training and analyzing datasets with self-organizing maps is enabled by the aweSOM web-based interface. It allows the user to import data, train a SOM, analyze via the interactive visualizations, download results, and access R-code to replicate results.\newline
+\newline
+\newline\newline\newline
+![](shiny_workflow.png)
+
+
+\newline
+The web-based interface can be launched using the following function.
 
 ```{r, eval = FALSE}
 aweSOM::aweSOM()
