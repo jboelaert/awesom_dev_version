@@ -109,6 +109,35 @@ ok.traindat.function <- function(input_trainscale, ok.data, varSelected, varWeig
 
 
 ## Compute SOM initialization 
+
+
+
+
+
+
+#' Initialize SOM Training
+#'
+#' This function provides functionality to initializing a SOM-grid based on training data using either PCA or random sampling.
+#' It can be practically applied in in training an SOM using the kohonen::som function as the init argument (see example)
+#'
+#' @param traindat Training data to initialize SOM on
+#' @param nrows Number of rows of the initalize SOM object
+#' @param ncols Number of columns of the initalize SOM object
+#' @param method Method to initialize SOM cell positons. Either "pca.sample", "pca" or "random"
+#'
+#' @return Returns a grid with points of SOM cells that can be used in training the SOM using the Kohonen package
+#' @export
+#'
+#' @examples
+#' ok.data <- iris
+#' ## Build training data
+#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' ### Scale training data
+#' dat <- scale(dat)
+#' ## Train SOM
+#' ### Initialization (PCA grid)
+#' init <- aweSOM::somInit(dat, 4, 4)
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
 somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "random")) {
   method <- match.arg(method)
   if (method == "random") {
