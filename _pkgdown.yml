@@ -1,15 +1,9 @@
-
-maintainer:
-  Jay Hesselberth:
-    href: https://hesselberthlab.org
 home:
   links:
   - text: Self-Organizing Maps on the Wikipedia
     href: https://community.rstudio.com/
   - text: kohonen R Package documentation
     href: https://cran.r-project.org/web/packages/kohonen/kohonen.pdf
-
-
 navbar:
   title: "aweSOM"
   type: inverse
