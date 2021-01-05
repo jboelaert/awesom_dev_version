@@ -11,10 +11,11 @@ package introduces interactive plots, making analysis of the SOM easier.
 **aweSOM** provides a variety of functions to analyze and visualize
 SOMs. 
 
-* Initializing on training data and training SOMs using the kohonen package.
-* Visualizing the distribution of observations and distribution of numeric as well as categorical variables of SOMs
+* Initializing SOMs on training data and training these using the kohonen package.
+* Interactive visualizations of structural characteristics and distribution of numeric as well as categorical variables of SOMs
 * Exporting interactive SOM visualizations as standalone HTML file, .png or .svg.
-* Performing and graphically evaluating superclustering on SOM using hierarchical and PAM clustering methods 
+* Performing and graphically evaluating super-clustering on SOM using hierarchical and PAM clustering methods 
+* Ability of generating replicable R-code using the web-based interface
 
 These can be used either through the web-based interface (called by
 `aweSOM()`) or through command-line functions. The package relies on the
@@ -59,4 +60,8 @@ The web-based interface can be launched using the following function.
 The aweSOM package provides command-line functions that enable
 functionality similar to the web-based interface. Detailed documentation
 of the command-line functions and their usage within a typical workflow
-is documented within the vignette, [here](articles/aweSOM-package.html)
+is documented within the vignette, [here](articles/aweSOM-package.html).
+
+    
+
+
