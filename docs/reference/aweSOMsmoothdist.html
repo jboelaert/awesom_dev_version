@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Smooth distance plot — aweSOMsmoothdist • aweSOM</title>
+<title>Smooth Distance Plot — aweSOMsmoothdist • aweSOM</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Smooth distance plot — aweSOMsmoothdist" />
-<meta property="og:description" content="Smooth distance plot" />
+<meta property="og:title" content="Smooth Distance Plot — aweSOMsmoothdist" />
+<meta property="og:description" content="TBD" />
 
 
 
@@ -61,7 +61,7 @@
   <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -80,24 +80,16 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
+    <span class="fas fa-home"></span>
      
+    Home
   </a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/aweSOM-package.html">aweSOM package description</a>
-    </li>
-  </ul>
+<li>
+  <a href="../articles/aweSOM-package.html">Vignette</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -115,13 +107,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Smooth distance plot</h1>
+    <h1>Smooth Distance Plot</h1>
     
     <div class="hidden name"><code>aweSOMsmoothdist.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Smooth distance plot</p>
+    <p>TBD</p>
     </div>
 
     <pre class="usage"><span class='fu'>aweSOMsmoothdist</span><span class='op'>(</span><span class='va'>x</span>, pal <span class='op'>=</span> <span class='st'>"viridis"</span>, reversePal <span class='op'>=</span> <span class='cn'>F</span><span class='op'>)</span></pre>
@@ -130,29 +122,36 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ok.som</th>
+      <th>x</th>
       <td><p>SOM data object</p></td>
     </tr>
     <tr>
-      <th>ok.dist</th>
-      <td></td>
+      <th>pal</th>
+      <td><p>The color palette for visualizing distance. Default is "viridis"</p></td>
     </tr>
     <tr>
-      <th>input_palplot</th>
-      <td></td>
-    </tr>
-    <tr>
-      <th>input_plotRevPal</th>
-      <td></td>
+      <th>reversePal</th>
+      <td><p>Boolean whether color palette for variables is reversed. Default is FALSE</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    
+    <p>Smooth distance plot</p>
 
-
-
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>ok.data</span> <span class='op'>&lt;-</span> <span class='va'>iris</span>
+<span class='co'>## Build training data</span>
+<span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='va'>ok.data</span><span class='op'>[</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Sepal.Length"</span>, <span class='st'>"Sepal.Width"</span>,  <span class='st'>"Petal.Length"</span>, <span class='st'>"Petal.Width"</span> <span class='op'>)</span><span class='op'>]</span>
+<span class='co'>### Scale training data</span>
+<span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/scale.html'>scale</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>)</span>
+<span class='co'>## Train SOM</span>
+<span class='co'>### RNG Seed (for reproducibility)</span>
+<span class='co'>### Initialization (PCA grid)</span>
+<span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'><a href='somInit.html'>somInit</a></span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
+<span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>, rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>, radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6.08</span>,<span class='op'>-</span><span class='fl'>6.08</span><span class='op'>)</span>, init <span class='op'>=</span> <span class='va'>init</span>, dist.fcts <span class='op'>=</span> <span class='st'>'sumofsquares'</span><span class='op'>)</span>
+<span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>aweSOMsmoothdist</span><span class='op'>(</span><span class='va'>ok.som</span><span class='op'>)</span>
+</div><div class='img'><img src='aweSOMsmoothdist-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -164,7 +163,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Julien Boelaert.</p>
+  <p>Developed by Julien Boelaert, Etienne Ollion, Jan Sodoge, Mohamed Sodoge, Otmane Naji, Samuel Hym.</p>
 </div>
 
 <div class="pkgdown">

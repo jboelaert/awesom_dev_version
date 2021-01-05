@@ -30,37 +30,46 @@ aweSOMplot(
 
 \item{ok.data}{SOM training dataset}
 
-\item{omitRows}{}
+\item{omitRows}{Select to omit specific rows in the ok.data argument.}
 
-\item{graphType}{Graph type}
+\item{graphType}{The graph type. Either "hitmap", "radar", "barplot", "boxplot" ,or "lineplot". Default is "hitmap"}
 
-\item{plotNames}{}
+\item{plotNames}{Select variable by which observations per each cell are displayed as you hover over a cell. Default is "(rownames)"}
 
-\item{plotVarMult}{}
+\item{plotVarMult}{Plotted variables. Concerning the radar, barplot, boxplot, lineplot, this argument allows selecting the variables
+which should be displayed within the SOM visualization as a vector of characters indicating the names of the variables. Concering
+visualizations of categorical variables, only one variable can be passed to the functon.}
 
-\item{plotVarOne}{}
+\item{plotVarOne}{Julien you probabyl will mege this one so I leave it blank}
 
-\item{plotOutliers}{}
+\item{plotOutliers}{Indicating whether outlier variables in the "boxplot" SOM visualization are displayed. Default is TRUE (outliers are displayed)}
 
-\item{plotEqualSize}{}
+\item{plotEqualSize}{???}
 
-\item{contrast}{}
+\item{contrast}{Controls the scaling of the variables. Default is "constrast" which scales each of the variables indepenently. 
+Alternatively, same scales can be used where all variables are displayed on the identical scaled based on global minimum and 
+maximum values by using "no_constrast". Or the observations range by using "range"}
 
-\item{average_format}{}
+\item{average_format}{The type of average used for the visualizated variables. Default option is "mean", alternatively 
+"median" can be used to displayed the median value of the variables or "prototype" which is the value of the SOM cell protoype}
 
-\item{plotSize}{}
+\item{plotSize}{Plot size of the SOM visualization measured as integer value in pixel. Default is 100.}
 
-\item{palsc}{}
+\item{palsc}{The color palette for visualizing superclasses of SOM. Default is "Set3"}
 
-\item{palplot}{}
+\item{palplot}{The  color palette for visualizing variables in SOM cells. Default is "viridis"}
 
-\item{plotRevPal}{}
+\item{plotRevPal}{Boolean whether color palette for variables is reversed. Default is FALSE}
 }
 \value{
-
+Interactive html-widget visualizing a SOM.
 }
 \description{
-SOM interactive visualizations
+This function allows to create interactive visualizations of self-organizing maps (SOM) as html-widgets. 
+The following types of visualizations can be displayed that reflect upon distribution of observations per cell and 
+distributions of variables per cell: hitmap, radar, barplot, boxplot, lineplot. Interactive behavior enables
+the display of the respective observations per cell as well as further statistical information on 
+selected variables when hovering over these.
 }
 \examples{
 ok.data <- iris

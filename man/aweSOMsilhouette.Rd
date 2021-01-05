@@ -9,13 +9,14 @@ aweSOMsilhouette(ok.som, ok.sc)
 \arguments{
 \item{ok.som}{SOM data object}
 
-\item{ok.sc}{}
+\item{ok.sc}{Computed super-classes object resulting from either PAM or hierarchical clustering}
 }
 \value{
 Silhouette plot for superclass clustering
 }
 \description{
-Silhouette plot
+Create a silhouette plot that provides a quality measurement of the quality of the clustering of each SOM cell 
+for both PAM and hierarchical clustering.
 }
 \examples{
 #' ok.data <- iris

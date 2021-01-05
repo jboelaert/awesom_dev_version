@@ -79,9 +79,9 @@ Using the _graphType_ argument to the function, one the following types of plots
 
 * **Hitmap** or **population map**: visualizes the number of observation per cell using respectively sized hexagons/rectangles.
 ```{r}
-#aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-#                   graphType = 'Hitmap', 
-#                   plotSize = 400)
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+                   graphType = 'Hitmap', 
+                   plotSize = 400)
 ```
 
 
@@ -91,11 +91,11 @@ Using the _graphType_ argument to the function, one the following types of plots
 
 The **radar plot** displays the mean value for each of the variables, per cell
 ```{r }
-#aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-#                   graphType = 'Radar',  
-#                   plotVarMult = c("Sepal.Length", "Sepal.Width",  
-#                                   "Petal.Length", "Petal.Width"),  
-#                   plotSize = 400)
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+                   graphType = 'Radar',  
+                   plotVarMult = c("Sepal.Length", "Sepal.Width",  
+                                   "Petal.Length", "Petal.Width"),  
+                   plotSize = 400)
 ```
 
 This can also be represented with barplots when the number of variables is limited. 
@@ -116,11 +116,11 @@ Other information can also be plotted:
 Categorical variables, or variables that were not taken into account in the creation of the map, can also be plotted.  
 
 ```{r}
-#aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-#                   graphType = 'Camembert', 
-#                   plotNames = 'Species',
-#                   plotVarOne = 'Species',
-#                   plotSize = 400)
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+                   graphType = 'Camembert', 
+                   plotNames = 'Species',
+                   plotVarOne = 'Species',
+                   plotSize = 400)
 ```
 
 

@@ -12,3 +12,28 @@ package introduces interactive plots, making analysis of the SOM easier.
 SOMs. They can be used either through the web-based interface (called by
 `aweSOM()`) or through command-line functions. The package relies on the
 `kohonen` package for the training of SOMs.
+
+### Install
+
+Install the developer version of aweSOM from Github using the devtools
+package
+
+    devtools::install_github("jansodoge/awesom_dev_version")
+
+### aweSOM web-based interface
+
+An intuitive and user-friendly approach to training and analyzing
+datasets with self-organizing maps is enabled by the aweSOM web-based
+interface. It allows the user to import data, train a SOM, analyze via
+the interactive visualizations, download results, and access R-code to
+replicate results. The web-based interface can be launched using the
+following function.
+
+    aweSOM::aweSOM()
+
+### aweSOM command-line functions
+
+The aweSOM package provides command-line functions that enable
+functionality similar to the web-based interface. Detailed documentation
+of the command-line functions and their usage within a typical workflow
+is documented within the vignette, [here](articles/aweSOM-package.html)

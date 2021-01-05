@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Plot screeplot for clustering of superclasses — aweSOMscreeplot • aweSOM</title>
+<title>Screeplot — aweSOMscreeplot • aweSOM</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Plot screeplot for clustering of superclasses — aweSOMscreeplot" />
-<meta property="og:description" content="Plot screeplot for clustering of superclasses" />
+<meta property="og:title" content="Screeplot — aweSOMscreeplot" />
+<meta property="og:description" content="Creates a screeplot that that provides a quality measurement of the quality of the clustering of each SOM cell 
+for both PAM and hierarchical clustering." />
 
 
 
@@ -61,7 +62,7 @@
   <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -80,24 +81,16 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
+    <span class="fas fa-home"></span>
      
+    Home
   </a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/aweSOM-package.html">aweSOM package description</a>
-    </li>
-  </ul>
+<li>
+  <a href="../articles/aweSOM-package.html">Vignette</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -115,13 +108,14 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Plot screeplot for clustering of superclasses</h1>
+    <h1>Screeplot</h1>
     
     <div class="hidden name"><code>aweSOMscreeplot.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Plot screeplot for clustering of superclasses</p>
+    <p>Creates a screeplot that that provides a quality measurement of the quality of the clustering of each SOM cell 
+for both PAM and hierarchical clustering.</p>
     </div>
 
     <pre class="usage"><span class='fu'>aweSOMscreeplot</span><span class='op'>(</span>
@@ -139,35 +133,41 @@
       <td><p>SOM data object</p></td>
     </tr>
     <tr>
-      <th>ok.hclust</th>
-      <td><p>hierarchical clustering object</p></td>
+      <th>nclass</th>
+      <td><p>number of superclasses to be visualized in the screeplot. Default is 2.</p></td>
     </tr>
     <tr>
-      <th>input_kohSuperclass</th>
-      <td><p>number of superclasses</p></td>
+      <th>method</th>
+      <td><p>Method used for clustering. Hierarchical clustering ("hierarchical") and PAM ("pam") clustering can be used. 
+By default hierarchical clustering is applied.</p></td>
+    </tr>
+    <tr>
+      <th>hmethod</th>
+      <td><p>Specifically for hierarchicical clustering, the clustering method can be specified. By default "ward.D2" is used
+for other options, see the stats::hclust method documentation.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Screeplot of superclass clustering</p>
+    <p>Screeplot</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>ok.data</span> <span class='op'>&lt;-</span> <span class='va'>iris</span>
+    <pre class="examples"><div class='input'><span class='co'>#' ok.data &lt;- iris</span>
 <span class='co'>## Build training data</span>
 <span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='va'>ok.data</span><span class='op'>[</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Sepal.Length"</span>, <span class='st'>"Sepal.Width"</span>,  <span class='st'>"Petal.Length"</span>, <span class='st'>"Petal.Width"</span> <span class='op'>)</span><span class='op'>]</span>
-<span class='co'>### Scale training data</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'ok.data' not found</span></div><div class='input'><span class='co'>### Scale training data</span>
 <span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/scale.html'>scale</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>)</span>
-<span class='co'>## Train SOM</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in scale(dat): object 'dat' not found</span></div><div class='input'><span class='co'>## Train SOM</span>
 <span class='co'>### RNG Seed (for reproducibility)</span>
 <span class='co'>### Initialization (PCA grid)</span>
-<span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>somInit</span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
-<span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>, rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>, radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6.08</span>,<span class='op'>-</span><span class='fl'>6.08</span><span class='op'>)</span>, init <span class='op'>=</span> <span class='va'>init</span>, dist.fcts <span class='op'>=</span> <span class='st'>'sumofsquares'</span><span class='op'>)</span>
-<span class='co'>## Group cells into superclasses (PAM clustering)</span>
+<span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'><a href='somInit.html'>somInit</a></span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in prcomp(traindat, center = F, scale. = F): object 'dat' not found</span></div><div class='input'><span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>, rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>, radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6.08</span>,<span class='op'>-</span><span class='fl'>6.08</span><span class='op'>)</span>, init <span class='op'>=</span> <span class='va'>init</span>, dist.fcts <span class='op'>=</span> <span class='st'>'sumofsquares'</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in check.data(data): object 'dat' not found</span></div><div class='input'><span class='co'>## Group cells into superclasses (PAM clustering)</span>
 <span class='va'>superclust</span> <span class='op'>&lt;-</span> <span class='fu'>cluster</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/cluster/man/pam.html'>pam</a></span><span class='op'>(</span><span class='va'>ok.som</span><span class='op'>$</span><span class='va'>codes</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, <span class='fl'>2</span><span class='op'>)</span>
-<span class='va'>superclasses</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/unname.html'>unname</a></span><span class='op'>(</span><span class='va'>superclust</span><span class='op'>$</span><span class='va'>clustering</span><span class='op'>)</span>
-<span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>aweSOMscreeplot</span><span class='op'>(</span><span class='va'>ok.som</span>, method <span class='op'>=</span> <span class='st'>'hierarchical'</span>, hmethod <span class='op'>=</span> <span class='st'>'ward.D2'</span>, nclass <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
-</div><div class='img'><img src='aweSOMscreeplot-1.png' alt='' width='700' height='433' /></div></pre>
+</div><div class='output co'>#&gt; <span class='error'>Error in inherits(x, "dist"): object 'ok.som' not found</span></div><div class='input'><span class='va'>superclasses</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/unname.html'>unname</a></span><span class='op'>(</span><span class='va'>superclust</span><span class='op'>$</span><span class='va'>clustering</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in unname(superclust$clustering): object 'superclust' not found</span></div><div class='input'><span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>aweSOMscreeplot</span><span class='op'>(</span><span class='va'>ok.som</span>, method <span class='op'>=</span> <span class='st'>'hierarchical'</span>, hmethod <span class='op'>=</span> <span class='st'>'ward.D2'</span>, nclass <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in aweSOM::aweSOMscreeplot(ok.som, method = "hierarchical", hmethod = "ward.D2",     nclass = 2): object 'ok.som' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -179,7 +179,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Julien Boelaert.</p>
+  <p>Developed by Julien Boelaert, Etienne Ollion, Jan Sodoge, Mohamed Sodoge, Otmane Naji, Samuel Hym.</p>
 </div>
 
 <div class="pkgdown">

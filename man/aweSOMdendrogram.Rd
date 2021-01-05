@@ -17,7 +17,8 @@ aweSOMdendrogram(ok.som, ok.hclust, input_kohSuperclass)
 Dendogram plot of hierarchical superclass clustering
 }
 \description{
-Plot dendogram for hierarchical clustering of SOM cells
+Creates a dendogram that that provides a quality measurement of the quality of the clustering of each SOM cell 
+for hierarchical clustering
 }
 \examples{
 ok.data <- iris

@@ -20,7 +20,7 @@
 </head>
 <body data-spy="scroll" data-target="#toc">
     <div class="container template-home">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -39,24 +39,16 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
+    <span class="fas fa-home"></span>
      
+    Home
   </a>
 </li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/aweSOM-package.html">aweSOM package description</a>
-    </li>
-  </ul>
+  <a href="articles/aweSOM-package.html">Vignette</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right"></ul>
@@ -76,11 +68,37 @@
 <a href="#awesom" class="anchor"></a>aweSOM</h2>
 <p><strong>aweSOM</strong> is an R package offering a set of tools to explore and analyze datasets with Self-Organizing Maps (also known as <a href="https://en.wikipedia.org/wiki/Self-organizing_map">Kohonen maps</a>), a form of artificial neural network originally created by <a href="https://en.wikipedia.org/wiki/Teuvo_Kohonen">Teuvo Kohonen</a> in the 1980s. The package introduces interactive plots, making analysis of the SOM easier.</p>
 <p><strong>aweSOM</strong> provides a variety of functions to analyze and visualize SOMs. They can be used either through the web-based interface (called by <code><a href="reference/aweSOM.html">aweSOM()</a></code>) or through command-line functions. The package relies on the <code>kohonen</code> package for the training of SOMs.</p>
+<div id="install" class="section level3">
+<h3 class="hasAnchor">
+<a href="#install" class="anchor"></a>Install</h3>
+<p>Install the developer version of aweSOM from Github using the devtools package</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">"jansodoge/awesom_dev_version"</span>)</a></code></pre></div>
+</div>
+<div id="awesom-web-based-interface" class="section level3">
+<h3 class="hasAnchor">
+<a href="#awesom-web-based-interface" class="anchor"></a>aweSOM web-based interface</h3>
+<p>An intuitive and user-friendly approach to training and analyzing datasets with self-organizing maps is enabled by the aweSOM web-based interface. It allows the user to import data, train a SOM, analyze via the interactive visualizations, download results, and access R-code to replicate results. The web-based interface can be launched using the following function.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">aweSOM<span class="op">::</span><span class="kw">aweSOM</span>()</a></code></pre></div>
+</div>
+<div id="awesom-command-line-functions" class="section level3">
+<h3 class="hasAnchor">
+<a href="#awesom-command-line-functions" class="anchor"></a>aweSOM command-line functions</h3>
+<p>The aweSOM package provides command-line functions that enable functionality similar to the web-based interface. Detailed documentation of the command-line functions and their usage within a typical workflow is documented within the vignette, <a href="articles/aweSOM-package.html">here</a></p>
+</div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div class="license">
+    <div class="links">
+<h2>Links</h2>
+<ul class="list-unstyled">
+<li>Self-Organizing Maps on the Wikipedia at <br><a href="https://community.rstudio.com/">https://​community.rstudio.com/​</a>
+</li>
+<li>kohonen R Package documentation at <br><a href="https://cran.r-project.org/web/packages/kohonen/kohonen.pdf">https://​cran.r-project.org/​web/​packages/​kohonen/​kohonen.pdf</a>
+</li>
+</ul>
+</div>
+<div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
 <li>GPL (&gt;= 2)</li>
@@ -89,7 +107,12 @@
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Julien Boelaert <br><small class="roles"> Maintainer </small>  </li>
+<li>Julien Boelaert <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Etienne Ollion <br><small class="roles"> Author </small>  </li>
+<li>Jan Sodoge <br><small class="roles"> Author </small>  </li>
+<li>Mohamed Sodoge <br><small class="roles"> Author </small>  </li>
+<li>Otmane Naji <br><small class="roles"> Author </small>  </li>
+<li>Samuel Hym <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
 
@@ -98,7 +121,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Julien Boelaert.</p>
+  <p>Developed by Julien Boelaert, Etienne Ollion, Jan Sodoge, Mohamed Sodoge, Otmane Naji, Samuel Hym.</p>
 </div>
 
 <div class="pkgdown">

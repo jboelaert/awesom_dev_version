@@ -2,7 +2,7 @@
 % Please edit documentation in R/graph_panel_functions.R
 \name{aweSOMscreeplot}
 \alias{aweSOMscreeplot}
-\title{Plot screeplot for clustering of superclasses}
+\title{Screeplot}
 \usage{
 aweSOMscreeplot(
   ok.som,
@@ -14,18 +14,23 @@ aweSOMscreeplot(
 \arguments{
 \item{ok.som}{SOM data object}
 
-\item{ok.hclust}{hierarchical clustering object}
+\item{nclass}{number of superclasses to be visualized in the screeplot. Default is 2.}
 
-\item{input_kohSuperclass}{number of superclasses}
+\item{method}{Method used for clustering. Hierarchical clustering ("hierarchical") and PAM ("pam") clustering can be used. 
+By default hierarchical clustering is applied.}
+
+\item{hmethod}{Specifically for hierarchicical clustering, the clustering method can be specified. By default "ward.D2" is used
+for other options, see the stats::hclust method documentation.}
 }
 \value{
-Screeplot of superclass clustering
+Screeplot
 }
 \description{
-Plot screeplot for clustering of superclasses
+Creates a screeplot that that provides a quality measurement of the quality of the clustering of each SOM cell 
+for both PAM and hierarchical clustering.
 }
 \examples{
-ok.data <- iris
+#' ok.data <- iris
 ## Build training data
 dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
 ### Scale training data

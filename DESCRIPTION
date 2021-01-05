@@ -13,3 +13,12 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0
+Authors@R: c(
+    person("Julien", "Boelaert", , "jubo.stats@gmail.com", role = c("aut", "cre")
+    ),
+    person("Etienne", "Ollion", role = "aut"),
+    person("Jan", "Sodoge", role = "aut"),
+    person("Mohamed", "Sodoge", role = "aut"),
+    person("Otmane", "Naji", role = "aut"),
+    person("Samuel", "Hym", role = "aut")
+    )

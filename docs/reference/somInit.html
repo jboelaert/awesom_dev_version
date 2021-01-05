@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Interactive interface and plots for self-organizing maps — aweSOM • aweSOM</title>
+<title>Initialize SOM Training — somInit • aweSOM</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Interactive interface and plots for self-organizing maps — aweSOM" />
-<meta property="og:description" content="Starts the aweSOM interface" />
+<meta property="og:title" content="Initialize SOM Training — somInit" />
+<meta property="og:description" content="This function provides functionality to initializing a SOM-grid based on training data using either PCA or random sampling.
+It can be practically applied in in training an SOM using the kohonen::som function as the init argument (see example)" />
 
 
 
@@ -107,30 +108,54 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Interactive interface and plots for self-organizing maps</h1>
+    <h1>Initialize SOM Training</h1>
     
-    <div class="hidden name"><code>aweSOM.Rd</code></div>
+    <div class="hidden name"><code>somInit.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Starts the aweSOM interface</p>
+    <p>This function provides functionality to initializing a SOM-grid based on training data using either PCA or random sampling.
+It can be practically applied in in training an SOM using the kohonen::som function as the init argument (see example)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>aweSOM</span><span class='op'>(</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>somInit</span><span class='op'>(</span><span class='va'>traindat</span>, <span class='va'>nrows</span>, <span class='va'>ncols</span>, method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"pca.sample"</span>, <span class='st'>"pca"</span>, <span class='st'>"random"</span><span class='op'>)</span><span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>traindat</th>
+      <td><p>Training data to initialize SOM on</p></td>
+    </tr>
+    <tr>
+      <th>nrows</th>
+      <td><p>Number of rows of the initalize SOM object</p></td>
+    </tr>
+    <tr>
+      <th>ncols</th>
+      <td><p>Number of columns of the initalize SOM object</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>Method to initialize SOM cell positons. Either "pca.sample", "pca" or "random"</p></td>
+    </tr>
+    </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>This function starts the (shiny) interactive interface with the default 
-  browser.</p>
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+    <p>Returns a grid with points of SOM cells that can be used in training the SOM using the Kohonen package</p>
 
-    <p>Julien Boelaert <a href='mailto:jubo.stats@gmail.com'>jubo.stats@gmail.com</a></p>
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
-
-    <p>RStudio and Inc. (2013). shiny: Web Application Framework for R. R package
-  version 0.7.0. <a href='http://cran.r-project.org/package=shiny'>http://cran.r-project.org/package=shiny</a></p>
-
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>ok.data</span> <span class='op'>&lt;-</span> <span class='va'>iris</span>
+<span class='co'>## Build training data</span>
+<span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='va'>ok.data</span><span class='op'>[</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Sepal.Length"</span>, <span class='st'>"Sepal.Width"</span>,  <span class='st'>"Petal.Length"</span>, <span class='st'>"Petal.Width"</span> <span class='op'>)</span><span class='op'>]</span>
+<span class='co'>### Scale training data</span>
+<span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/scale.html'>scale</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>)</span>
+<span class='co'>## Train SOM</span>
+<span class='co'>### Initialization (PCA grid)</span>
+<span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>somInit</span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
+<span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>, rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>, radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6.08</span>,<span class='op'>-</span><span class='fl'>6.08</span><span class='op'>)</span>, init <span class='op'>=</span> <span class='va'>init</span>, dist.fcts <span class='op'>=</span> <span class='st'>'sumofsquares'</span><span class='op'>)</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
