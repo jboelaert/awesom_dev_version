@@ -149,29 +149,7 @@ aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
 
 
 
-#' Abstraction plot
-#'
-#' @param ok.som SOM data object
-#' @param dat data object
-#' @param cutoff 
-#' @param pal 
-#' @param reversePal 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' ok.data <- iris
-#' ## Build training data
-#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
-#' ### Scale training data
-#' dat <- scale(dat)
-#' ## Train SOM
-#' ### RNG Seed (for reproducibility)
-#' ### Initialization (PCA grid)
-#' init <- aweSOM::somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
-#' aweSOMabstraction(ok.som, dat, cutoff = 0)
+
 aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F){
   if (is.null(ok.som)) return()
   
@@ -258,7 +236,7 @@ aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F
 #' Silhouette plot
 #'
 #' @param ok.som SOM data object
-#' @param ok.sc
+#' @param ok.sc Computed super-classes object 
 #'
 #' @return Silhouette plot for superclass clustering
 #' @export
@@ -303,26 +281,7 @@ aweSOMsilhouette <- function(ok.som, ok.sc){
 ## Generate plot parameters to be passed to D3 functions
 #################################
 
-#' D3-based plot data generation
-#' Function generates a list object containing data for D3-based plots
-#' @param type 
-#' @param som 
-#' @param superclass 
-#' @param data 
-#' @param plotsize 
-#' @param varnames 
-#' @param normtype 
-#' @param palsc 
-#' @param palplot 
-#' @param cellNames 
-#' @param plotOutliers 
-#' @param reversePal 
-#' @param options 
-#' @param valueFormat 
-#'
-#' @return
-#'
-#' @examples
+
 getPlotParams <- function(type, som, superclass, data, plotsize, varnames, 
                           normtype= c("range", "contrast"), palsc, palplot, 
                           cellNames, plotOutliers, reversePal, options= NULL, 
