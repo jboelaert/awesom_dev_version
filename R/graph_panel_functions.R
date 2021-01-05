@@ -40,6 +40,9 @@ getPalette <- function(pal, n, reverse= F) {
 
 #' Plot dendogram for hierarchical clustering of SOM cells
 #'
+#' Creates a dendogram that that provides a quality measurement of the quality of the clustering of each SOM cell 
+#' for hierarchical clustering
+#'
 #' @param ok.som SOM data object
 #' @param ok.hclust hierarchical clustering object
 #' @param input_kohSuperclass number of superclasses
@@ -72,17 +75,27 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 
 
 
-#' Plot screeplot for clustering of superclasses
+
+
+
+
+#' Screeplot 
+#' 
+#' Creates a screeplot that that provides a quality measurement of the quality of the clustering of each SOM cell 
+#' for both PAM and hierarchical clustering. 
 #'
 #' @param ok.som SOM data object
-#' @param ok.hclust hierarchical clustering object
-#' @param input_kohSuperclass number of superclasses
+#' @param nclass number of superclasses to be visualized in the screeplot. Default is 2.
+#' @param method Method used for clustering. Hierarchical clustering ("hierarchical") and PAM ("pam") clustering can be used. 
+#' By default hierarchical clustering is applied.
+#' @param hmethod Specifically for hierarchicical clustering, the clustering method can be specified. By default "ward.D2" is used
+#' for other options, see the stats::hclust method documentation.
 #'
-#' @return Screeplot of superclass clustering
+#' @return Screeplot
 #' @export
 #'
 #' @examples
-#' ok.data <- iris
+#' #' ok.data <- iris
 #' ## Build training data
 #' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
 #' ### Scale training data
@@ -123,17 +136,30 @@ aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= 
 
 
 
-#' Smooth distance plot
+
+#' Smooth Distance Plot
 #'
-#' @param ok.som SOM data object
-#' @param ok.dist 
-#' @param input_palplot 
-#' @param input_plotRevPal 
+#' TBD
 #'
-#' @return
+#' @param x SOM data object
+#' @param pal The color palette for visualizing distance. Default is "viridis"
+#' @param reversePal Boolean whether color palette for variables is reversed. Default is FALSE
+#'
+#' @return Smooth distance plot
 #' @export
 #'
 #' @examples
+#' ok.data <- iris
+#' ## Build training data
+#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' ### Scale training data
+#' dat <- scale(dat)
+#' ## Train SOM
+#' ### RNG Seed (for reproducibility)
+#' ### Initialization (PCA grid)
+#' init <- aweSOM::somInit(dat, 4, 4)
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' aweSOM::aweSOMsmoothdist(ok.som)
 aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
   if (is.null(x)) return(NULL)
   
@@ -235,8 +261,11 @@ aweSOMabstraction <- function(ok.som, dat, cutoff= 0, pal= "Set3", reversePal= F
 
 #' Silhouette plot
 #'
+#' Create a silhouette plot that provides a quality measurement of the quality of the clustering of each SOM cell 
+#' for both PAM and hierarchical clustering. 
+#'
 #' @param ok.som SOM data object
-#' @param ok.sc Computed super-classes object 
+#' @param ok.sc Computed super-classes object resulting from either PAM or hierarchical clustering 
 #'
 #' @return Silhouette plot for superclass clustering
 #' @export
@@ -623,26 +652,38 @@ aweSOMwidget_html = function(id, style, class, ...){
 ## Console-callable function for interactive plots
 #################################
 
+
 #' SOM interactive visualizations
+#'
+#' This function allows to create interactive visualizations of self-organizing maps (SOM) as html-widgets. 
+#' The following types of visualizations can be displayed that reflect upon distribution of observations per cell and 
+#' distributions of variables per cell: hitmap, radar, barplot, boxplot, lineplot. Interactive behavior enables
+#' the display of the respective observations per cell as well as further statistical information on 
+#' selected variables when hovering over these.
 #'
 #' @param ok.som SOM data object
 #' @param ok.sc superclasses
 #' @param ok.data SOM training dataset
-#' @param omitRows 
-#' @param graphType Graph type
-#' @param plotNames 
-#' @param plotVarMult 
-#' @param plotVarOne 
-#' @param plotOutliers 
-#' @param plotEqualSize 
-#' @param contrast 
-#' @param average_format 
-#' @param plotSize 
-#' @param palsc 
-#' @param palplot 
-#' @param plotRevPal 
+#' @param omitRows Select to omit specific rows in the ok.data argument.
+#' @param graphType The graph type. Either "hitmap", "radar", "barplot", "boxplot" ,or "lineplot". Default is "hitmap"
+#' @param plotNames Select variable by which observations per each cell are displayed as you hover over a cell. Default is "(rownames)"
+#' @param plotVarMult Plotted variables. Concerning the radar, barplot, boxplot, lineplot, this argument allows selecting the variables
+#' which should be displayed within the SOM visualization as a vector of characters indicating the names of the variables. Concering
+#' visualizations of categorical variables, only one variable can be passed to the functon.
+#' @param plotVarOne Julien you probabyl will mege this one so I leave it blank
+#' @param plotOutliers Indicating whether outlier variables in the "boxplot" SOM visualization are displayed. Default is TRUE (outliers are displayed)
+#' @param plotEqualSize ???
+#' @param contrast Controls the scaling of the variables. Default is "constrast" which scales each of the variables indepenently. 
+#' Alternatively, same scales can be used where all variables are displayed on the identical scaled based on global minimum and 
+#' maximum values by using "no_constrast". Or the observations range by using "range"
+#' @param average_format The type of average used for the visualizated variables. Default option is "mean", alternatively 
+#' "median" can be used to displayed the median value of the variables or "prototype" which is the value of the SOM cell protoype
+#' @param plotSize Plot size of the SOM visualization measured as integer value in pixel. Default is 100.
+#' @param palsc The color palette for visualizing superclasses of SOM. Default is "Set3"
+#' @param palplot The  color palette for visualizing variables in SOM cells. Default is "viridis"
+#' @param plotRevPal Boolean whether color palette for variables is reversed. Default is FALSE
 #'
-#' @return 
+#' @return Interactive html-widget visualizing a SOM.
 #' @export
 #'
 #' @examples
