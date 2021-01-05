@@ -1,13 +1,5 @@
 
-#' Generate plot color palets
-#' Function that generates color pallets
-#' @param pal 
-#' @param n 
-#' @param reverse 
-#'
-#' @return
-#'
-#' @examples
+
 getPalette <- function(pal, n, reverse= F) {
   if(pal == "grey") {
     res <- grey(1:n / n)
