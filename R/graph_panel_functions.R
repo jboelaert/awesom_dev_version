@@ -307,9 +307,16 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
               superclass= superclass, 
               superclassColor= superclassColor, 
               cellNames= cellNames, 
-              cellPop= unname(clust.table))
+              cellPop= unname(clust.table), 
+              showAxes= options$showAxes)
   
   
+  if (type %in% c("Camembert", "CatBarplot")) {
+    if (is.numeric(data)) if (length(unique(data)) > 100) data <- cut(data, 100)
+    data <- as.factor(data)
+    unique.values <- levels(data)
+    nvalues <- nlevels(data)
+  }
   
   if (type %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "Star")) {
     if (is.null(dim(data))) {
@@ -415,25 +422,19 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
         normValues[is.na(normValues)] <- "#FFFFFF"
       }
     } else if (type == "Boxplot") {
-      normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(x)) / (max(x) - min(x))))
-      normValues <- unname(lapply(split(normDat, clustering), 
-                                  function(x) {
-                                    if (!nrow(x)) return(rep(NA, nvar))
-                                    unname(colMeans(x))
-                                  }))
       if (normtype == "no_contrast") {
-        normDat <- data
+        normDat <- (data - min(data)) / (max(data) - min(data))
       } else {
         normDat <- as.data.frame(sapply(data, function(x) (x - min(x)) / (max(x) - min(x))))
       }
-      data <- as.data.frame(apply(data, 2, as.numeric)) # To prevent weird JS error (when a type is in integer)
+      data <- as.data.frame(apply(data, 2, as.numeric))
     }
   } else if (type == "UMatrix") {
     proto.gridspace.dist <- kohonen::unit.distances(som$grid)
     proto.dataspace.dist <- as.matrix(dist(som$codes[[1]]))
     proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
     proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
-    realValues <- unname(rowMeans(proto.dataspace.dist, na.rm= T))
+    realValues <- round(unname(rowMeans(proto.dataspace.dist, na.rm= T)), 4)
     normValues <- (realValues - min(realValues)) / (max(realValues) - min(realValues))
     normValues <- getPalette(palplot, 8, reversePal)[cut(normValues , seq(-.001, 1.001, length.out= 9))]
     varnames <- "Mean distance to neighbours"
@@ -445,39 +446,62 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   ##########
   ## Generate plot-type specific list of arguments
   ##########
-
-  if (type %in% c("Camembert", "CatBarplot")) {
-    if (is.numeric(data)) if (length(unique(data)) > 100) data <- cut(data, 100)
-    data <- as.factor(data)
-    unique.values <- levels(data)
-    nvalues <- nlevels(data)
-  }
   
-  if (type == "Camembert") {
-    res$parts <- nvalues
+
+  if (type == "Hitmap") {
+    res$normalizedValues <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
+    res$realValues <- unname(clust.table)
+  } else if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
+    if (type != "Color") {
+      res$nVars <- nvar
+      res$labelColor <- getPalette(palplot, nvar, reversePal)
+    }
+    res$label <- varnames
+    res$normalizedValues <- normValues
+    res$realValues <- realValues
+    res$isCatBarplot <- FALSE
+    res$showSuperclass <- TRUE
+  } else if (type == "Boxplot") {
+    res$nVars <- nvar
+    res$label <- varnames
+    res$labelColor <- getPalette(palplot, nvar, reversePal)
+    
+    boxes.norm <- lapply(split(normDat, clustering), boxplot, plot= F)
+    boxes.real <- lapply(split(data, clustering), boxplot, plot= F)
+    res$normalizedValues <- unname(lapply(boxes.norm, function(x) unname(as.list(as.data.frame(x$stats)))))
+    res$realValues <- unname(lapply(boxes.real, function(x) unname(as.list(as.data.frame(x$stats)))))
+    
+    if (plotOutliers) {
+      res$normalizedExtremesValues <- unname(lapply(boxes.norm, function(x) unname(split(x$out, factor(x$group, levels= 1:nvar)))))
+      res$realExtremesValues <- unname(lapply(boxes.real, function(x) as.list(unname(split(x$out, factor(x$group, levels= 1:nvar))))))
+    } else {
+      res$normalizedExtremesValues <- unname(lapply(boxes.norm, function(x) lapply(1:nvar, function(y) numeric(0))))
+      res$realExtremesValues <- unname(lapply(boxes.real, function(x) lapply(1:nvar, function(y) numeric(0))))
+    }
+  } else if (type == "Camembert") {
+    res$nVars <- nvalues
     res$label <- unique.values
     res$labelColor <- getPalette(palplot, nvalues, reversePal)
     if (options$equalSize) {
-      res$pieNormalizedSize <- rep(.9, length(clust.table))
+      res$normalizedSize <- rep(.9, length(clust.table))
     } else
-      res$pieNormalizedSize <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
-    res$pieRealSize <- unname(clust.table)
-    res$pieNormalizedValues <- unname(lapply(split(data, clustering), 
-                                             function(x) {
-                                               if (!length(x)) return(rep(1/nvalues, nvalues))
-                                               unname(table(x) / length(x))
-                                             }))
-    res$pieRealValues <- unname(lapply(split(data, clustering), 
-                                       function(x) unname(table(x))))
-
+      res$normalizedSize <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
+    res$realSize <- unname(clust.table)
+    res$normalizedValues <- unname(lapply(split(data, clustering), 
+                                          function(x) {
+                                            if (!length(x)) return(rep(1/nvalues, nvalues))
+                                            unname(table(x) / length(x))
+                                          }))
+    res$realValues <- unname(lapply(split(data, clustering), 
+                                    function(x) unname(table(x))))
+    
   } else if (type == "CatBarplot") {
-    res$nbBatons <- nvalues
-    res$isHist <- FALSE
+    res$nVars <- nvalues
     res$isCatBarplot <- TRUE
     res$label <- unique.values
     res$labelColor <- getPalette(palplot, nvalues, reversePal)
-    res$batonRealValues <- unname(lapply(split(data, clustering), 
-                                         function(x) unname(table(x))))
+    res$realValues <- unname(lapply(split(data, clustering), 
+                                    function(x) unname(table(x))))
     if (normtype == "contrast") {
       maxValue <- max(do.call(c, lapply(split(data, clustering), 
                                         function(x) {
@@ -485,69 +509,14 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
                                           unname(table(x) / length(x))
                                         })))
     } else maxValue <- 1
-    res$batonNormalizedValues <- unname(lapply(split(data, clustering), 
-                                               function(x) {
-                                                 if (!length(x)) return(rep(0, nvalues))
-                                                 .02 + .98 * unname(table(x) / length(x)) / maxValue
-                                               }))
-  } else if (type == "Radar") {
-    res$parts <- nvar
-    res$label <- varnames
-    res$labelColor <- getPalette(palplot, nvar, reversePal)
-    res$radarNormalizedSize <- unname(clust.table > 0)
-    res$radarRealSize <- unname(clust.table)
-    res$radarNormalizedValues <- normValues
-    res$radarRealValues <- realValues
-  } else if (type == "Hitmap") {
-    res$hitmapNormalizedValues <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table))) #taken care
-    res$hitmapRealValues <- unname(clust.table)
-  } else if (type == "Line") {
-    res$nbPoints <- nvar
-    res$label <- varnames
-    res$lineNormalizedValues <- normValues
-    res$lineRealValues <- realValues    
-  } else if (type == "Barplot") {
-    res$nbBatons <- nvar
-    res$isHist <- FALSE
-    res$isCatBarplot <- FALSE
-    res$label <- varnames
-    res$labelColor <- getPalette(palplot, nvar, reversePal)
-    res$batonNormalizedValues <- normValues
-    res$batonRealValues <- realValues
-  } else if (type == "Boxplot") {
-    res$nbBox <- nvar
-    res$label <- varnames
-    res$labelColor <- getPalette(palplot, nvar, reversePal)
-    
-    boxes.norm <- lapply(split(normDat, clustering), boxplot, plot= F)
-    boxes.real <- lapply(split(data, clustering), boxplot, plot= F)
-    res$boxPlotNormalizedValues <- unname(lapply(boxes.norm, function(x) unname(as.list(as.data.frame(x$stats)))))
-    res$boxPlotRealValues <- unname(lapply(boxes.real, function(x) unname(as.list(as.data.frame(x$stats)))))
-    if (plotOutliers) {
-      res$boxNormalizedExtremesValues <- unname(lapply(boxes.norm, function(x) unname(split(x$out, factor(x$group, levels= 1:nvar)))))
-      res$boxRealExtremesValues <- unname(lapply(boxes.real, function(x) as.list(unname(split(x$out, factor(x$group, levels= 1:nvar))))))
-    } else {
-      res$boxNormalizedExtremesValues <- unname(lapply(boxes.norm, function(x) lapply(1:nvar, function(y) numeric(0))))
-      res$boxRealExtremesValues <- unname(lapply(boxes.real, function(x) lapply(1:nvar, function(y) numeric(0))))
-    }
-  } else if (type == "Color") {
-    res$activate <- TRUE
-    res$colorNormalizedValues <- normValues
-    res$colorRealValues <- realValues   
-    res$label <- varnames
-  } else if (type == "Star") {
-    res$nbSommet <- nvar
-    res$label <- varnames
-    res$starPlotNormalizedValues <- normValues
-    res$starPlotRealValues <- realValues
-  } else if (type == "Names") {
-    res$wordClouds <- unname(split(data, clustering))
-    res$nbWord <- unname(sapply(res$wordClouds, length))
-  } 
-  
-  if (type == "CatBarplot")
+    res$normalizedValues <- unname(lapply(split(data, clustering), 
+                                          function(x) {
+                                            if (!length(x)) return(rep(0, nvalues))
+                                            .05 + .9 * unname(table(x) / length(x)) / maxValue
+                                          }))
     res$plotType <- "Barplot"
-
+  }
+  
   res
 }
 
