@@ -30,8 +30,8 @@ shinyUI(fluidPage(
              # includeHTML("js/d3.min.js"),
              includeHTML("js/svg_todataurl.js"),
              # includeHTML("js/box.js"),
-             includeHTML("js/canvg.js"),
-             includeHTML("js/rgbcolor.js"),
+             # includeHTML("js/canvg.js"),
+             # includeHTML("js/rgbcolor.js"),
              # includeHTML("js/radar-chart-d3.js"),
              # includeHTML("js/word-cloud.js"),
              
