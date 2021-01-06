@@ -45,12 +45,6 @@ ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 1
                        radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
 ```
 
-```{r, include = FALSE}
-## Group cells into superclasses (hierarchical clustering)
-superclust <- hclust(dist(ok.som$codes[[1]]), 'complete')
-superclasses <- unname(cutree(superclust, 1))
-```
-
 ## Assessing the Quality of the Map
 
 The ```somQuality``` function can be used to assess the quality of a SOM object created by ```kohonen::som```, according to several measures.
@@ -79,7 +73,7 @@ Using the _graphType_ argument to the function, one the following types of plots
 
 * **Hitmap** or **population map**: visualizes the number of observation per cell using respectively sized hexagons/rectangles.
 ```{r}
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
                    graphType = 'Hitmap', 
                    plotSize = 400)
 ```
@@ -91,7 +85,7 @@ aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
 
 The **radar plot** displays the mean value for each of the variables, per cell
 ```{r }
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
                    graphType = 'Radar',  
                    plotVarMult = c("Sepal.Length", "Sepal.Width",  
                                    "Petal.Length", "Petal.Width"),  
@@ -100,7 +94,7 @@ aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
 
 This can also be represented with barplots when the number of variables is limited. 
 ```{r}
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
                    graphType = 'Barplot',  
                    plotVarMult = c("Sepal.Length", "Sepal.Width",  
                                    "Petal.Length", "Petal.Width"),  
@@ -116,7 +110,7 @@ Other information can also be plotted:
 Categorical variables, or variables that were not taken into account in the creation of the map, can also be plotted.  
 
 ```{r}
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
                    graphType = 'Camembert', 
                    plotNames = 'Species',
                    plotVarOne = 'Species',

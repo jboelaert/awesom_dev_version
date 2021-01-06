@@ -28,16 +28,6 @@ HTMLWidgets.widget({
     return {
            renderValue: function(data) {
 
-    document.getElementById("cell-info").style.textAlign = "center";
-    document.getElementById("plot-message").style.textAlign = "center";
-    document.getElementById("plot-names").style.textAlign = "center";
-    
-    document.getElementById("theWidget").innerHTML = ""; //remove the old graph
-    document.getElementById("awesom_legend_svg").innerHTML = ""; //remove old legend
-    document.getElementById("cell-info").innerHTML = "Hover over the plot for information.";
-    document.getElementById("plot-message").innerHTML = "-";
-    document.getElementById("plot-names").innerHTML = "-";
-    
     // Quit if no data
     if(data == null ) {return;}
     //console.log(data);
@@ -63,7 +53,14 @@ HTMLWidgets.widget({
     var isCatBarplot = data.isCatBarplot;
     var showSuperclass = data.showSuperclass;
     var showAxes = data.showAxes; // TBD
-  	
+    
+    // IDs of plot, legend, infos
+    var plotId = el.attributes.id.value;
+    var infoId= plotId + "-info", 
+      messageId= plotId + "-message", 
+      namesId= plotId + "-names", 
+      legendId= plotId + "-legend";
+
   	// Set widget size and cell size
   	width= data.sizeInfo;
   	height= data.sizeInfo;
@@ -71,12 +68,20 @@ HTMLWidgets.widget({
   	var widgetHeight = height;
   	var cellSize = Math.min(height / nbRows, width / nbColumns);
 
-
+    document.getElementById(infoId).style.textAlign = "center";
+    document.getElementById(messageId).style.textAlign = "center";
+    document.getElementById(namesId).style.textAlign = "center";
+    
+    document.getElementById(plotId).innerHTML = ""; //remove the old graph
+    document.getElementById(infoId).innerHTML = "Hover over the plot for information.";
+    document.getElementById(messageId).innerHTML = "-";
+    document.getElementById(namesId).innerHTML = "-";
+    
     /////////////////////////
     // Static download handlers
     /////////////////////////
     function downloadPng(link, filename) {
-      var svg = document.getElementById("theWidget").children[0];
+      var svg = document.getElementById(plotId).children[0];
       svg.toDataURL("image/png", {
           callback: function(data) {
             link.href = data;
@@ -85,7 +90,7 @@ HTMLWidgets.widget({
       })
     }
     function downloadSvg(link, filename) {
-      var svg = document.getElementById("theWidget").children[0];
+      var svg = document.getElementById(plotId).children[0];
       svg.toDataURL("image/svg+xml", {
           callback: function(data) {
             link.href = data;
@@ -111,7 +116,8 @@ HTMLWidgets.widget({
     /////////////////////////
 
     if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Star")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
-      var legend = d3.select("#awesom_legend_svg");
+      document.getElementById(legendId).innerHTML = ""; //remove old legend
+      var legend = d3.select("#" + legendId);
       legend.attr({height: height});
       // create a list of keys
       var keys = label;
@@ -175,7 +181,7 @@ HTMLWidgets.widget({
       }
     }
     
-    var thePlot = d3.select(el).append("svg")
+    var thePlot = d3.select("#" + plotId).append("svg")
 		.attr("width", width)
 		.attr("height", height)
 		.attr("style","display:block; margin:auto; margin-top:0px;")
@@ -209,9 +215,9 @@ HTMLWidgets.widget({
 			var el = d3.select(this)
 				.transition().duration(10)
 				.style("fill-opacity", 0.8);
-      d3.select('#cell-info').text('Cell ' + parseInt(d.cell+1,10) + ', Superclass ' +
+      d3.select("#" + infoId).text('Cell ' + parseInt(d.cell+1,10) + ', Superclass ' +
           superclass[d.cell] + ', N= ' + cellPop[d.cell]);
-			d3.select('#plot-names').text(cellNames[d.cell]);
+			d3.select("#" + namesId).text(cellNames[d.cell]);
     });
     cells.on('mouseout', function() {
       var el = d3.select(this)
@@ -339,9 +345,9 @@ HTMLWidgets.widget({
   			.style("fill", function (d,i) {return "#112E45";});
 
       inner_shape.on('mouseover', function(m, d) {
-  			d3.select('#cell-info').text('Cell ' + parseInt(d.cell+1,10) + ', Superclass ' +
+  			d3.select("#" + infoId).text('Cell ' + parseInt(d.cell+1,10) + ', Superclass ' +
             superclass[d.cell] + ', N= ' + cellPop[d.cell]);
-  			d3.select('#plot-names').text(cellNames[d.cell]);
+  			d3.select("#" + namesId).text(cellNames[d.cell]);
 				d3.select(this).transition().duration(10).style("fill-opacity", 0.8);
       })
 
@@ -374,10 +380,10 @@ HTMLWidgets.widget({
   			var el = d3.select(this)
   				.transition().duration(10)
   				.style("fill-opacity", 0.8);
-  			d3.select('#cell-info').text('Cell ' + parseInt(d.cell+1,10) + ', superclass ' +
+  			d3.select("#" + infoId).text('Cell ' + parseInt(d.cell+1,10) + ', superclass ' +
             superclass[d.cell] + ', N= ' + cellPop[d.cell]);
-  			d3.select('#plot-message').text(label + ': ' + (realValues[d.cell] == null ? "-" : realValues[d.cell]));
-  			d3.select('#plot-names').text(cellNames[d.cell]);
+  			d3.select("#" + messageId).text(label + ': ' + (realValues[d.cell] == null ? "-" : realValues[d.cell]));
+  			d3.select("#" + namesId).text(cellNames[d.cell]);
   		});
   		cells.on('mouseout', function(m, d, i) {
   			var el = d3.select(this)
@@ -417,7 +423,7 @@ HTMLWidgets.widget({
 				.attr("fill", function(d, i) { return labelColor[d.var];})
 				.attr("opacity", 0.9)
 				.on('mouseenter', function(m, d) {
-          d3.select('#plot-message').text(label[d.var] + ": " + d.real);
+          d3.select("#" + messageId).text(label[d.var] + ": " + d.real);
           thePlot.selectAll("path.piePart")
             .transition().duration(50)
             .attr("stroke", function(dd, di) {return dd.var == d.var ? "white" : "none";})
@@ -425,7 +431,7 @@ HTMLWidgets.widget({
             .attr("stroke-width",2 * cellSize / 100);
         })
         .on('mouseleave', function(m, d) {
-          d3.select('#plot-message').text(function () {
+          d3.select("#" + messageId).text(function () {
             return "-";
           });
           thePlot.selectAll("path.piePart")
@@ -473,7 +479,7 @@ HTMLWidgets.widget({
 				.attr("fill", function(d, i) { return labelColor[d.var];})
   			.on('mouseenter', function(m, d) { // d3 v6.3.1
   			//.on('mouseenter', function(d, i) { // d3 v3.5.14
-  				d3.select('#plot-message').text(function () {
+  				d3.select("#" + messageId).text(function () {
   					var ch= label[d.var] + ": " + d.real;
   					if (isCatBarplot)
   					  ch= ch + " (" + (100 * d.real / d.cellPop).toFixed(1) + "%)";
@@ -486,7 +492,7 @@ HTMLWidgets.widget({
   					.attr("opacity", function(bd, bi) {return bd.var==d.var ? 1 : 0.6;});
     			})
   			.on('mouseleave', function(m, d) {
-          d3.select('#plot-message').text("-");
+          d3.select("#" + messageId).text("-");
   				thePlot.selectAll("rect.bar")
   					.transition().duration(50)
   					.attr("stroke", "none")
@@ -538,12 +544,12 @@ HTMLWidgets.widget({
 				.attr("fill", "#112E45")
 				.attr('transform', function(d, i) { return 'translate(' + cellPositions[d.cell].x + ',' + cellPositions[d.cell].y + ')';})
 				.on('mouseover', function(m, d){
-      		d3.select('#plot-message').text(label[d.var] + ': ' + d.real);
+      		d3.select("#" + messageId).text(label[d.var] + ': ' + d.real);
       		d3.selectAll(".radarPoint")
   			  .attr("opacity", function(cd) {return cd.var == d.var ? 1 : 0.5;});
     	  })
       	.on('mouseout', function(m, d){
-      		d3.select('#plot-message').text("-");
+      		d3.select("#" + messageId).text("-");
       		d3.selectAll(".radarPoint").attr("opacity", 0.9);
         });
         
@@ -631,7 +637,7 @@ HTMLWidgets.widget({
   				.attr("cx", function(cd, ci) {return lineArray[ci][chosenPoint].px;})
   				.attr("cy", function(cd, ci) {return lineArray[ci][chosenPoint].py;});
 
-			  d3.select('#plot-message').text(label[chosenPoint] + ': ' + 
+			  d3.select("#" + messageId).text(label[chosenPoint] + ': ' + 
 			      (realValues[d.cell][chosenPoint]==null ? "-" : realValues[d.cell][chosenPoint]));
 				
 			});
@@ -726,7 +732,7 @@ HTMLWidgets.widget({
   		
 			// Boxes and lines mouse events
   		thePlot.selectAll(".bp").on('mouseenter', function(m, d) {
-				d3.select('#plot-message').text(function () {
+				d3.select("#" + messageId).text(function () {
 					var ch=label[d.var]+ ": Q1= " + d.real[1] + " ; Med= " +
 						  d.real[2] + " ; Q3= " + d.real[3];
 					return ch;
@@ -743,14 +749,14 @@ HTMLWidgets.widget({
           });
   		});
   		thePlot.selectAll(".bp").on('mouseleave', function(m, d) {
-  		  d3.select('#plot-message').text("-");
+  		  d3.select("#" + messageId).text("-");
 				thePlot.selectAll(".bp").transition().duration(50).attr("opacity", 1);
 				thePlot.selectAll(".bpOutlier").transition().duration(50).attr("opacity", 1);
   		});
   		
 			// Outliers mouse events
   		thePlot.selectAll(".bpOutlier").on('mouseenter', function(m, d) {
-				d3.select('#plot-message').text(label[d.var]+ ": " + d.real);
+				d3.select("#" + messageId).text(label[d.var]+ ": " + d.real);
 				thePlot.selectAll(".bp")
 					.transition().duration(50)
           .attr("opacity", function(bd, bi){
@@ -763,7 +769,7 @@ HTMLWidgets.widget({
           });
   		});
   		thePlot.selectAll(".bpOutlier").on('mouseleave', function(m, d) {
-  		  d3.select('#plot-message').text("-");
+  		  d3.select("#" + messageId).text("-");
 				thePlot.selectAll(".bp").transition().duration(50).attr("opacity", 1);
 				thePlot.selectAll(".bpOutlier").transition().duration(50).attr("opacity", 1);
   		});
@@ -811,7 +817,7 @@ HTMLWidgets.widget({
 				})
 				.attr('fill', function(d, i) {return labelColor[d.var];})
 				.on('mouseenter', function(m, d) {
-  				d3.select('#plot-message').text(label[d.var]+ ": " + d.real + " (" +
+  				d3.select("#" + messageId).text(label[d.var]+ ": " + d.real + " (" +
   					  (100 * d.real / d.cellPop).toFixed(1) + "%)");
   				thePlot.selectAll("path.piePart")
   					.transition().duration(50)
@@ -819,7 +825,7 @@ HTMLWidgets.widget({
   					.attr("stroke-width", cellSize * 0.02);
   			})
         .on('mouseleave', function(m, d) {
-          d3.select('#plot-message').text("-");
+          d3.select("#" + messageId).text("-");
   				thePlot.selectAll("path.piePart")
   				  .transition().duration(50).attr("stroke","none");
   			});
