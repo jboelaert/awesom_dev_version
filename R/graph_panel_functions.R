@@ -570,20 +570,17 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                                            "Color", "Star", 
                                            "Hitmap", "Line", 
                                            "Names", "UMatrix")))
-    return(NULL) # si on n'a pas calcule, on donne NULL a JS
+    return(NULL)
   
   ok.clust <- ok.som$unit.classif
   plot.data <- ok.data[ok.trainrows, ]
   if(is.null(plot.data)) return(NULL)
+  
   # Obs names per cell for message box
-  if (is.null(plotNames)){
-    return(NULL)
-    
-  } 
+  if (is.null(plotNames)) return(NULL) 
   if (plotNames == "(rownames)") {
     plotNames.var <- rownames(plot.data)
-  } 
-  else {
+  } else {
     plotNames.var <- as.character(plot.data[, plotNames])
   }
   
@@ -606,15 +603,6 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
   } else if (graphType %in% c("Names")) {
     plotVar <- NULL
     data <- as.character(plot.data[, plotVarOne])
-  # } else if (graphType == "UMatrix") {
-  #   plotVar <- NULL
-  #   proto.gridspace.dist <- kohonen::unit.distances(ok.som$grid)
-  #   proto.dataspace.dist <- as.matrix(dist(ok.som$codes[[1]]))
-  #   proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
-  #   proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
-  #   data <- rowMeans(proto.dataspace.dist, na.rm= T)
-  #   plotVar <- "Mean distance to neighbours"
-  #   graphType <- "Color"
   }
   
   options <- list(equalSize= plotEqualSize)
@@ -633,7 +621,6 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
 
 ## htmlwidgets - shiny binding
 #' @export
-# aweSOMoutput <- function(outputId, width = "100%", height = "400px") {
 aweSOMoutput <- function(outputId, width = "100%", height = "auto") {
   htmlwidgets::shinyWidgetOutput(outputId, "aweSOMwidget", width, height, package = "aweSOM")
 }
@@ -717,7 +704,8 @@ aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL,
                        plotOutliers= T, plotEqualSize= F,
                        contrast= "contrast", average_format= "mean",
                        plotSize= 100, 
-                       palsc= "Set3", palplot= "viridis", plotRevPal= F) {
+                       palsc= "Set3", palplot= "viridis", plotRevPal= F, 
+                       elementId= NULL) {
   ok.trainrows <- rep(T, nrow(ok.data))
   if (length(omitRows) > 0) ok.trainrows[omitRows] <- F
   
@@ -732,13 +720,19 @@ aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL,
                       contrast = contrast, average_format = average_format, 
                       plotSize = plotSize, 
                       palsc = palsc, palplot = palplot, plotRevPal = plotRevPal, 
-                      elementId = "theWidget")
+                      elementId = elementId)
   
-  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "cell-info")))
-  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= "plot-message")))
+  elementId <- res$elementId
+  if(is.null(elementId)) {
+    elementId <- paste0('aweSOMwidget-', htmlwidgets:::createWidgetId())
+    res$elementId <- elementId
+  }
   
-  res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= "plot-names")))
-  res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= "awesom_legend_svg", width = "100%")))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(elementId, "-info"))))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(elementId, "-message"))))
+  res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= paste0(elementId, "-names"))))
+  if (graphType %in% c("Barplot", "Boxplot", "Radar", "Camembert", "CatBarplot"))
+    res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= paste0(elementId, "-legend"), width = "100%")))
 
   res
 }

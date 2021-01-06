@@ -1,40 +1,17 @@
-## 27/04/2016 : Shiny User Interface
-# library(RColorBrewer)
-
-## Organisation de la page
 shinyUI(fluidPage(
   tags$head(HTML("<title>aweSOM</title>")),
   #to modify style of help messages (increase font etc. tbd after lunch)
   tags$style(
-    HTML(".shiny-notification {
-             position:fixed;
-             top: 50%;
-             left: 0px;
-             width: 30%;
-             
-            
-             }
-             "
-    )
+    HTML(".shiny-notification {position:fixed; top: 50%; left: 0px; width: 30%;}")
   ),
   rclipboard::rclipboardSetup(),
-  
-  # headerPanel(HTML("aweSOM")),
   
   tabsetPanel(
     #### Panel 'Welcome, Import Data'
     #########################################################################
     tabPanel("Import Data", 
-             # includeHTML("js/hexbin.js"),
-             # includeHTML("js/lodash.min.js"), 
-             # includeHTML("js/d3.min.js"),
              includeHTML("js/svg_todataurl.js"),
-             # includeHTML("js/box.js"),
-             # includeHTML("js/canvg.js"),
-             # includeHTML("js/rgbcolor.js"),
-             # includeHTML("js/radar-chart-d3.js"),
-             # includeHTML("js/word-cloud.js"),
-             
+
              
              # data_import -------------------------------------------------------------
              
@@ -377,27 +354,14 @@ shinyUI(fluidPage(
                              
                              # D3-based plots
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
-                                              
-                                              
                                               fluidRow(column(9, 
-                                                              HTML('<h4 id="cell-info"></h4>'),
-                                                              HTML('<h4 id="plot-message"></h4>'),
+                                                              HTML('<h4 id="theWidget-info"></h4>'),
+                                                              HTML('<h4 id="theWidget-message"></h4>'),
                                                               aweSOM:::aweSOMoutput("theWidget")),
                                                        column(3, conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
-                                                                                  HTML('<svg id="awesom_legend_svg", width="100%"></svg>')))),
-                                              # aweSOM:::aweSOMoutput("theWidget"),
-
-                                              
-                                              wellPanel(HTML('<p id="plot-names">Observation names will appear here.</p>')), 
-                                              #plotOutput("theLegend"),
-                                              
-                                              ## HTML legend
-                                              # conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
-                                              #                  HTML('<svg id="awesom_legend_svg", width="100%"></svg>'))
-                                              # 
-
-                                              )
-                             ))), 
+                                                                                  HTML('<svg id="theWidget-legend", width="100%"></svg>')))),
+                                              wellPanel(HTML('<p id="theWidget-names">Observation names will appear here.</p>')))
+                      ))), 
     tabPanel("Export data", 
              
              fluidRow(
