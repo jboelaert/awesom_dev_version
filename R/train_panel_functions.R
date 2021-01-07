@@ -28,7 +28,10 @@
 #' ## Train SOM
 #' ### Initialization (PCA grid)
 #' init <- somInit(dat, 4, 4)
-#' the.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' the.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+#'                         rlen = 100, alpha = c(0.05, 0.01), 
+#'                         radius = c(6.08,-6.08), init = init, 
+#'                         dist.fcts = 'sumofsquares')
 somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "random")) {
   method <- match.arg(method)
   if (method == "random") {

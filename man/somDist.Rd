@@ -2,7 +2,7 @@
 % Please edit documentation in R/train_panel_functions.R
 \name{somDist}
 \alias{somDist}
-\title{Distance measures}
+\title{Distance measures of a SOM}
 \usage{
 somDist(x)
 }
@@ -10,11 +10,9 @@ somDist(x)
 \item{x}{```kohonen``` object, a SOM created by the ```som``` function.}
 }
 \value{
-list with distance measures
+A list with distance measures
 }
 \description{
-Distance measures
-}
-\examples{
-somDist(x = ok.som)
+Several distance measures between cells or prototypes of a trained SOM (in
+grid space, in data space).
 }

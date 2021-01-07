@@ -4,20 +4,17 @@
 \alias{somQuality}
 \title{Calculate SOM quality measures}
 \usage{
-somQuality(ok.som, traindat)
+somQuality(x, traindat)
 }
 \arguments{
-\item{ok.som}{SOM object created by ok.som.function}
+\item{x}{```kohonen``` object, a SOM created by the ```som``` function.}
 
 \item{traindat}{matrix containing the training data}
 }
 \value{
-list with quality measures
+A list with quality measures : quantization error, share of explained
+  variance, topographic error and Kaski-Lagus error.
 }
 \description{
 Calculate SOM quality measures
-}
-\examples{
-somQuality(ok.som  = ok.som, traindat = traindat)
-
 }

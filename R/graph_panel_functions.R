@@ -50,16 +50,18 @@ getPalette <- function(pal, n, reverse= F) {
 #' @return Dendogram plot of hierarchical superclass clustering
 #'
 #' @examples 
-#' ok.data <- iris
 #' ## Build training data
-#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 #' ### Scale training data
 #' dat <- scale(dat)
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- aweSOM::somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+#'                        rlen = 100, alpha = c(0.05, 0.01), 
+#'                        radius = c(6.08,-6.08), 
+#'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (hierarchical clustering)
 #' superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
 #' ## Plot superclasses dendrogram
@@ -95,20 +97,23 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' @export
 #'
 #' @examples
-#' #' ok.data <- iris
 #' ## Build training data
-#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 #' ### Scale training data
 #' dat <- scale(dat)
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' init <- aweSOM::somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' init <- somInit(dat, 4, 4)
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+#'                        rlen = 100, alpha = c(0.05, 0.01), 
+#'                        radius = c(6.08,-6.08), 
+#'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
-#' aweSOM::aweSOMscreeplot(ok.som, method = 'hierarchical', hmethod = 'ward.D2', nclass = 2)
+#' aweSOMscreeplot(ok.som, method = 'hierarchical', 
+#'                 hmethod = 'ward.D2', nclass = 2)
 aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= "ward.D2"){
   if (is.null(ok.som)) return()
   
@@ -151,15 +156,18 @@ aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= 
 #' @examples
 #' ok.data <- iris
 #' ## Build training data
-#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' dat <- ok.data[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 #' ### Scale training data
 #' dat <- scale(dat)
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' init <- aweSOM::somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
-#' aweSOM::aweSOMsmoothdist(ok.som)
+#' init <- somInit(dat, 4, 4)
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+#'                        rlen = 100, alpha = c(0.05, 0.01), 
+#'                        radius = c(6.08,-6.08), init = init, 
+#'                        dist.fcts = 'sumofsquares')
+#' aweSOMsmoothdist(ok.som)
 aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
   if (is.null(x)) return(NULL)
   
@@ -187,23 +195,25 @@ aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
 #' @export
 #'
 #' @examples
-#' #' ok.data <- iris
 #' ## Build training data
-#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 #' ### Scale training data
 #' dat <- scale(dat)
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' init <- aweSOM::somInit(dat,4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' init <- somInit(dat, 4, 4)
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+#'                        rlen = 100, alpha = c(0.05, 0.01), 
+#'                        radius = c(6.08,-6.08), init = init,
+#'                        dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
-#' aweSOM::aweSOMsilhouette(ok.som, superclasses)
+#' aweSOMsilhouette(ok.som, superclasses)
 aweSOMsilhouette <- function(ok.som, ok.sc){
   if (is.null(ok.som)) return()
-  cluster:::plot.silhouette(cluster::silhouette(ok.sc, dist(ok.som$codes[[1]])), 
+  plot(cluster::silhouette(ok.sc, dist(ok.som$codes[[1]])), 
        main= "Silhouette of Cell Superclasses")
 }
 
@@ -585,35 +595,39 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' @param palsc The color palette for visualizing superclasses of SOM. Default is "Set3"
 #' @param palplot The  color palette for visualizing variables in SOM cells. Default is "viridis"
 #' @param plotRevPal Boolean whether color palette for variables is reversed. Default is FALSE
+#' @param elementId (optional) user-defined elementId of the widget
 #'
 #' @return Interactive html-widget visualizing a SOM.
-#' @export
 #'
 #' @examples
-#' ok.data <- iris
 #' ## Build training data
-#' dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+#' dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 #' ### Scale training data
 #' dat <- scale(dat)
 #' ## Train SOM
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- aweSOM::somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+#'                        rlen = 100, alpha = c(0.05, 0.01), 
+#'                        radius = c(6.08,-6.08), init = init, 
+#'                        dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
+#' 
 #' variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
 #' #Hitmap
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Hitmap', plotSize = 100)
+#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
+#'                    graphType = 'Hitmap', plotSize = 100)
 #' #Radar
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Radar', plotVarMult = variables, plotSize = 100)
+#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
+#'                    graphType = 'Radar', plotVarMult = variables, 
+#'                    plotSize = 100)
 #' #Barplot
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,  graphType = 'Barplot',  plotVarMult = variables,  plotSize = 100)
-#' #Boxplot
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Boxplot', plotVarMult = variables, plotSize = 100)
-#' #Lineplot
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Line', plotVarMult = variables, plotSize = 100)
+#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
+#'                    graphType = 'Barplot', plotVarMult = variables,
+#'                     plotSize = 100)
 aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL, 
                        graphType= "Hitmap", 
                        plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
@@ -640,7 +654,7 @@ aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL,
   
   elementId <- res$elementId
   if(is.null(elementId)) {
-    elementId <- paste0('aweSOMwidget-', htmlwidgets:::createWidgetId())
+    elementId <- paste0('aweSOMwidget-', paste(format(as.hexmode(sample(256, 10, replace = TRUE) - 1), width = 2), collapse = ""))
     res$elementId <- elementId
   }
   
