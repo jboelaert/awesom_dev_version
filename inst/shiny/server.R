@@ -610,24 +610,6 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ## Abstraction plot
-  output$plotAbstraction <-renderPlot({
-    values$codetxt$plot <- paste0("\n## Plot Abstraction plot (experimental)\n", 
-                                  "aweSOMabstraction(ok.som, dat, ",
-                                  "cutoff = ", input$plotAbstrCutoff, ", ", 
-                                  "pal = '", input$palplot, "', ",
-                                  "reversePal = ", input$plotRevPal, ")\n")
-    
-    aweSOMabstraction(ok.som = ok.som(), dat = ok.traindat()$dat,
-                      cutoff = input$plotAbstrCutoff,
-                      pal = input$palplot,
-                      reversePal = input$plotRevPal)
-  },
-  width = reactive({input$plotSize / 4 + 500}),
-  height = reactive({input$plotSize / 4 + 500}))
-  
-  
-  
   ## Fancy JS plots through widget
   output$theWidget <- aweSOM:::renderaweSOM({
     if (is.null(input$plotNames)) return(NULL) # Prevents error due to not-yet loaded UI element, for reproducible script

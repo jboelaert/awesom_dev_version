@@ -236,8 +236,7 @@ shinyUI(fluidPage(
                                                                        "Superclass Scree plot"= "Screeplot",
                                                                        "Superclass Silhouette"= "Silhouette",
                                                                        "Neighbour distance"= "UMatrix", 
-                                                                       "Smooth distance"= "SmoothDist"#, 
-                                                                       #"Abstraction (experimental)"= "Abstraction"
+                                                                       "Smooth distance"= "SmoothDist"
                                                             ), 
                                                             selected= "Hitmap"))),
                              
@@ -293,10 +292,6 @@ shinyUI(fluidPage(
                                               conditionalPanel('input.graphType == "Camembert"', 
                                                                checkboxInput("plotEqualSize", "Equal pie sizes", F)), 
                                               
-                                              conditionalPanel('input.graphType == "Abstraction"', 
-                                                               numericInput("plotAbstrCutoff", "Links cut-off", 
-                                                                            min= 0, max= 1, step = .01, value= 0)),
-                                              
                                               conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "Color" & input.graphType != "UMatrix" & input.graphType != "SmoothDist"', 
                                                                fluidRow(column(4, p("Superclass palette")),
                                                                         column(8, selectInput("palsc", NULL, 
@@ -326,7 +321,7 @@ shinyUI(fluidPage(
                                                                                "median", "centroid"), 
                                                                              "complete")))),
                              hr(),
-                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
+                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist"', 
                                               fluidRow(column(2, h4("Save:")),
                                                        column(4, downloadButton('downloadInteractive', "Interactive html")), 
                                                        column(3, downloadButton('downloadPng', 'png')),
@@ -349,11 +344,9 @@ shinyUI(fluidPage(
                              conditionalPanel('input.graphType == "SmoothDist"',
                                               uiOutput("smooth_dist_warning"),
                                               plotOutput("plotSmoothDist")),
-                             conditionalPanel('input.graphType == "Abstraction"', 
-                                              plotOutput("plotAbstraction")),
-                             
+
                              # D3-based plots
-                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"', 
+                             conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist"', 
                                               fluidRow(column(9, 
                                                               HTML('<h4 id="theWidget-info"></h4>'),
                                                               HTML('<h4 id="theWidget-message"></h4>'),
