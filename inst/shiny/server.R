@@ -383,10 +383,9 @@ shinyServer(function(input, output, session) {
   
   
   ## Assign superclasses to cells
-  ok.sc <- reactive({
-
+  ok.sc <- eventReactive(c(ok.som(), input$sup_clust_method, input$sup_clust_hcmethod), {
     if(is.null(ok.som())) return(NULL)
-    
+
     if (input$sup_clust_method == "hierarchical") {
       superclasses <- unname(cutree(ok.hclust(), input$kohSuperclass))
       
@@ -403,7 +402,7 @@ shinyServer(function(input, output, session) {
                                   "superclasses <- unname(superclust$clustering)\n")
     }
     
-    values$codetxt$sc <- paste0(values$codetxt$sc, 
+    values$codetxt$sc <- paste0(values$codetxt$sc,
                                 "## Apply clusterings to observations\n",
                                 "obs.class <- ok.som$unit.classif\n",
                                 "obs.superclass <- superclasses[obs.class]\n")
@@ -791,15 +790,15 @@ shinyServer(function(input, output, session) {
   #############################################################################
   
   reprocode <- reactive({
-    paste0("\nlibrary(aweSOM)\n",
+    paste0("library(aweSOM)\n",
            "\n## Import Data\n", 
            "# setwd('/path/to/datafile/directory') ## Uncomment this line and set the path to the datafile's directory\n",
            values$codetxt$dataread, 
            values$codetxt$traindat, 
-           values$codetxt$train, "\n",
+           values$codetxt$train,
            if (!is.null(ok.som())) paste0(
              "\n## Quality measures\n",
-             "somQuality(ok.som, dat)\n",
+             "somQuality(ok.som, dat)\n\n",
              values$codetxt$sc, 
              values$codetxt$plot))
   })
@@ -833,13 +832,5 @@ shinyServer(function(input, output, session) {
       )
     }
   )
-  
-  
 
-  
 })
-
-
-
-  
-
