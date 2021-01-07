@@ -552,9 +552,9 @@ shinyServer(function(input, output, session) {
   output$plotDendrogram <- renderPlot({
     if (input$sup_clust_method != "hierarchical") return(NULL)
     values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
-                                  "aweSOM::aweSOMdendrogram(ok.som, superclust, ", 
+                                  "aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
-    aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+    aweSOM::aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
     }, width = reactive({input$plotSize / 4 + 500}),
   height = reactive({input$plotSize / 4 + 500}))
   
@@ -562,13 +562,13 @@ shinyServer(function(input, output, session) {
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
-                                  "aweSOM::aweSOMscreeplot(ok.som, method = '", 
+                                  "aweSOMscreeplot(ok.som, method = '", 
                                   input$sup_clust_method, "', ", 
                                   if (input$sup_clust_method == "hierarchical") {
                                     paste0("hmethod = '", input$sup_clust_hcmethod, "', ")
                                   },
                                   "nclass = ", input$kohSuperclass, ")\n")
-    aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
+    aweSOM::aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
   },
   width = reactive({input$plotSize / 4 + 500}),
   height = reactive({input$plotSize / 4 + 500}))
@@ -577,8 +577,8 @@ shinyServer(function(input, output, session) {
   ## Silhouette plot
   output$plotSilhouette <- renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses silhouette plot\n", 
-                                  "aweSOM::aweSOMsilhouette(ok.som, superclass)\n")
-    aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
+                                  "aweSOMsilhouette(ok.som, superclass)\n")
+    aweSOM::aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
   },
   width = reactive({input$plotSize / 4 + 500}),
   height = reactive({input$plotSize / 4 + 500}))
@@ -587,7 +587,7 @@ shinyServer(function(input, output, session) {
   ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot smooth neighbour distances\n", 
-                                  "aweSOM::aweSOMsmoothdist(ok.som",
+                                  "aweSOMsmoothdist(ok.som",
                                   if (input$palplot != "viridis") {
                                     paste0(", pal = '", input$palplot, "'")
                                   },
@@ -595,9 +595,8 @@ shinyServer(function(input, output, session) {
                                     ", reversePal = T"
                                   },
                                   ")\n")
-    aweSOMsmoothdist(x = ok.som(), pal = input$palplot, reversePal = input$plotRevPal)
-    
-    },
+    aweSOM::aweSOMsmoothdist(x = ok.som(), pal = input$palplot, reversePal = input$plotRevPal)
+  },
   width = reactive({(input$plotSize / 4 + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
   height = reactive({input$plotSize / 4 + 500 }))
   
@@ -614,7 +613,7 @@ shinyServer(function(input, output, session) {
   ## Abstraction plot
   output$plotAbstraction <-renderPlot({
     values$codetxt$plot <- paste0("\n## Plot Abstraction plot (experimental)\n", 
-                                  "aweSOM::aweSOMabstraction(ok.som, dat, ",
+                                  "aweSOMabstraction(ok.som, dat, ",
                                   "cutoff = ", input$plotAbstrCutoff, ", ", 
                                   "pal = '", input$palplot, "', ",
                                   "reversePal = ", input$plotRevPal, ")\n")
@@ -637,39 +636,39 @@ shinyServer(function(input, output, session) {
     ## Reproducible script for plot
     values$codetxt$plot <- paste0(
       "\n## Interactive plot\n", 
-      "aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
-      "                   graphType = '", input$graphType, "', \n", 
+      "aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
+      "           graphType = '", input$graphType, "', \n", 
       if(any(!ok.trainrows())) {
-        paste0("                   omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n")
+        paste0("           omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n")
       }, 
       if (input$plotNames != "(rownames)") {
-        paste0("                   plotNames = '", input$plotNames, "',\n")
+        paste0("           plotNames = '", input$plotNames, "',\n")
       },
       if (input$graphType %in% c("Radar", "Barplot", "Boxplot", "Line", "Star")) {
-        paste0("                   plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
+        paste0("           plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
       },
       if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
-        paste0("                   plotVarOne = '", input$plotVarOne, "',\n")
+        paste0("           plotVarOne = '", input$plotVarOne, "',\n")
       },
       if (input$graphType == "Camembert" && input$plotEqualSize) {
-        paste0("                   plotEqualSize = ", input$plotEqualSize, ",\n") 
+        paste0("           plotEqualSize = ", input$plotEqualSize, ",\n") 
       },
       if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$contrast != "contrast") {
-        paste0("                   contrast = '", input$contrast, "',\n")
+        paste0("           contrast = '", input$contrast, "',\n")
       },
       if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$average_format != "mean") {
-        paste0("                   average_format = '", input$average_format, "',\n")
+        paste0("           average_format = '", input$average_format, "',\n")
       },
       if (input$palsc != "Set3") {
-        paste0("                   palsc = '", input$palsc, "',\n")
+        paste0("           palsc = '", input$palsc, "',\n")
       },
       if (input$palplot != "viridis") {
-        paste0("                   palplot = '", input$palplot, "',\n")
+        paste0("           palplot = '", input$palplot, "',\n")
       }, 
       if (input$plotRevPal) {
-        paste0("                   plotRevPal = ", input$plotRevPal, ",\n")
+        paste0("           plotRevPal = ", input$plotRevPal, ",\n")
       },
-      "                   plotSize = ", input$plotSize, ")"
+      "           plotSize = ", input$plotSize, ")"
     )
     
     aweSOM:::aweSOMwidget(ok.som= ok.som(), 
