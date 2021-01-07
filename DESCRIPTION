@@ -1,10 +1,10 @@
 Package: aweSOM
 Title: Interactive Self-Organizing Maps
-Version: 0.2.1
-Date: 2020-06-12
+Version: 1.0
+Date: 2021-01-15
 Author: Julien Boelaert, Mohamed Megdoud, Otmane Naji, Samuel Hym, Etienne Ollion, Jan Sodoge
-Maintainer: Julien Boelaert <jubo.stats@gmail.com>
-Description: Interactive interface and plots for Kohonen self-organizing maps.
+Maintainer: Julien Boelaert <julien.boelaert@univ-lille.fr>
+Description: Interactive plots and interface for Kohonen self-organizing maps.
 Depends: R (>= 3.0)
 Imports: kohonen, shiny, RColorBrewer, viridis, e1071, data.table, DT, class, igraph, ggplot2, ggforce, ggrepel, haven, readxl, cluster, prettycode, jsonify, GGally, matrixStats, RJSONIO
 License: GPL (>= 2)
@@ -12,13 +12,11 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
 Authors@R: c(
-    person("Julien", "Boelaert", , "jubo.stats@gmail.com", role = c("aut", "cre")
-    ),
+    person("Julien", "Boelaert", email = "julien.boelaert@univ-lille.fr", role = c("aut", "cre")),
     person("Etienne", "Ollion", role = "aut"),
     person("Jan", "Sodoge", role = "aut"),
-    person("Mohamed", "Sodoge", role = "aut"),
-    person("Otmane", "Naji", role = "aut"),
-    person("Samuel", "Hym", role = "aut")
+    person("Mohamed", "Sodoge", role = "ctb"),
+    person("Otmane", "Naji", role = "ctb"),
+    person("Samuel", "Hym", role = "ctb")
     )

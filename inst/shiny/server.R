@@ -1,5 +1,7 @@
-## 27/04/2016 : Shiny SOM
-library(aweSOM)
+################################################################################
+## Global Options
+################################################################################
+
 options(shiny.maxRequestSize=2^30) # Max filesize
 
 
@@ -215,50 +217,147 @@ shinyServer(function(input, output, session) {
     isolate({
       if (is.null(ok.data())) return(NULL)
 
-      #to make externalized functions more useable this part is placed outside of the (Jan)
+      err.msg <- NULL
+      codeTxt <- list()
+      
       varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())),
                                        function(var) input[[var]]))
       varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())),
                            function(var) input[[var]])
-
       varSelected <- varSelected & varWeights > 0
-
       if (sum(varSelected) < 2)
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
 
-      return_traindat <- aweSOM:::ok.traindat.function(input_trainscale = input$trainscale,
-                                              ok.data = ok.data(),
-                                              varSelected = varSelected,
-                                              varWeights = varWeights)
-      values$codetxt_traindat <- return_traindat$codeTxt
-      return_traindat
+      dat <- ok.data()[, varSelected]
+      varWeights <- varWeights[varSelected]
+      
+      # Generate reproducible code
+      codeTxt$sel <- paste0("dat <- ok.data[, c('", 
+                            paste(colnames(ok.data())[varSelected], collapse= "', '"), "')]\n",
+                            if (any(varWeights != 1)) {
+                              paste0("varWeights <- c(", 
+                                     paste(colnames(ok.data())[varSelected], 
+                                           " = ", varWeights, collapse= ", "), 
+                                     ")\n")
+                            })
+      
+      
+      # Check that all variables are numeric, otherwise message and convert
+      varNumeric <- sapply(dat, is.numeric)
+      if (any(!varNumeric)) {
+        err.msg$numeric <- paste0("Variables < ",
+                                  paste(colnames(dat)[!varNumeric], collapse= ", "),
+                                  " > are not natively numeric, and will be forced to numeric.",
+                                  " (This is probably a bad idea.)")
+        dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))
+        codeTxt$numeric <- paste0("varNumeric <- sapply(dat, is.numeric)\n", 
+                                  "dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))\n")
+      }
+      
+      # Remove NAs
+      nrow.withNA <- nrow(dat)
+      dat <- as.matrix(na.omit(dat))
+      if (nrow(dat) < nrow.withNA) {
+        err.msg$NArows <- paste(nrow.withNA - nrow(dat), 
+                                "observations contained missing values, and were removed.")
+        codeTxt$NArows <- "dat <- as.matrix(na.omit(dat))\n"
+      }
+      if (nrow(dat) == 0) {
+        err.msg$NArows <- "All observations contain missing values, training impossible."
+        return(list(dat= NULL, msg= err.msg))
+      }
+      
+      # Check for constant variables (if so, exclude and message)
+      varConstant <- apply(dat, 2, sd, na.rm= T) == 0
+      if (any(varConstant)) {
+        err.msg$constant <- paste0("Variables < ",
+                                   ifelse(sum(varConstant) == 1, 
+                                          colnames(dat)[varConstant], 
+                                          paste(colnames(dat)[varConstant], collape= ", ")),
+                                   " > are constant, and will be removed for training.")
+        dat <- dat[, !varConstant]
+        varWeights <- varWeights[!varConstant]
+        codeTxt$constant <- paste0("varConstant <- apply(dat, 2, sd, na.rm= T) == 0\n", 
+                                   "dat <- dat[, !varConstant]\n", 
+                                   if (any(varWeights != 1)) paste0("varWeights <- varWeights[!varConstant]\n"))
+        if (sum(!varConstant) < 2) {
+          err.msg$allconstant <- "Less than two selected non-constant variables, training impossible."
+          return(list(dat= NULL, msg= err.msg))
+        }
+      }
+      
+      ## Scale variables and apply normalized weights
+      if (input$trainscale) dat <- scale(dat)
+      varWeights <- length(varWeights) * varWeights / sum(varWeights)
+      dat <- t(sqrt(varWeights) * t(dat))
+      codeTxt$scale <- paste0(ifelse(input$trainscale, "### Scale training data\ndat <- scale(dat)\n", ""), 
+                              if (any(varWeights != 1)) paste0(
+                                "### Apply (standardized) weights\n",
+                                "varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
+                                "dat <- t(sqrt(varWeights) * t(dat))\n"))
+      
+      values$codetxt$traindat <- 
+        paste0("\n## Build training data\n",
+               codeTxt$sel, 
+               if (! is.null(codeTxt$numeric)) {
+                 paste0("### Warning: ", err.msg$numeric, "\n", codeTxt$numeric)},
+               if (! is.null(codeTxt$NArows)) {
+                 paste0("### Warning: ", err.msg$NArows, "\n", codeTxt$NArows)},
+               if (! is.null(codeTxt$constant)) {
+                 paste0("### Warning: ", err.msg$constant, "\n", codeTxt$constant)},
+               codeTxt$scale)
+      
+      list(dat= dat, msg= err.msg)
     })
   })
 
 
-  
   ## Train SOM when button is hit (triggered by change in ok.traindat)
-
   ok.som <- reactive({
     dat <- ok.traindat()
+    # if (is.null(ok.traindat())) return(NULL)
+    # if (is.null(ok.traindat()$dat)) return(NULL)
     if (is.null(dat)) return(NULL)
     if (is.null(dat$dat)) return(NULL)
-
-    isolate({
-      res <- aweSOM:::ok.som.function(ok.traindat = dat, 
-                                      input_trainSeed = input$trainSeed, 
-                                      input_kohInit = input$kohInit,
-                                      input_kohDimy = input$kohDimy, 
-                                      input_kohDimx = input$kohDimx, 
-                                      input_kohTopo = input$kohTopo, 
-                                      input_trainRlen = input$trainRlen,
-                                      input_trainAlpha1 = input$trainAlpha1, 
-                                      input_trainAlpha2 = input$trainAlpha2, 
-                                      input_trainRadius1 = input$trainRadius1, 
-                                      input_trainRadius2 = input$trainRadius2)
-      values$codetxt$train <- res$codeTxt
-    })
+    dat <- dat$dat
     
+    isolate({
+      ## Repro code
+      values$codetxt$train <- 
+        paste0("\n## Train SOM\n", 
+               "### RNG Seed (for reproducibility)\n", 
+               "set.seed(", input$trainSeed, ")\n",
+               "### Initialization\n", 
+               "init <- somInit(dat, ", input$kohDimx, ", ", input$kohDimy, 
+               if (input$kohInit != "pca.sample") {
+                 paste0(", method= '", input$kohInit, "'")
+               }, 
+               ")\n",
+               "### Training\n", 
+               "ok.som <- kohonen::som(dat, grid = kohonen::somgrid(", 
+               input$kohDimx, ", ", input$kohDimy, ", '", 
+               input$kohTopo, "'), rlen = ", input$trainRlen, 
+               ", alpha = c(", input$trainAlpha1, ", ", 
+               input$trainAlpha2, "), radius = c(", 
+               input$trainRadius1, ",", input$trainRadius2, 
+               "), init = init, dist.fcts = 'sumofsquares')\n")
+      
+      ## Initialization
+      set.seed(input$trainSeed)
+      init <- aweSOM::somInit(dat, input$kohDimx, input$kohDimy, input$kohInit)
+      
+      ## Train SOM
+      res <- kohonen::som(dat,
+                 grid= kohonen::somgrid(input$kohDimx, input$kohDimy, 
+                                        input$kohTopo), 
+                 rlen= input$trainRlen, 
+                 alpha= c(input$trainAlpha1, input$trainAlpha2), 
+                 radius= c(input$trainRadius1, input$trainRadius2), 
+                 init= init, dist.fcts= "sumofsquares")
+      
+      ## Save seed
+      res$seed <- input$trainSeed
+    })
     ## After training, set new seed value in training panel
     updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
     res
@@ -304,6 +403,11 @@ shinyServer(function(input, output, session) {
                                   "superclasses <- unname(superclust$clustering)\n")
     }
     
+    values$codetxt$sc <- paste0(values$codetxt$sc, 
+                                "## Apply clusterings to observations\n",
+                                "obs.class <- ok.som$unit.classif\n",
+                                "obs.superclass <- superclasses[obs.class]\n")
+    
     superclasses
   })
   
@@ -340,7 +444,7 @@ shinyServer(function(input, output, session) {
                        "radius = (", input$trainRadius1, ", ", input$trainRadius2, "), ", 
                        "random seed = ", ok.som()$seed, ".\n")))
 
-    somQuality(ok.som = ok.som(), traindat = ok.traindat()$dat)
+    aweSOM::somQuality(ok.som(), ok.traindat()$dat)
   })
   
  
@@ -687,17 +791,16 @@ shinyServer(function(input, output, session) {
   #############################################################################
   
   reprocode <- reactive({
-    paste0("\n## Import Data\n", 
+    paste0("\nlibrary(aweSOM)\n",
+           "\n## Import Data\n", 
            "# setwd('/path/to/datafile/directory') ## Uncomment this line and set the path to the datafile's directory\n",
            values$codetxt$dataread, 
-           "\n## Build training data\n",
-           values$codetxt_traindat$traindat, 
-           "\n## Train SOM\n", 
+           values$codetxt$traindat, 
            values$codetxt$train, "\n",
-           values$codetxt$sc, 
            if (!is.null(ok.som())) paste0(
-             "\n## Quality measures:\n",
-             "aweSOM::somQuality(ok.som, dat)\n",
+             "\n## Quality measures\n",
+             "somQuality(ok.som, dat)\n",
+             values$codetxt$sc, 
              values$codetxt$plot))
   })
   
