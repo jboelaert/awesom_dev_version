@@ -43,7 +43,7 @@ getPalette <- function(pal, n, reverse= F) {
 #' Plots a dendogram that that provides a quality measurement of the superclasses of the SOM
 #' when using hierarchical clustering
 #'
-#' @param ok.som SOM data object
+#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
 #' @param ok.hclust hierarchical clustering object
 #' @param input_kohSuperclass number of superclasses
 #'
@@ -86,7 +86,7 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' Plots a screeplot that that provides a quality measurement of the quality of the superclasses of the SOM. 
 #' Available for both PAM and hierarchical clustering. 
 #'
-#' @param ok.som SOM data object
+#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
 #' @param nclass number of superclasses to be visualized in the screeplot. Default is 2.
 #' @param method Method used for clustering. Hierarchical clustering ("hierarchical") and PAM ("pam") clustering can be used. 
 #' By default hierarchical clustering is applied.
@@ -147,7 +147,7 @@ aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= 
 #' Plots a visualization of the distances between the individual SOM cells. Visualizations for
 #' hexagonal layout are biased with respect to the quadratic layout of the smooth distance plot.
 #'
-#' @param x SOM data object
+#' @param x ```kohonen``` object, a SOM created by the ```som``` function.
 #' @param pal The color palette for visualizing distance. Default is "viridis"
 #' @param reversePal Boolean whether color palette for variables is reversed. Default is FALSE
 #'
@@ -189,7 +189,7 @@ aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
 #' Plots a silhouette plot that provides a quality measurement of the superclasses of the SOM. 
 #' Available for for both PAM and hierarchical clustering. 
 #'
-#' @param ok.som SOM data object
+#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
 #' @param ok.sc Computed super-classes object resulting from either PAM or hierarchical clustering 
 #'
 #' @return Silhouette plot for superclass clustering
@@ -575,7 +575,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' and barplot ('CatBarplot' for categorical data). The interactive plots display the respective observations per cell as well as further statistical information on 
 #'  selected variables when hovering over these.
 #'
-#' @param ok.som SOM data object
+#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
 #' @param ok.sc superclasses
 #' @param ok.data SOM training dataset
 #' @param omitRows Select to omit specific rows in the ok.data argument.
