@@ -122,8 +122,13 @@ documentation of ```awesom::aweSOMplot```
 
 ### aweSOMsmoothdist
 
+The smooth distance plot visualization plots the distances between the individual SOM cells as smoothed distances.
+Visualizations for hexagonal layout are biased with respect to the quadratic layout of the smooth distance plot.
 
+```{r, fig.width=8, fig.height=7}
+aweSOMsmoothdist(ok.som)
 
+```
 
 
 ## Superclasses of SOM
