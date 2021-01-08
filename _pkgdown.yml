@@ -17,6 +17,28 @@ navbar:
     - text: "Reference"
       href: reference/index.html
     
+    
+reference:
+- title: General SOM
+- contents:
+  - somDist
+  - somInit
+  - somInit
+  - somQuality
+- title: Plot SOM
+- contents:
+  - aweSOMplot
+  - aweSOMsmoothdist
+- title: SOM superclustering
+- contents:
+  - aweSOMdendrogram
+  - aweSOMscreeplot
+  - aweSOMsilhouette
+- title: Launch aweSOM web-interface
+- contents:
+  - aweSOM
+
+    
 
 
 
