@@ -40,14 +40,14 @@ getPalette <- function(pal, n, reverse= F) {
 
 #' Plot dendogram for hierarchical clustering of SOM cells
 #'
-#' Creates a dendogram that that provides a quality measurement of the quality of the clustering of each SOM cell 
-#' for hierarchical clustering
+#' Plots a dendogram that that provides a quality measurement of the superclasses of the SOM
+#' when using hierarchical clustering
 #'
 #' @param ok.som SOM data object
 #' @param ok.hclust hierarchical clustering object
 #' @param input_kohSuperclass number of superclasses
 #'
-#' @return Dendogram plot of hierarchical superclass clustering
+#' @return Dendogram plot of hierarchical superclass clusters
 #'
 #' @examples 
 #' ## Build training data
@@ -83,8 +83,8 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 
 #' Screeplot 
 #' 
-#' Creates a screeplot that that provides a quality measurement of the quality of the clustering of each SOM cell 
-#' for both PAM and hierarchical clustering. 
+#' Plots a screeplot that that provides a quality measurement of the quality of the superclasses of the SOM. 
+#' Available for both PAM and hierarchical clustering. 
 #'
 #' @param ok.som SOM data object
 #' @param nclass number of superclasses to be visualized in the screeplot. Default is 2.
@@ -144,7 +144,8 @@ aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= 
 
 #' Smooth Distance Plot
 #'
-#' TBD
+#' Plots a visualization of the distances between the individual SOM cells. Visualizations for
+#' hexagonal layout are biased with respect to the quadratic layout of the smooth distance plot.
 #'
 #' @param x SOM data object
 #' @param pal The color palette for visualizing distance. Default is "viridis"
@@ -185,8 +186,8 @@ aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
 
 #' Silhouette plot
 #'
-#' Create a silhouette plot that provides a quality measurement of the quality of the clustering of each SOM cell 
-#' for both PAM and hierarchical clustering. 
+#' Plots a silhouette plot that provides a quality measurement of the superclasses of the SOM. 
+#' Available for for both PAM and hierarchical clustering. 
 #'
 #' @param ok.som SOM data object
 #' @param ok.sc Computed super-classes object resulting from either PAM or hierarchical clustering 
@@ -568,17 +569,18 @@ aweSOMwidget_html = function(id, style, class, ...){
 
 #' SOM interactive visualizations
 #'
-#' This function allows to create interactive visualizations of self-organizing maps (SOM) as html-widgets. 
+#' This function allows to plot interactive visualizations of self-organizing maps (SOM) as html-widgets. 
 #' The following types of visualizations can be displayed that reflect upon distribution of observations per cell and 
-#' distributions of variables per cell: hitmap, radar, barplot, boxplot, lineplot. Interactive behavior enables
-#' the display of the respective observations per cell as well as further statistical information on 
-#' selected variables when hovering over these.
+#' distributions of variables per cell: population map ('hitmap'), radar, barplot (for numeric variables), boxplot, lineplot, pie (camembert), 
+#' and barplot ('CatBarplot' for categorical data). The interactive plots display the respective observations per cell as well as further statistical information on 
+#'  selected variables when hovering over these.
 #'
 #' @param ok.som SOM data object
 #' @param ok.sc superclasses
 #' @param ok.data SOM training dataset
 #' @param omitRows Select to omit specific rows in the ok.data argument.
-#' @param graphType The graph type. Either "hitmap", "radar", "barplot", "boxplot" ,or "lineplot". Default is "hitmap"
+#' @param graphType The graph type. Either "hitmap" (for population map), "radar", "barplot" (for numerical variables), 
+#'  "boxplot", "lineplot", "camembert" (pie chart plot), or "CatBarplot" (for categorical variable) . Default is "hitmap"
 #' @param plotNames Select variable by which observations per each cell are displayed as you hover over a cell. Default is "(rownames)"
 #' @param plotVarMult Plotted variables. Concerning the radar, barplot, boxplot, lineplot, this argument allows selecting the variables
 #' which should be displayed within the SOM visualization as a vector of characters indicating the names of the variables. Concering
@@ -616,6 +618,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
 #' 
+#' # Plots for numerical variables and population map ('hitmap')
 #' variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
 #' #Hitmap
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
@@ -624,10 +627,19 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
 #'                    graphType = 'Radar', plotVarMult = variables, 
 #'                    plotSize = 100)
-#' #Barplot
+#' #Barplot (numeric variables)
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
 #'                    graphType = 'Barplot', plotVarMult = variables,
 #'                     plotSize = 100)
+#'                     
+#' # Plots for categorial variables  
+#' #Pie ('camembert')                    
+#' aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+#'            graphType = 'Camembert',  plotVarOne = 'species', plotSize = 400)
+#'            
+#' #Barplot (categorical variables)    
+#' aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
+#'            graphType = 'CatBarplot',  plotVarOne = 'species', plotSize = 400)                       
 aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL, 
                        graphType= "Hitmap", 
                        plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
