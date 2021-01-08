@@ -20,7 +20,8 @@ aweSOMplot(
   plotSize = 100,
   palsc = "Set3",
   palplot = "viridis",
-  plotRevPal = F
+  plotRevPal = F,
+  elementId = NULL
 )
 }
 \arguments{
@@ -60,6 +61,8 @@ maximum values by using "no_constrast". Or the observations range by using "rang
 \item{palplot}{The  color palette for visualizing variables in SOM cells. Default is "viridis"}
 
 \item{plotRevPal}{Boolean whether color palette for variables is reversed. Default is FALSE}
+
+\item{elementId}{(optional) user-defined elementId of the widget}
 }
 \value{
 Interactive html-widget visualizing a SOM.
@@ -72,28 +75,32 @@ the display of the respective observations per cell as well as further statistic
 selected variables when hovering over these.
 }
 \examples{
-ok.data <- iris
 ## Build training data
-dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 ### Scale training data
 dat <- scale(dat)
 ## Train SOM
 ### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
 init <- aweSOM::somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+                       rlen = 100, alpha = c(0.05, 0.01), 
+                       radius = c(6.08,-6.08), init = init, 
+                       dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (PAM clustering)
 superclust <- cluster::pam(ok.som$codes[[1]], 2)
 superclasses <- unname(superclust$clustering)
+
 variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
 #Hitmap
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Hitmap', plotSize = 100)
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
+                   graphType = 'Hitmap', plotSize = 100)
 #Radar
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Radar', plotVarMult = variables, plotSize = 100)
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
+                   graphType = 'Radar', plotVarMult = variables, 
+                   plotSize = 100)
 #Barplot
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,  graphType = 'Barplot',  plotVarMult = variables,  plotSize = 100)
-#Boxplot
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Boxplot', plotVarMult = variables, plotSize = 100)
-#Lineplot
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data, graphType = 'Line', plotVarMult = variables, plotSize = 100)
+aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
+                   graphType = 'Barplot', plotVarMult = variables,
+                    plotSize = 100)
 }

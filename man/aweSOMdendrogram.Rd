@@ -21,16 +21,18 @@ Creates a dendogram that that provides a quality measurement of the quality of t
 for hierarchical clustering
 }
 \examples{
-ok.data <- iris
 ## Build training data
-dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 ### Scale training data
 dat <- scale(dat)
 ## Train SOM
 ### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
 init <- aweSOM::somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+                       rlen = 100, alpha = c(0.05, 0.01), 
+                       radius = c(6.08,-6.08), 
+                       init = init, dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (hierarchical clustering)
 superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
 ## Plot superclasses dendrogram

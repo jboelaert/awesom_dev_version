@@ -1,5 +1,7 @@
-## 27/04/2016 : Shiny SOM
-library(aweSOM)
+################################################################################
+## Global Options
+################################################################################
+
 options(shiny.maxRequestSize=2^30) # Max filesize
 
 
@@ -215,50 +217,147 @@ shinyServer(function(input, output, session) {
     isolate({
       if (is.null(ok.data())) return(NULL)
 
-      #to make externalized functions more useable this part is placed outside of the (Jan)
+      err.msg <- NULL
+      codeTxt <- list()
+      
       varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())),
                                        function(var) input[[var]]))
       varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())),
                            function(var) input[[var]])
-
       varSelected <- varSelected & varWeights > 0
-
       if (sum(varSelected) < 2)
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
 
-      return_traindat <- aweSOM:::ok.traindat.function(input_trainscale = input$trainscale,
-                                              ok.data = ok.data(),
-                                              varSelected = varSelected,
-                                              varWeights = varWeights)
-      values$codetxt_traindat <- return_traindat$codeTxt
-      return_traindat
+      dat <- ok.data()[, varSelected]
+      varWeights <- varWeights[varSelected]
+      
+      # Generate reproducible code
+      codeTxt$sel <- paste0("dat <- ok.data[, c('", 
+                            paste(colnames(ok.data())[varSelected], collapse= "', '"), "')]\n",
+                            if (any(varWeights != 1)) {
+                              paste0("varWeights <- c(", 
+                                     paste(colnames(ok.data())[varSelected], 
+                                           " = ", varWeights, collapse= ", "), 
+                                     ")\n")
+                            })
+      
+      
+      # Check that all variables are numeric, otherwise message and convert
+      varNumeric <- sapply(dat, is.numeric)
+      if (any(!varNumeric)) {
+        err.msg$numeric <- paste0("Variables < ",
+                                  paste(colnames(dat)[!varNumeric], collapse= ", "),
+                                  " > are not natively numeric, and will be forced to numeric.",
+                                  " (This is probably a bad idea.)")
+        dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))
+        codeTxt$numeric <- paste0("varNumeric <- sapply(dat, is.numeric)\n", 
+                                  "dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))\n")
+      }
+      
+      # Remove NAs
+      nrow.withNA <- nrow(dat)
+      dat <- as.matrix(na.omit(dat))
+      if (nrow(dat) < nrow.withNA) {
+        err.msg$NArows <- paste(nrow.withNA - nrow(dat), 
+                                "observations contained missing values, and were removed.")
+        codeTxt$NArows <- "dat <- as.matrix(na.omit(dat))\n"
+      }
+      if (nrow(dat) == 0) {
+        err.msg$NArows <- "All observations contain missing values, training impossible."
+        return(list(dat= NULL, msg= err.msg))
+      }
+      
+      # Check for constant variables (if so, exclude and message)
+      varConstant <- apply(dat, 2, sd, na.rm= T) == 0
+      if (any(varConstant)) {
+        err.msg$constant <- paste0("Variables < ",
+                                   ifelse(sum(varConstant) == 1, 
+                                          colnames(dat)[varConstant], 
+                                          paste(colnames(dat)[varConstant], collape= ", ")),
+                                   " > are constant, and will be removed for training.")
+        dat <- dat[, !varConstant]
+        varWeights <- varWeights[!varConstant]
+        codeTxt$constant <- paste0("varConstant <- apply(dat, 2, sd, na.rm= T) == 0\n", 
+                                   "dat <- dat[, !varConstant]\n", 
+                                   if (any(varWeights != 1)) paste0("varWeights <- varWeights[!varConstant]\n"))
+        if (sum(!varConstant) < 2) {
+          err.msg$allconstant <- "Less than two selected non-constant variables, training impossible."
+          return(list(dat= NULL, msg= err.msg))
+        }
+      }
+      
+      ## Scale variables and apply normalized weights
+      if (input$trainscale) dat <- scale(dat)
+      varWeights <- length(varWeights) * varWeights / sum(varWeights)
+      dat <- t(sqrt(varWeights) * t(dat))
+      codeTxt$scale <- paste0(ifelse(input$trainscale, "### Scale training data\ndat <- scale(dat)\n", ""), 
+                              if (any(varWeights != 1)) paste0(
+                                "### Apply (standardized) weights\n",
+                                "varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
+                                "dat <- t(sqrt(varWeights) * t(dat))\n"))
+      
+      values$codetxt$traindat <- 
+        paste0("\n## Build training data\n",
+               codeTxt$sel, 
+               if (! is.null(codeTxt$numeric)) {
+                 paste0("### Warning: ", err.msg$numeric, "\n", codeTxt$numeric)},
+               if (! is.null(codeTxt$NArows)) {
+                 paste0("### Warning: ", err.msg$NArows, "\n", codeTxt$NArows)},
+               if (! is.null(codeTxt$constant)) {
+                 paste0("### Warning: ", err.msg$constant, "\n", codeTxt$constant)},
+               codeTxt$scale)
+      
+      list(dat= dat, msg= err.msg)
     })
   })
 
 
-  
   ## Train SOM when button is hit (triggered by change in ok.traindat)
-
   ok.som <- reactive({
     dat <- ok.traindat()
+    # if (is.null(ok.traindat())) return(NULL)
+    # if (is.null(ok.traindat()$dat)) return(NULL)
     if (is.null(dat)) return(NULL)
     if (is.null(dat$dat)) return(NULL)
-
-    isolate({
-      res <- aweSOM:::ok.som.function(ok.traindat = dat, 
-                                      input_trainSeed = input$trainSeed, 
-                                      input_kohInit = input$kohInit,
-                                      input_kohDimy = input$kohDimy, 
-                                      input_kohDimx = input$kohDimx, 
-                                      input_kohTopo = input$kohTopo, 
-                                      input_trainRlen = input$trainRlen,
-                                      input_trainAlpha1 = input$trainAlpha1, 
-                                      input_trainAlpha2 = input$trainAlpha2, 
-                                      input_trainRadius1 = input$trainRadius1, 
-                                      input_trainRadius2 = input$trainRadius2)
-      values$codetxt$train <- res$codeTxt
-    })
+    dat <- dat$dat
     
+    isolate({
+      ## Repro code
+      values$codetxt$train <- 
+        paste0("\n## Train SOM\n", 
+               "### RNG Seed (for reproducibility)\n", 
+               "set.seed(", input$trainSeed, ")\n",
+               "### Initialization\n", 
+               "init <- somInit(dat, ", input$kohDimx, ", ", input$kohDimy, 
+               if (input$kohInit != "pca.sample") {
+                 paste0(", method= '", input$kohInit, "'")
+               }, 
+               ")\n",
+               "### Training\n", 
+               "ok.som <- kohonen::som(dat, grid = kohonen::somgrid(", 
+               input$kohDimx, ", ", input$kohDimy, ", '", 
+               input$kohTopo, "'), rlen = ", input$trainRlen, 
+               ", alpha = c(", input$trainAlpha1, ", ", 
+               input$trainAlpha2, "), radius = c(", 
+               input$trainRadius1, ",", input$trainRadius2, 
+               "), init = init, dist.fcts = 'sumofsquares')\n")
+      
+      ## Initialization
+      set.seed(input$trainSeed)
+      init <- aweSOM::somInit(dat, input$kohDimx, input$kohDimy, input$kohInit)
+      
+      ## Train SOM
+      res <- kohonen::som(dat,
+                 grid= kohonen::somgrid(input$kohDimx, input$kohDimy, 
+                                        input$kohTopo), 
+                 rlen= input$trainRlen, 
+                 alpha= c(input$trainAlpha1, input$trainAlpha2), 
+                 radius= c(input$trainRadius1, input$trainRadius2), 
+                 init= init, dist.fcts= "sumofsquares")
+      
+      ## Save seed
+      res$seed <- input$trainSeed
+    })
     ## After training, set new seed value in training panel
     updateNumericInput(session, "trainSeed", value= sample(1e5, 1))
     res
@@ -284,10 +383,9 @@ shinyServer(function(input, output, session) {
   
   
   ## Assign superclasses to cells
-  ok.sc <- reactive({
-
+  ok.sc <- eventReactive(c(ok.som(), input$sup_clust_method, input$sup_clust_hcmethod), {
     if(is.null(ok.som())) return(NULL)
-    
+
     if (input$sup_clust_method == "hierarchical") {
       superclasses <- unname(cutree(ok.hclust(), input$kohSuperclass))
       
@@ -303,6 +401,11 @@ shinyServer(function(input, output, session) {
                                   input$kohSuperclass, ")\n",
                                   "superclasses <- unname(superclust$clustering)\n")
     }
+    
+    values$codetxt$sc <- paste0(values$codetxt$sc,
+                                "## Apply clusterings to observations\n",
+                                "obs.class <- ok.som$unit.classif\n",
+                                "obs.superclass <- superclasses[obs.class]\n")
     
     superclasses
   })
@@ -340,7 +443,7 @@ shinyServer(function(input, output, session) {
                        "radius = (", input$trainRadius1, ", ", input$trainRadius2, "), ", 
                        "random seed = ", ok.som()$seed, ".\n")))
 
-    somQuality(ok.som = ok.som(), traindat = ok.traindat()$dat)
+    aweSOM::somQuality(ok.som(), ok.traindat()$dat)
   })
   
  
@@ -449,9 +552,9 @@ shinyServer(function(input, output, session) {
   output$plotDendrogram <- renderPlot({
     if (input$sup_clust_method != "hierarchical") return(NULL)
     values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
-                                  "aweSOM::aweSOMdendrogram(ok.som, superclust, ", 
+                                  "aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
-    aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+    aweSOM::aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
     }, width = reactive({input$plotSize / 4 + 500}),
   height = reactive({input$plotSize / 4 + 500}))
   
@@ -459,13 +562,13 @@ shinyServer(function(input, output, session) {
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
-                                  "aweSOM::aweSOMscreeplot(ok.som, method = '", 
+                                  "aweSOMscreeplot(ok.som, method = '", 
                                   input$sup_clust_method, "', ", 
                                   if (input$sup_clust_method == "hierarchical") {
                                     paste0("hmethod = '", input$sup_clust_hcmethod, "', ")
                                   },
                                   "nclass = ", input$kohSuperclass, ")\n")
-    aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
+    aweSOM::aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
   },
   width = reactive({input$plotSize / 4 + 500}),
   height = reactive({input$plotSize / 4 + 500}))
@@ -474,8 +577,8 @@ shinyServer(function(input, output, session) {
   ## Silhouette plot
   output$plotSilhouette <- renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses silhouette plot\n", 
-                                  "aweSOM::aweSOMsilhouette(ok.som, superclass)\n")
-    aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
+                                  "aweSOMsilhouette(ok.som, superclass)\n")
+    aweSOM::aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
   },
   width = reactive({input$plotSize / 4 + 500}),
   height = reactive({input$plotSize / 4 + 500}))
@@ -484,7 +587,7 @@ shinyServer(function(input, output, session) {
   ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot smooth neighbour distances\n", 
-                                  "aweSOM::aweSOMsmoothdist(ok.som",
+                                  "aweSOMsmoothdist(ok.som",
                                   if (input$palplot != "viridis") {
                                     paste0(", pal = '", input$palplot, "'")
                                   },
@@ -492,9 +595,8 @@ shinyServer(function(input, output, session) {
                                     ", reversePal = T"
                                   },
                                   ")\n")
-    aweSOMsmoothdist(x = ok.som(), pal = input$palplot, reversePal = input$plotRevPal)
-    
-    },
+    aweSOM::aweSOMsmoothdist(x = ok.som(), pal = input$palplot, reversePal = input$plotRevPal)
+  },
   width = reactive({(input$plotSize / 4 + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
   height = reactive({input$plotSize / 4 + 500 }))
   
@@ -508,24 +610,6 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ## Abstraction plot
-  output$plotAbstraction <-renderPlot({
-    values$codetxt$plot <- paste0("\n## Plot Abstraction plot (experimental)\n", 
-                                  "aweSOM::aweSOMabstraction(ok.som, dat, ",
-                                  "cutoff = ", input$plotAbstrCutoff, ", ", 
-                                  "pal = '", input$palplot, "', ",
-                                  "reversePal = ", input$plotRevPal, ")\n")
-    
-    aweSOMabstraction(ok.som = ok.som(), dat = ok.traindat()$dat,
-                      cutoff = input$plotAbstrCutoff,
-                      pal = input$palplot,
-                      reversePal = input$plotRevPal)
-  },
-  width = reactive({input$plotSize / 4 + 500}),
-  height = reactive({input$plotSize / 4 + 500}))
-  
-  
-  
   ## Fancy JS plots through widget
   output$theWidget <- aweSOM:::renderaweSOM({
     if (is.null(input$plotNames)) return(NULL) # Prevents error due to not-yet loaded UI element, for reproducible script
@@ -534,39 +618,39 @@ shinyServer(function(input, output, session) {
     ## Reproducible script for plot
     values$codetxt$plot <- paste0(
       "\n## Interactive plot\n", 
-      "aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
-      "                   graphType = '", input$graphType, "', \n", 
+      "aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
+      "           graphType = '", input$graphType, "', \n", 
       if(any(!ok.trainrows())) {
-        paste0("                   omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n")
+        paste0("           omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n")
       }, 
       if (input$plotNames != "(rownames)") {
-        paste0("                   plotNames = '", input$plotNames, "',\n")
+        paste0("           plotNames = '", input$plotNames, "',\n")
       },
       if (input$graphType %in% c("Radar", "Barplot", "Boxplot", "Line", "Star")) {
-        paste0("                   plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
+        paste0("           plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
       },
       if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
-        paste0("                   plotVarOne = '", input$plotVarOne, "',\n")
+        paste0("           plotVarOne = '", input$plotVarOne, "',\n")
       },
       if (input$graphType == "Camembert" && input$plotEqualSize) {
-        paste0("                   plotEqualSize = ", input$plotEqualSize, ",\n") 
+        paste0("           plotEqualSize = ", input$plotEqualSize, ",\n") 
       },
       if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$contrast != "contrast") {
-        paste0("                   contrast = '", input$contrast, "',\n")
+        paste0("           contrast = '", input$contrast, "',\n")
       },
       if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$average_format != "mean") {
-        paste0("                   average_format = '", input$average_format, "',\n")
+        paste0("           average_format = '", input$average_format, "',\n")
       },
       if (input$palsc != "Set3") {
-        paste0("                   palsc = '", input$palsc, "',\n")
+        paste0("           palsc = '", input$palsc, "',\n")
       },
       if (input$palplot != "viridis") {
-        paste0("                   palplot = '", input$palplot, "',\n")
+        paste0("           palplot = '", input$palplot, "',\n")
       }, 
       if (input$plotRevPal) {
-        paste0("                   plotRevPal = ", input$plotRevPal, ",\n")
+        paste0("           plotRevPal = ", input$plotRevPal, ",\n")
       },
-      "                   plotSize = ", input$plotSize, ")"
+      "           plotSize = ", input$plotSize, ")"
     )
     
     aweSOM:::aweSOMwidget(ok.som= ok.som(), 
@@ -687,17 +771,16 @@ shinyServer(function(input, output, session) {
   #############################################################################
   
   reprocode <- reactive({
-    paste0("\n## Import Data\n", 
+    paste0("library(aweSOM)\n",
+           "\n## Import Data\n", 
            "# setwd('/path/to/datafile/directory') ## Uncomment this line and set the path to the datafile's directory\n",
            values$codetxt$dataread, 
-           "\n## Build training data\n",
-           values$codetxt_traindat$traindat, 
-           "\n## Train SOM\n", 
-           values$codetxt$train, "\n",
-           values$codetxt$sc, 
+           values$codetxt$traindat, 
+           values$codetxt$train,
            if (!is.null(ok.som())) paste0(
-             "\n## Quality measures:\n",
-             "aweSOM::somQuality(ok.som, dat)\n",
+             "\n## Quality measures\n",
+             "somQuality(ok.som, dat)\n\n",
+             values$codetxt$sc, 
              values$codetxt$plot))
   })
   
@@ -730,13 +813,5 @@ shinyServer(function(input, output, session) {
       )
     }
   )
-  
-  
 
-  
 })
-
-
-
-  
-

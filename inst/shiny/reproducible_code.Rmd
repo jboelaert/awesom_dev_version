@@ -6,6 +6,9 @@ params:
   ok.data: NA
 ---
 
+```{r}
+library(aweSOM)
+```
 
 Import the Data
 ```{r, code = params$code$codetxt$dataread, eval=FALSE}
@@ -21,7 +24,7 @@ ok.data <- params$ok.data
 
 
 Build training data
-```{r, code = params$code$codetxt_traindat$traindat}
+```{r, code = params$code$codetxt$traindat}
 ```
 
 
@@ -41,7 +44,7 @@ Quality measures
 map_trained <- ifelse(!is.null(ok.som), TRUE, FALSE)
 ```
 
-```{r, code = "aweSOM::somQuality(ok.som, dat)", eval=map_trained}
+```{r, code = "somQuality(ok.som, dat)", eval=map_trained}
 
 ```
 

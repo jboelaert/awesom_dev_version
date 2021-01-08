@@ -2,34 +2,46 @@
 % Please edit documentation in R/train_panel_functions.R
 \name{somInit}
 \alias{somInit}
-\title{Initialize SOM Training}
+\title{Initialize SOM prototypes}
 \usage{
 somInit(traindat, nrows, ncols, method = c("pca.sample", "pca", "random"))
 }
 \arguments{
-\item{traindat}{Training data to initialize SOM on}
+\item{traindat}{Matrix of training data, that will also be used to train the
+SOM.}
 
-\item{nrows}{Number of rows of the initalize SOM object}
+\item{nrows}{Number of rows on the map.}
 
-\item{ncols}{Number of columns of the initalize SOM object}
+\item{ncols}{Number of columns on the map.}
 
-\item{method}{Method to initialize SOM cell positons. Either "pca.sample", "pca" or "random"}
+\item{method}{Method used, see Details. "pca" or "random"}
 }
 \value{
-Returns a grid with points of SOM cells that can be used in training the SOM using the Kohonen package
+A matrix of prototype coordinates.
 }
 \description{
-This function provides functionality to initializing a SOM-grid based on training data using either PCA or random sampling.
-It can be practically applied in in training an SOM using the kohonen::som function as the init argument (see example)
+Prototypes are the artificial points in data space that are used to cluster
+observations: each observation is assigned to the cluster of its closest
+prototype. In self-organizing maps, each cell of the map has its own
+prototype, and training is performed by iteratively adjusting the prototypes.
+This function creates an initial guess for the prototypes of a SOM grid, to
+be used as the `init` argument to the `kohonen::som` function (see example).
+}
+\details{
+The default method "pca.sample" takes as prototypes the observations
+  that are closest to the nodes of a 2d grid placed along the first two
+  components of a PCA. The "pca" method uses the nodes instead of the
+  observations. The "random" method samples random observations.
 }
 \examples{
-ok.data <- iris
-## Build training data
-dat <- ok.data[,c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width" )]
+dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 ### Scale training data
 dat <- scale(dat)
 ## Train SOM
 ### Initialization (PCA grid)
-init <- aweSOM::somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 100, alpha = c(0.05, 0.01), radius = c(6.08,-6.08), init = init, dist.fcts = 'sumofsquares')
+init <- somInit(dat, 4, 4)
+the.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
+                        rlen = 100, alpha = c(0.05, 0.01), 
+                        radius = c(6.08,-6.08), init = init, 
+                        dist.fcts = 'sumofsquares')
 }

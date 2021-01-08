@@ -137,7 +137,7 @@ ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath, input
   data <- data.frame(lapply(data, function(x) {
     attr(x, "format.spss") <- NULL
     if ("haven_labelled" %in% class(x)) 
-      x <- haven:::as_factor.haven_labelled(x, levels= "labels")
+      x <- haven::as_factor(x, levels= "labels")
     x
   }))
   if(class(data) == "try-error") return(NULL)

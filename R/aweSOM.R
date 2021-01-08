@@ -2,6 +2,10 @@
 ################################################################################
 ## aweSOM funtion: launch shiny interface
 
+#' aweSOM interface
+#'
+#' Launches the interface for training and visualizing self-organizing maps.
+#'
 aweSOM <- function() {
   shiny::runApp(system.file('shiny', package='aweSOM'))
 }

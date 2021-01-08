@@ -50,7 +50,7 @@ ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), rlen = 1
 The ```somQuality``` function can be used to assess the quality of a SOM object created by ```kohonen::som```, according to several measures.
 
 ```{r}
-aweSOM::somQuality(ok.som = ok.som, traindat = dat)
+somQuality(ok.som, dat)
 ```
 
 * **Percentage of explained variance**: Similar to other clustering methods, the share of total variance that is explained by the clustering.
@@ -65,7 +65,7 @@ aweSOM::somQuality(ok.som = ok.som, traindat = dat)
 
 aweSOM provides multiple types of interactive and static visualizations for SOM. 
 
-They can be called using the aweSOM shiny widget (launched using aweSOM::aweSOM()), or directly from the command line.
+They can be called using the aweSOM shiny widget (launched using aweSOM()), or directly from the command line.
 
 ### aweSOMplot
 aweSOMplot creates a variety of different interactive SOM visualizations. 
@@ -73,9 +73,8 @@ Using the _graphType_ argument to the function, one the following types of plots
 
 * **Hitmap** or **population map**: visualizes the number of observation per cell using respectively sized hexagons/rectangles.
 ```{r}
-aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
-                   graphType = 'Hitmap', 
-                   plotSize = 400)
+aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Hitmap', 
+           plotSize = 400)
 ```
 
 
@@ -85,17 +84,15 @@ aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
 
 The **radar plot** displays the mean value for each of the variables, per cell
 ```{r }
-aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
-                   graphType = 'Radar',  
-                   plotVarMult = c("Sepal.Length", "Sepal.Width",  
-                                   "Petal.Length", "Petal.Width"),  
-                   plotSize = 400)
+aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Radar',  
+           plotVarMult = c("Sepal.Length", "Sepal.Width",  
+                           "Petal.Length", "Petal.Width"),  
+           plotSize = 400)
 ```
 
 This can also be represented with barplots when the number of variables is limited. 
 ```{r}
-aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
-                   graphType = 'Barplot',  
+aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Barplot',  
                    plotVarMult = c("Sepal.Length", "Sepal.Width",  
                                    "Petal.Length", "Petal.Width"),  
                    plotSize = 400)
@@ -110,11 +107,8 @@ Other information can also be plotted:
 Categorical variables, or variables that were not taken into account in the creation of the map, can also be plotted.  
 
 ```{r}
-aweSOM::aweSOMplot(ok.som = ok.som, ok.data = ok.data,
-                   graphType = 'Camembert', 
-                   plotNames = 'Species',
-                   plotVarOne = 'Species',
-                   plotSize = 400)
+aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Camembert', 
+           plotVarOne = 'Species', plotSize = 400)
 ```
 
 
@@ -156,7 +150,7 @@ superclasses_pam <- unname(superclust_pam$clustering)
 Hierarchical clustering  on the SOM cells can be achieved using the following code, or through the shiny app.
 ```{r}
 superclust_hclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
-superclasses_hclust <-  unname(superclust_hclust$clustering)
+superclasses_hclust <- unname(superclust_hclust$clustering)
 ```
 
 ### Quality of superclass clustering
@@ -166,16 +160,16 @@ aweSOM provides inbuilt functions to create three different plots that allow ass
 ###  aweSOMdendrogram
 aweSOMdendrogram returns a dendogram for hierarchical clustering performed on an SOM object. For the example below, the hierarchical clustering performed in the previous section is used and 2 superclasses are visualized. This function is only valid for hierarchical clustering.
 ```{r, fig.width=7, fig.height=4}
-aweSOM::aweSOMdendrogram(ok.som = ok.som, ok.hclust = superclust_hclust, 
-                         input_kohSuperclass = 2)
+aweSOMdendrogram(ok.som = ok.som, ok.hclust = superclust_hclust, 
+                 input_kohSuperclass = 2)
 ```
 
 ### aweSOMscreeplot
 aweSOMscreeplot [tbd] JULIEN TU PEUX EXPLIQUER?
 
 ```{r, fig.width=7, fig.height=4 } 
-aweSOM::aweSOMscreeplot(ok.som = ok.som, method = 'hierarchical', 
-                        hmethod = 'ward.D2', nclass = 2)
+aweSOMscreeplot(ok.som = ok.som, method = 'hierarchical', 
+                hmethod = 'ward.D2', nclass = 2)
 ```
 
 ### aweSOMsilhouette
@@ -183,14 +177,6 @@ aweSOMsilhouette returns a silhouette for PAM clustering performed on an SOM obj
 
 
 ```{r, fig.width=7, fig.height=6}
-aweSOM::aweSOMsilhouette(ok.som, superclasses_pam)
+aweSOMsilhouette(ok.som, superclasses_pam)
 ```
-
-
-
-
-
-
-
-
 
