@@ -378,7 +378,14 @@ shinyUI(fluidPage(
     tabPanel("About", 
              fluidRow(column(6, 
                              h2("aweSOM"), 
-                             h4("interactive self-organizing maps")), 
+                             h4("interactive self-organizing maps"),
+                             HTML('<strong>aweSOM</strong> is an R package offering a set of tools to explore and analyze 
+                                  datasets with Self-Organizing Maps (also known as  <a href="https://en.wikipedia.org/wiki/Self-organizing_map">Kohonen maps</a> 
+                                  a form of artificial 
+                                  neural network originally created by <a href="https://en.wikipedia.org/wiki/Teuvo_Kohonen">Teuvo Kohonen</a>
+                                  ) in the 1980s. The package introduces interactive plots, making analysis of the SOM easier.')), 
+                                  
+                          
                       column(6, img(src = "Teuvo-Kohonen.jpg",
                                     alt= "Here a portrait of Teuvo Kohonen.",
                                     width= "100%",
