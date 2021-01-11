@@ -1,6 +1,8 @@
 aweSOM
 ------
 
+<img src="man/figures/logo.png" align="right" alt="" width="150" />
+
 **aweSOM** is an R package offering a set of tools to explore and
 analyze datasets with Self-Organizing Maps (also known as [Kohonen
 maps](https://en.wikipedia.org/wiki/Self-organizing_map)), a form of

@@ -44,10 +44,12 @@ help_messages <- list(import_data_panel = HTML("<h3>Working with aweSOM</h3> <br
                           <strong>Radius:</strong> Neighborhood Radius <br>
                           <strong>Random Seed:</strong> Allows for reproducibility of non-deterministic procedures <br>"),
                       help_contrast = HTML("<h3>Variables scales</h3> <br>
-                                           <strong>Contrast:</strong>: tbd <br>
-                                           <strong>Observations Range:</strong>: tbd <br>
-                                           <strong>Same Scales:</strong>: tbd <br>"),
+                                           <strong>Contrast:</strong>: scales each of the variables indepenently <br>
+                                           <strong>Observations Range:</strong>:  Difference between the largest and smallest values <br>
+                                           <strong>Same Scales:</strong>: all variables are displayed on the identical scaled 
+                                           based on global minimum and  maximum values  <br>"),
                       help_average_format =  HTML("<h3>Values</h3> <br>
+                                            Controls the scaling of the variables <br>
                                            <strong>Observation Means:</strong>: Display mean of observations per cell <br>
                                            <strong>Observation Medians:</strong>: Display median of observations per cell <br>
                                            <strong>Prototypes:</strong>: Display prototype values per cell <br>")

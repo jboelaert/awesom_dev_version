@@ -6,8 +6,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Initialize SOM Training — somInit • aweSOM</title>
+<title>Initialize SOM prototypes — somInit • aweSOM</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -39,9 +46,14 @@
 
 
 
-<meta property="og:title" content="Initialize SOM Training — somInit" />
-<meta property="og:description" content="This function provides functionality to initializing a SOM-grid based on training data using either PCA or random sampling.
-It can be practically applied in in training an SOM using the kohonen::som function as the init argument (see example)" />
+<meta property="og:title" content="Initialize SOM prototypes — somInit" />
+<meta property="og:description" content="Prototypes are the artificial points in data space that are used to cluster
+observations: each observation is assigned to the cluster of its closest
+prototype. In self-organizing maps, each cell of the map has its own
+prototype, and training is performed by iteratively adjusting the prototypes.
+This function creates an initial guess for the prototypes of a SOM grid, to
+be used as the `init` argument to the `kohonen::som` function (see example)." />
+<meta property="og:image" content="https://jansodoge.github.io/awesom_dev_version/logo.png" />
 
 
 
@@ -73,7 +85,7 @@ It can be practically applied in in training an SOM using the kohonen::som funct
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">aweSOM</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0</span>
       </span>
     </div>
 
@@ -108,14 +120,18 @@ It can be practically applied in in training an SOM using the kohonen::som funct
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Initialize SOM Training</h1>
+    <h1>Initialize SOM prototypes</h1>
     
     <div class="hidden name"><code>somInit.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function provides functionality to initializing a SOM-grid based on training data using either PCA or random sampling.
-It can be practically applied in in training an SOM using the kohonen::som function as the init argument (see example)</p>
+    <p>Prototypes are the artificial points in data space that are used to cluster
+observations: each observation is assigned to the cluster of its closest
+prototype. In self-organizing maps, each cell of the map has its own
+prototype, and training is performed by iteratively adjusting the prototypes.
+This function creates an initial guess for the prototypes of a SOM grid, to
+be used as the `init` argument to the `kohonen::som` function (see example).</p>
     </div>
 
     <pre class="usage"><span class='fu'>somInit</span><span class='op'>(</span><span class='va'>traindat</span>, <span class='va'>nrows</span>, <span class='va'>ncols</span>, method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"pca.sample"</span>, <span class='st'>"pca"</span>, <span class='st'>"random"</span><span class='op'>)</span><span class='op'>)</span></pre>
@@ -125,36 +141,44 @@ It can be practically applied in in training an SOM using the kohonen::som funct
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>traindat</th>
-      <td><p>Training data to initialize SOM on</p></td>
+      <td><p>Matrix of training data, that will also be used to train the
+SOM.</p></td>
     </tr>
     <tr>
       <th>nrows</th>
-      <td><p>Number of rows of the initalize SOM object</p></td>
+      <td><p>Number of rows on the map.</p></td>
     </tr>
     <tr>
       <th>ncols</th>
-      <td><p>Number of columns of the initalize SOM object</p></td>
+      <td><p>Number of columns on the map.</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>Method to initialize SOM cell positons. Either "pca.sample", "pca" or "random"</p></td>
+      <td><p>Method used, see Details. "pca" or "random"</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Returns a grid with points of SOM cells that can be used in training the SOM using the Kohonen package</p>
+    <p>A matrix of prototype coordinates.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The default method "pca.sample" takes as prototypes the observations
+  that are closest to the nodes of a 2d grid placed along the first two
+  components of a PCA. The "pca" method uses the nodes instead of the
+  observations. The "random" method samples random observations.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>ok.data</span> <span class='op'>&lt;-</span> <span class='va'>iris</span>
-<span class='co'>## Build training data</span>
-<span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='va'>ok.data</span><span class='op'>[</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Sepal.Length"</span>, <span class='st'>"Sepal.Width"</span>,  <span class='st'>"Petal.Length"</span>, <span class='st'>"Petal.Width"</span> <span class='op'>)</span><span class='op'>]</span>
+    <pre class="examples"><div class='input'><span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='va'>iris</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Sepal.Length"</span>, <span class='st'>"Sepal.Width"</span>, <span class='st'>"Petal.Length"</span>, <span class='st'>"Petal.Width"</span><span class='op'>)</span><span class='op'>]</span>
 <span class='co'>### Scale training data</span>
 <span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/scale.html'>scale</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>)</span>
 <span class='co'>## Train SOM</span>
 <span class='co'>### Initialization (PCA grid)</span>
-<span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>somInit</span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
-<span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>, rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>, radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6.08</span>,<span class='op'>-</span><span class='fl'>6.08</span><span class='op'>)</span>, init <span class='op'>=</span> <span class='va'>init</span>, dist.fcts <span class='op'>=</span> <span class='st'>'sumofsquares'</span><span class='op'>)</span>
+<span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'>somInit</span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
+<span class='va'>the.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>, 
+                        rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>, 
+                        radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6.08</span>,<span class='op'>-</span><span class='fl'>6.08</span><span class='op'>)</span>, init <span class='op'>=</span> <span class='va'>init</span>, 
+                        dist.fcts <span class='op'>=</span> <span class='st'>'sumofsquares'</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -167,7 +191,7 @@ It can be practically applied in in training an SOM using the kohonen::som funct
 
       <footer>
       <div class="copyright">
-  <p>Developed by Julien Boelaert, Etienne Ollion, Jan Sodoge, Mohamed Sodoge, Otmane Naji, Samuel Hym.</p>
+  <p>Developed by Julien Boelaert, Etienne Ollion, Jan Sodoge.</p>
 </div>
 
 <div class="pkgdown">

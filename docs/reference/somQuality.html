@@ -8,6 +8,13 @@
 
 <title>Calculate SOM quality measures — somQuality • aweSOM</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -41,6 +48,7 @@
 
 <meta property="og:title" content="Calculate SOM quality measures — somQuality" />
 <meta property="og:description" content="Calculate SOM quality measures" />
+<meta property="og:image" content="https://jansodoge.github.io/awesom_dev_version/logo.png" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">aweSOM</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0</span>
       </span>
     </div>
 
@@ -116,14 +124,14 @@
     <p>Calculate SOM quality measures</p>
     </div>
 
-    <pre class="usage"><span class='fu'>somQuality</span><span class='op'>(</span><span class='va'>ok.som</span>, <span class='va'>traindat</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>somQuality</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>traindat</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ok.som</th>
-      <td><p>SOM object created by ok.som.function</p></td>
+      <th>x</th>
+      <td><p>```kohonen``` object, a SOM created by the ```som``` function.</p></td>
     </tr>
     <tr>
       <th>traindat</th>
@@ -133,12 +141,9 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>list with quality measures</p>
+    <p>A list with quality measures : quantization error, share of explained
+  variance, topographic error and Kaski-Lagus error.</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>somQuality</span><span class='op'>(</span>ok.som  <span class='op'>=</span> <span class='va'>ok.som</span>, traindat <span class='op'>=</span> <span class='va'>traindat</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in somQuality(ok.som = ok.som, traindat = traindat): object 'ok.som' not found</span></div><div class='input'>
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -150,7 +155,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Julien Boelaert, Etienne Ollion, Jan Sodoge, Mohamed Sodoge, Otmane Naji, Samuel Hym.</p>
+  <p>Developed by Julien Boelaert, Etienne Ollion, Jan Sodoge.</p>
 </div>
 
 <div class="pkgdown">

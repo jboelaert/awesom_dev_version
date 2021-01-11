@@ -98,11 +98,11 @@ aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Barplot',
                    plotSize = 400)
 ```
 
-Other information can also be plotted:
+Also, variables can be plotted using :
 
 * **Boxplot** displays the quartile distribution of values for each cell.
-* **Star** WHAT DOES IT DO EXACTLY?
-* **Heat** WHAT DOES IT DO EXACTLY?
+* **Star** displays numeric variables as a star chart
+* **Heat** displays a numeric variable as heatmap visualization
 
 Categorical variables, or variables that were not taken into account in the creation of the map, can also be plotted.  
 
@@ -112,30 +112,23 @@ aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Camembert',
 ```
 
 
-In this case, we plot the _Species_, which returns the percentage of species grouped in each cell. One can see that the algorithm did cluster the species together with quasi-perfection
+In this case, we plot the _Species_, which returns the percentage of species grouped in each cell. One can see that the algorithm did cluster the species together with quasi-perfection. Alternatively, categorical variables can be visualized using a barplot ('CatBarplot').
 
 
-Further options are available to explore the dataset, and several arguments can be specified
+Further options are available to explore the dataset, and several arguments can be specified. Here, see the 
+documentation of ```awesom::aweSOMplot```
 
-* _plotNames_: 
-* _constrast_ 
-* _average_format_
-* _plotVarMult_: 
-* _plotOutliers_:
-* _plotEqualSize_:
-* _plotSize_:
-* _palsc_:
-* _palplot_: 
-* _plotRevPal_: 
-
-
-Additionally, _omitRows_ can be used an argument to omit certain rows from the visualization.  
 
 
 ### aweSOMsmoothdist
 
+The smooth distance plot visualization plots the distances between the individual SOM cells as smoothed distances.
+Visualizations for hexagonal layout are biased with respect to the quadratic layout of the smooth distance plot.
 
+```{r, fig.width=8, fig.height=7}
+aweSOMsmoothdist(ok.som)
 
+```
 
 
 ## Superclasses of SOM
