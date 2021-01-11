@@ -628,6 +628,16 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
 #'                    graphType = 'Barplot', plotVarMult = variables,
 #'                     plotSize = 100)
+
+# aweSOMplot <- function(som, type= "Hitmap", data= NULL, variables= NULL, 
+#                        superclass= NULL, plotNames= "(rownames)", 
+#                        scales= "contrast", values= "mean",
+#                        plotSize= 100, 
+#                        palsc= "Set3", palplot= "viridis", plotRevPal= F, 
+#                        plotOutliers= T, plotEqualSize= F,
+#                        elementId= NULL) {
+#   
+
 aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL, 
                        graphType= "Hitmap", 
                        plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
