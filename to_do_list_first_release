@@ -9,8 +9,6 @@ Train
 
 
 Plots
-* Julien: rename arguments
-* Julien: add transparency and highlight switch?
 * Remove png download
 
 Vignette
@@ -18,7 +16,7 @@ Vignette
 
 Other: 
 * Roxygen Skeletons functions documentation (Jan: I will wait until arguments are renamed, see plots tasks)
-* (Julien) Clean code, and make CRAN-ready
+* (Julien) Add references in help
 
 
 For future version:

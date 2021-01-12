@@ -38,15 +38,13 @@ getPalette <- function(pal, n, reverse= F) {
 
 
 
-#' Plot dendogram for hierarchical clustering of SOM cells
+#' Plot dendogram of hierarchical clustering of SOM cells
 #'
-#' Plots a dendogram that that provides a quality measurement of the
-#' superclasses of the SOM when using hierarchical clustering
+#' Plots the dendogram of a hierarchical clustering of the SOM prototypes.
 #'
-#' @param clust hierarchical clustering object
+#' @param clust an object of class `hclust`, the result of a hierarchical
+#'   clustering performed by `stats::hclust`.
 #' @param nclass number of superclasses
-#'
-#' @return Dendogram plot of hierarchical superclass clusters
 #'
 #' @examples
 #' ## Build training data
@@ -54,17 +52,16 @@ getPalette <- function(pal, n, reverse= F) {
 #' ### Scale training data
 #' dat <- scale(dat)
 #' ## Train SOM
-#' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' init <- aweSOM::somInit(dat, 4, 4)
+#' init <- somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
 #'                        rlen = 100, alpha = c(0.05, 0.01),
 #'                        radius = c(6.08,-6.08),
 #'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (hierarchical clustering)
-#' superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
+#' superclust <- hclust(dist(ok.som$codes[[1]]), 'complete')
 #' ## Plot superclasses dendrogram
-#' aweSOM::aweSOMdendrogram(superclust, 2)
+#' aweSOMdendrogram(superclust, 2)
 aweSOMdendrogram <- function(clust, nclass){
   if (is.null(clust)) return(NULL);
   plot(clust, xlab= "", main= "")
@@ -94,7 +91,6 @@ aweSOMdendrogram <- function(clust, nclass){
 #' ### Scale training data
 #' dat <- scale(dat)
 #' ## Train SOM
-#' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
@@ -106,8 +102,13 @@ aweSOMdendrogram <- function(clust, nclass){
 #' superclasses <- unname(superclust$clustering)
 #' aweSOMscreeplot(ok.som, method = 'hierarchical',
 #'                 hmethod = 'complete', nclass = 2)
-aweSOMscreeplot <- function(som, nclass= 2, method= "hierarchical", hmethod= "complete"){
+aweSOMscreeplot <- function(som, nclass= 2, 
+                            method= c("hierarchical", "pam"), 
+                            hmethod= c("complete", "ward.D2", "ward.D", "single", 
+                                       "average", "mcquitty", "median", "centroid")){
   if (is.null(som)) return(NULL)
+  method <- match.arg(method)
+  hmethod <- match.arg(hmethod)
   
   if (method == "hierarchical")
     ok.hclust <- hclust(dist(som$codes[[1]]), hmethod)
@@ -135,56 +136,19 @@ aweSOMscreeplot <- function(som, nclass= 2, method= "hierarchical", hmethod= "co
 
 #' Smooth Distance Plot
 #'
-#' Plots a visualization of the distances between the individual SOM cells. Visualizations for
-#' hexagonal layout are biased with respect to the quadratic layout of the smooth distance plot.
+#' Plots a visualization of the distances between the SOM cells. Based on the
+#' U-Matrix, which is computed for each cell as the mean distance to its
+#' immediate neighbors.
 #'
-#' @param x ```kohonen``` object, a SOM created by the ```som``` function.
-#' @param pal The color palette for visualizing distance. Default is "viridis"
-#' @param reversePal Boolean whether color palette for variables is reversed. Default is FALSE
+#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
+#' @param pal character, the color palette. Default is "viridis". Can be
+#'   "viridis", "grey", "rainbow", "heat", "terrain", "topo", "cm", or any
+#'   palette name of the RColorBrewer package.
+#' @param reversePal logical, whether color palette should be reversed. Default
+#'   is FALSE.
 #'
-#' @return Smooth distance plot
-#' @export
-#'
-#' @examples
-#' ok.data <- iris
-#' ## Build training data
-#' dat <- ok.data[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
-#' ### Scale training data
-#' dat <- scale(dat)
-#' ## Train SOM
-#' ### RNG Seed (for reproducibility)
-#' ### Initialization (PCA grid)
-#' init <- somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-#'                        rlen = 100, alpha = c(0.05, 0.01), 
-#'                        radius = c(6.08,-6.08), init = init, 
-#'                        dist.fcts = 'sumofsquares')
-#' aweSOMsmoothdist(ok.som)
-aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
-  if (is.null(x)) return(NULL)
-  
-  mapdist <- aweSOM::somDist(x)
-  values <- matrix(rowMeans(mapdist$proto.data.dist.neigh, na.rm= T), 
-                   x$grid$ydim, x$grid$xdim)
-  filled.contour(1:x$grid$ydim, 1:x$grid$xdim,
-                 values[, 1:x$grid$xdim],
-                 color.palette= function(y) paste0(getPalette(pal, y, reversePal), "FF"))
-  
-}
-
-
-
-
-#' Silhouette plot
-#'
-#' Plots a silhouette plot that provides a quality measurement of the superclasses of the SOM. 
-#' Available for for both PAM and hierarchical clustering. 
-#'
-#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
-#' @param ok.sc Computed super-classes object resulting from either PAM or hierarchical clustering 
-#'
-#' @return Silhouette plot for superclass clustering
-#' @export
+#' @details Note: the resulting smooth distance plot is inexact for the
+#'   hexagonal map layout.
 #'
 #' @examples
 #' ## Build training data
@@ -195,24 +159,61 @@ aweSOMsmoothdist <- function(x, pal= "viridis", reversePal= F) {
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-#'                        rlen = 100, alpha = c(0.05, 0.01), 
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'rectangular'),
+#'                        rlen = 100, alpha = c(0.05, 0.01),
+#'                        radius = c(6.08,-6.08), init = init,
+#'                        dist.fcts = 'sumofsquares')
+#' aweSOMsmoothdist(ok.som)
+aweSOMsmoothdist <- function(som, 
+                             pal= c("viridis", "grey", "rainbow", "heat", "terrain", 
+                                    "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
+                             reversePal= F) {
+  if (is.null(som)) return(NULL)
+  pal <- match.arg(pal)
+  
+  mapdist <- aweSOM::somDist(som)
+  values <- matrix(rowMeans(mapdist$proto.data.dist.neigh, na.rm= T), 
+                   som$grid$ydim, som$grid$xdim)
+  filled.contour(1:som$grid$ydim, 1:som$grid$xdim,
+                 values[, 1:som$grid$xdim],
+                 color.palette= function(y) paste0(getPalette(pal, y, reversePal), "FF"))
+}
+
+
+
+
+#' Silhouette plot
+#'
+#' Plots a silhouette plot, used to assess the quality of the super-clustering
+#' of SOM prototypes into superclasses. Available for both PAM and
+#' hierarchical clustering.
+#'
+#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
+#' @param clust object containing the result of the super-clustering of the SOM
+#'   prototypes (either a `hclust` or a `pam` object).
+#'
+#' @examples
+#' ## Build training data
+#' dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
+#' ### Scale training data
+#' dat <- scale(dat)
+#' ## Train SOM
+#' ### RNG Seed (for reproducibility)
+#' ### Initialization (PCA grid)
+#' init <- somInit(dat, 4, 4)
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+#'                        rlen = 100, alpha = c(0.05, 0.01),
 #'                        radius = c(6.08,-6.08), init = init,
 #'                        dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
 #' aweSOMsilhouette(ok.som, superclasses)
-aweSOMsilhouette <- function(ok.som, ok.sc){
-  if (is.null(ok.som)) return()
-  plot(cluster::silhouette(ok.sc, dist(ok.som$codes[[1]])), 
+aweSOMsilhouette <- function(som, clust){
+  if (is.null(som)) return(NULL)
+  plot(cluster::silhouette(clust, dist(som$codes[[1]])), 
        main= "Silhouette of Cell Superclasses")
 }
-
-
-
-
-
 
 
 
@@ -418,12 +419,12 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
     
     boxes.norm <- lapply(split(normDat, clustering), boxplot, plot= F)
     boxes.real <- lapply(split(data, clustering), boxplot, plot= F)
-    res$normalizedValues <- unname(lapply(boxes.norm, function(x) unname(as.list(as.data.frame(x$stats)))))
-    res$realValues <- unname(lapply(boxes.real, function(x) unname(as.list(as.data.frame(x$stats)))))
+    res$normalizedValues <- unname(lapply(boxes.norm, function(x) unname(as.list(as.data.frame(round(x$stats, 3))))))
+    res$realValues <- unname(lapply(boxes.real, function(x) unname(as.list(as.data.frame(round(x$stats, 3))))))
     
     if (plotOutliers) {
-      res$normalizedExtremesValues <- unname(lapply(boxes.norm, function(x) unname(split(x$out, factor(x$group, levels= 1:nvar)))))
-      res$realExtremesValues <- unname(lapply(boxes.real, function(x) as.list(unname(split(x$out, factor(x$group, levels= 1:nvar))))))
+      res$normalizedExtremesValues <- unname(lapply(boxes.norm, function(x) unname(split(round(x$out, 3), factor(x$group, levels= 1:nvar)))))
+      res$realExtremesValues <- unname(lapply(boxes.real, function(x) as.list(unname(split(round(x$out, 3), factor(x$group, levels= 1:nvar))))))
     } else {
       res$normalizedExtremesValues <- unname(lapply(boxes.norm, function(x) lapply(1:nvar, function(y) numeric(0))))
       res$realExtremesValues <- unname(lapply(boxes.real, function(x) lapply(1:nvar, function(y) numeric(0))))
@@ -440,7 +441,6 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
     res$realSize <- unname(clust.table)
     res$normalizedValues <- unname(lapply(split(data, clustering), 
                                           function(x) {
-                                            # if (!length(x)) return(rep(1/nvalues, nvalues))
                                             if (!length(x)) return(rep(1/nvalues, nvalues))
                                             unname(table(x) / length(x))
                                           }))
@@ -533,11 +533,9 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.data, ok.trainrows,
 }
 
 ## htmlwidgets - shiny binding
-#' @export
 aweSOMoutput <- function(outputId, width = "100%", height = "auto") {
   htmlwidgets::shinyWidgetOutput(outputId, "aweSOMwidget", width, height, package = "aweSOM")
 }
-#' @export
 renderaweSOM <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, aweSOMoutput, env, quoted = TRUE)
@@ -561,7 +559,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' training). Hover over the map to focus on the selected cell or variable, and
 #' display further information.
 #'
-#' @param som ```kohonen``` object, a SOM created by the ```som``` function.
+#' @param som `kohonen` object, a SOM created by the `som` function.
 #' @param type character, the plot type. The default "Hitmap" is a population
 #'   map. "UMatrix" plots the average distance of each cell to its neighbors, on
 #'   a color scale. "Circular" (barplot), "Barplot", "Boxplot", "Radar" and
@@ -593,7 +591,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #'   "mean" uses the observation means (from data) for each cell. Alternatively,
 #'   "median" uses the observation medians for each cell, and "prototypes" uses
 #'   the SOM's prototypes values.
-#' @param size numeric, plot size, in pixels. Default 400a.
+#' @param size numeric, plot size, in pixels. Default 400.
 #' @param palsc character, the color palette used to represent the superclasses
 #'   as background of the cells. Default is "Set3". Can be "viridis", "grey",
 #'   "rainbow", "heat", "terrain", "topo", "cm", or any palette name of the
@@ -624,9 +622,8 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' ### Scale training data
 #' dat <- scale(dat)
 #' ## Train SOM
-#' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
-#' init <- aweSOM::somInit(dat, 4, 4)
+#' init <- somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
 #'                        rlen = 100, alpha = c(0.05, 0.01),
 #'                        radius = c(6.08,-6.08), init = init,

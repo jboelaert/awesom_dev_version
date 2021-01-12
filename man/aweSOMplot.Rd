@@ -29,7 +29,7 @@ aweSOMplot(
 )
 }
 \arguments{
-\item{som}{```kohonen``` object, a SOM created by the ```som``` function.}
+\item{som}{`kohonen` object, a SOM created by the `som` function.}
 
 \item{type}{character, the plot type. The default "Hitmap" is a population
 map. "UMatrix" plots the average distance of each cell to its neighbors, on
@@ -69,7 +69,7 @@ same scale, using the global minimum and maximum of the data.}
 "median" uses the observation medians for each cell, and "prototypes" uses
 the SOM's prototypes values.}
 
-\item{size}{numeric, plot size, in pixels. Default 400a.}
+\item{size}{numeric, plot size, in pixels. Default 400.}
 
 \item{palsc}{character, the color palette used to represent the superclasses
 as background of the cells. Default is "Set3". Can be "viridis", "grey",
@@ -117,9 +117,8 @@ dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 ### Scale training data
 dat <- scale(dat)
 ## Train SOM
-### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
-init <- aweSOM::somInit(dat, 4, 4)
+init <- somInit(dat, 4, 4)
 ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
                        rlen = 100, alpha = c(0.05, 0.01),
                        radius = c(6.08,-6.08), init = init,

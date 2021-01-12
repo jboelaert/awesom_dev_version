@@ -4,10 +4,10 @@
 \alias{somDist}
 \title{Distance measures of a SOM}
 \usage{
-somDist(x)
+somDist(som)
 }
 \arguments{
-\item{x}{```kohonen``` object, a SOM created by the ```som``` function.}
+\item{som}{```kohonen``` object, a SOM created by the ```som``` function.}
 }
 \value{
 A list with distance measures

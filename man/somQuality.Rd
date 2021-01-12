@@ -4,10 +4,10 @@
 \alias{somQuality}
 \title{Calculate SOM quality measures}
 \usage{
-somQuality(x, traindat)
+somQuality(som, traindat)
 }
 \arguments{
-\item{x}{```kohonen``` object, a SOM created by the ```som``` function.}
+\item{som}{`kohonen` object, a SOM created by the `kohonen::som` function.}
 
 \item{traindat}{matrix containing the training data}
 }
