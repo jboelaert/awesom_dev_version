@@ -765,8 +765,10 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Circular", "Barplot",
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(res$elementId, "-info"))))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(res$elementId, "-message"))))
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= paste0(res$elementId, "-names"))))
-  if (type %in% c("Barplot", "Boxplot", "Circular", "Pie", "CatBarplot"))
-    res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= paste0(res$elementId, "-legend"), width = "100%")))
+  res <- htmlwidgets::appendContent(res, htmltools::tag(
+    "svg", list(id= paste0(res$elementId, "-legend"), width = "100%", 
+                height= ifelse(type %in% c("Circular", "Barplot", "Boxplot", 
+                                           "Pie", "CatBarplot"), "auto", "0"))))
   
   res
 }

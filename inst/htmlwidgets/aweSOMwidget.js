@@ -73,6 +73,7 @@ HTMLWidgets.widget({
     document.getElementById(namesId).style.textAlign = "center";
     
     document.getElementById(plotId).innerHTML = ""; //remove the old graph
+    document.getElementById(legendId).innerHTML = ""; //remove old legend
     document.getElementById(infoId).innerHTML = "Hover over the plot for information.";
     document.getElementById(messageId).innerHTML = "-";
     document.getElementById(namesId).innerHTML = "-";
@@ -116,7 +117,6 @@ HTMLWidgets.widget({
     /////////////////////////
 
     if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Radar")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
-      document.getElementById(legendId).innerHTML = ""; //remove old legend
       var legend = d3.select("#" + legendId);
       legend.attr({height: height});
       // create a list of keys
