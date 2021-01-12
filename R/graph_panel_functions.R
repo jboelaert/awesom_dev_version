@@ -562,18 +562,6 @@ aweSOMwidget_html = function(id, style, class, ...){
 #################################
 
 
-# aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Radar", "Barplot", 
-#                                     "Boxplot", "Star", "Line", "Color",
-#                                     "Pie", "CatBarplot"), 
-#                        data= NULL, variables= NULL, superclass= NULL, 
-#                        obsNames= NULL,
-#                        scales= c("contrast", "range", "same"), 
-#                        values= c("mean", "median", "prototypes"),
-#                        size= 400, 
-#                        palsc= "Set3", palplot= "viridis", palplotrev= F,
-#                        plotOutliers= T, plotEqualSize= F,
-#                        elementId= NULL) {
-  
 #' Interactive SOM visualizations
 #'
 #' Plot interactive visualizations of self-organizing maps (SOM), as an html
@@ -650,29 +638,25 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
 #'
-#' # Plots for numerical variables and population map ('hitmap')
+#' ## Population map ('Hitmap')
+#' aweSOMplot(som = ok.som, type = 'Hitmap', superclass = superclasses)
+#'            
+#' ## Plots for numerical variables
 #' variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
-#' #Hitmap
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
-#'                    graphType = 'Hitmap', plotSize = 100)
-#' #Radar
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
-#'                    graphType = 'Radar', plotVarMult = variables,
-#'                    plotSize = 100)
+#' ## Radar
+#' aweSOMplot(som = ok.som, type = 'Radar', data = iris, 
+#'            variables= variables, superclass = superclasses)
+#' ## Barplot (numeric variables)
+#' aweSOMplot(som = ok.som, type = 'Barplot', data = iris, 
+#'            variables= variables, superclass = superclasses)
 #'
-#' #Barplot (numeric variables)
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
-#'                    graphType = 'Barplot', plotVarMult = variables,
-#'                     plotSize = 100)
-#'
-#' # Plots for categorial variables
-#' #Pie ('Pie')
-#' aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-#'            graphType = 'Pie',  plotVarOne = 'species', plotSize = 400)
-#'
-#' #Barplot (categorical variables)
-#' aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-#'            graphType = 'CatBarplot',  plotVarOne = 'species', plotSize = 400)                       
+#' ## Plots for categorial variables (iris species, not used for training)
+#' ## Pie
+#' aweSOMplot(som = ok.som, type = 'Pie', data = iris, 
+#'            variables= "Species", superclass = superclasses)
+#' # Barplot (categorical variables)
+#' aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris, 
+#'            variables= "Species", superclass = superclasses)
 
 aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Radar", "Barplot", 
                                     "Boxplot", "Star", "Line", "Color",
@@ -736,11 +720,11 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Radar", "Barplot",
   data <- as.data.frame(data)[variables]
   
   if (is.null(superclass)) {
-    superclass <- rep(1, nrow(ok.som$grid$pts))
-  } else if (length(superclass) != nrow(ok.som$grid$pts)) {
+    superclass <- rep(1, nrow(som$grid$pts))
+  } else if (length(superclass) != nrow(som$grid$pts)) {
     warning("`superclass` must have a length equal to the number of cells on the map. \
             No superclass will be plotted.")
-    superclass <- rep(1, nrow(ok.som$grid$pts))
+    superclass <- rep(1, nrow(som$grid$pts))
   }
   superclass <- unname(superclass)
 
@@ -786,42 +770,5 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Radar", "Barplot",
   
   res
 }
-
-# aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL, 
-#                        graphType= "Hitmap", 
-#                        plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
-#                        plotOutliers= T, plotEqualSize= F,
-#                        contrast= "contrast", average_format= "mean",
-#                        plotSize= 100, 
-#                        palsc= "Set3", palplot= "viridis", plotRevPal= F, 
-#                        elementId= NULL) {
-#   ok.trainrows <- rep(T, nrow(ok.data))
-#   if (length(omitRows) > 0) ok.trainrows[omitRows] <- F
-#   
-#   if (is.null(ok.sc)) ok.sc <- rep(1, nrow(ok.data))
-#   ok.sc <- unname(ok.sc)
-# 
-#   res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
-#                       ok.trainrows = ok.trainrows, graphType = graphType, 
-#                       plotNames = plotNames,
-#                       plotVarMult= plotVarMult, plotVarOne= plotVarOne, 
-#                       plotOutliers = plotOutliers, plotEqualSize = plotEqualSize, 
-#                       contrast = contrast, average_format = average_format, 
-#                       plotSize = plotSize, 
-#                       palsc = palsc, palplot = palplot, plotRevPal = plotRevPal, 
-#                       elementId = elementId)
-#   
-#   if(is.null(res$elementId)) {
-#     res$elementId <- paste0('aweSOMwidget-', paste(format(as.hexmode(sample(256, 10, replace = TRUE) - 1), width = 2), collapse = ""))
-#   }
-#   
-#   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(elementId, "-info"))))
-#   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(elementId, "-message"))))
-#   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= paste0(elementId, "-names"))))
-#   if (graphType %in% c("Barplot", "Boxplot", "Radar", "Pie", "CatBarplot"))
-#     res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= paste0(elementId, "-legend"), width = "100%")))
-# 
-#   res
-# }
 
 

@@ -116,27 +116,23 @@ ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
 superclust <- cluster::pam(ok.som$codes[[1]], 2)
 superclasses <- unname(superclust$clustering)
 
-# Plots for numerical variables and population map ('hitmap')
+## Population map ('Hitmap')
+aweSOMplot(som = ok.som, type = 'Hitmap', superclass = superclasses)
+           
+## Plots for numerical variables
 variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
-#Hitmap
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
-                   graphType = 'Hitmap', plotSize = 100)
-#Radar
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
-                   graphType = 'Radar', plotVarMult = variables,
-                   plotSize = 100)
+## Radar
+aweSOMplot(som = ok.som, type = 'Radar', data = iris, 
+           variables= variables, superclass = superclasses)
+## Barplot (numeric variables)
+aweSOMplot(som = ok.som, type = 'Barplot', data = iris, 
+           variables= variables, superclass = superclasses)
 
-#Barplot (numeric variables)
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
-                   graphType = 'Barplot', plotVarMult = variables,
-                    plotSize = 100)
-
-# Plots for categorial variables
-#Pie ('Pie')
-aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-           graphType = 'Pie',  plotVarOne = 'species', plotSize = 400)
-
-#Barplot (categorical variables)
-aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-           graphType = 'CatBarplot',  plotVarOne = 'species', plotSize = 400)                       
+## Plots for categorial variables (iris species, not used for training)
+## Pie
+aweSOMplot(som = ok.som, type = 'Pie', data = iris, 
+           variables= "Species", superclass = superclasses)
+# Barplot (categorical variables)
+aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris, 
+           variables= "Species", superclass = superclasses)
 }

@@ -73,8 +73,7 @@ Using the _graphType_ argument to the function, one the following types of plots
 
 * **Hitmap** or **population map**: visualizes the number of observation per cell using respectively sized hexagons/rectangles.
 ```{r}
-aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Hitmap', 
-           plotSize = 400)
+aweSOMplot(som = ok.som, type = 'Hitmap', size = 400)
 ```
 
 
@@ -84,18 +83,18 @@ aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Hitmap',
 
 The **radar plot** displays the mean value for each of the variables, per cell
 ```{r }
-aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Radar',  
-           plotVarMult = c("Sepal.Length", "Sepal.Width",  
-                           "Petal.Length", "Petal.Width"),  
-           plotSize = 400)
+aweSOMplot(som = ok.som, type = 'Radar', data = ok.data, 
+           variables = c("Sepal.Length", "Sepal.Width",  
+                         "Petal.Length", "Petal.Width"),  
+           size = 400)
 ```
 
 This can also be represented with barplots when the number of variables is limited. 
 ```{r}
-aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Barplot',  
-                   plotVarMult = c("Sepal.Length", "Sepal.Width",  
-                                   "Petal.Length", "Petal.Width"),  
-                   plotSize = 400)
+aweSOMplot(som = ok.som, type = 'Barplot', data = ok.data, 
+           variables = c("Sepal.Length", "Sepal.Width",  
+                         "Petal.Length", "Petal.Width"),  
+           size = 400)
 ```
 
 Also, variables can be plotted using :
@@ -107,8 +106,8 @@ Also, variables can be plotted using :
 Categorical variables, or variables that were not taken into account in the creation of the map, can also be plotted.  
 
 ```{r}
-aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Pie', 
-           plotVarOne = 'Species', plotSize = 400)
+aweSOMplot(som = ok.som, type = 'Pie', data = ok.data, 
+           variables = 'Species', size = 400)
 ```
 
 
