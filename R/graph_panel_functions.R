@@ -275,7 +275,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     nvalues <- nlevels(data)
   }
   
-  if (type %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "Star")) {
+  if (type %in% c("Circular", "Line", "Barplot", "Boxplot", "Color", "Radar")) {
     if (is.null(dim(data))) {
       data <- data.frame(data)
       colnames(data) <- varnames
@@ -289,7 +289,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     ## Compute normalized values for mean/median/prototype to use in plots
     ##########
     
-    if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
+    if (type %in% c("Circular", "Line", "Barplot", "Color", "Radar")) {
       if (all(varnames %in% colnames(som$codes[[1]]))) {
         prototypes <- som$codes[[1]][, varnames]
       } else
@@ -408,7 +408,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   if (type == "Hitmap") {
     res$normalizedValues <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
     res$realValues <- unname(clust.table)
-  } else if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
+  } else if (type %in% c("Circular", "Line", "Barplot", "Color", "Radar")) {
     if (type != "Color") {
       res$nVars <- nvar
       res$labelColor <- getPalette(palplot, nvar, reversePal)
@@ -511,7 +511,7 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
   
   
   
-  if (graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
+  if (graphType %in% c("Circular", "Radar", "Barplot", "Boxplot", "Line")) {
     if (is.null(plotVarMult)) return(NULL)
     plotVar <- plotVarMult
     data <- plot.data[, plotVar]
@@ -573,20 +573,20 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' @param som ```kohonen``` object, a SOM created by the ```som``` function.
 #' @param type character, the plot type. The default "Hitmap" is a population
 #'   map. "UMatrix" plots the average distance of each cell to its neighbors, on
-#'   a color scale. "Radar", "Barplot", "Boxplot", "Star" and "Line" are for
-#'   numeric variables. "Color" (heat map) is for a single numeric variable.
-#'   "Pie" (pie chart) and "CatBarplot" are for a single categorical (factor)
-#'   variable.
+#'   a color scale. "Circular" (barplot), "Barplot", "Boxplot", "Radar" and
+#'   "Line" are for numeric variables. "Color" (heat map) is for a single
+#'   numeric variable. "Pie" (pie chart) and "CatBarplot" are for a single
+#'   categorical (factor) variable.
 #' @param data data.frame containing the variables to plot. This is typically
 #'   not the training data, but rather the unscaled original data, as it is
 #'   easier to read the results in the original units, and this allows to plot
 #'   extra variables not used in training. If not provided, the training data is
 #'   used.
 #' @param variables character vector containing the names of the variable(s) to
-#'   plot. The selected variables must be numeric for types "Radar", "Barplot",
-#'   "Boxplot", "Star", "Color" and "Line", or factor for types "Pie" and
-#'   "CatBarplot". If not provided, all columns of data will be selected. If a 
-#'   numeric variable is provided to a "Pie" or "CatBarplot", it will be split 
+#'   plot. The selected variables must be numeric for types "Circular",
+#'   "Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types "Pie"
+#'   and "CatBarplot". If not provided, all columns of data will be selected. If
+#'   a numeric variable is provided to a "Pie" or "CatBarplot", it will be split
 #'   into a maximum of 30 classes.
 #' @param superclass integer vector, the superclass of each cell of the SOM.
 #' @param obsNames character vector, names of the observations to be displayed
@@ -616,8 +616,8 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' @param pieEqualSize logical, whether "Pie" should display pies of equal size.
 #'   The default FALSE displays pies with areas proportional to the number of
 #'   observations in the cells.
-#' @param elementId user-defined elementId of the widget, can be useful for
-#'   user extensions when embedding the result in an html page.
+#' @param elementId user-defined elementId of the widget, can be useful for user
+#'   extensions when embedding the result in an html page.
 #'
 #' @return Returns an object of class htmlwidget.
 #'
@@ -640,26 +640,26 @@ aweSOMwidget_html = function(id, style, class, ...){
 #'
 #' ## Population map ('Hitmap')
 #' aweSOMplot(som = ok.som, type = 'Hitmap', superclass = superclasses)
-#'            
+#'
 #' ## Plots for numerical variables
 #' variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
-#' ## Radar
-#' aweSOMplot(som = ok.som, type = 'Radar', data = iris, 
+#' ## Circular barplot
+#' aweSOMplot(som = ok.som, type = 'Circular', data = iris,
 #'            variables= variables, superclass = superclasses)
 #' ## Barplot (numeric variables)
-#' aweSOMplot(som = ok.som, type = 'Barplot', data = iris, 
+#' aweSOMplot(som = ok.som, type = 'Barplot', data = iris,
 #'            variables= variables, superclass = superclasses)
 #'
 #' ## Plots for categorial variables (iris species, not used for training)
 #' ## Pie
-#' aweSOMplot(som = ok.som, type = 'Pie', data = iris, 
+#' aweSOMplot(som = ok.som, type = 'Pie', data = iris,
 #'            variables= "Species", superclass = superclasses)
 #' # Barplot (categorical variables)
-#' aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris, 
+#' aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris,
 #'            variables= "Species", superclass = superclasses)
 
-aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Radar", "Barplot", 
-                                    "Boxplot", "Star", "Line", "Color",
+aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Circular", "Barplot", 
+                                    "Boxplot", "Radar", "Line", "Color",
                                     "Pie", "CatBarplot"), 
                        data= NULL, variables= NULL, superclass= NULL, 
                        obsNames= NULL,
@@ -683,7 +683,7 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Radar", "Barplot",
   if (!("kohonen" %in% class(som)))
     stop("`som` argument must be a `kohonen` object, created by `kohonen::som`")
   
-  if (type %in% c("Radar", "Barplot", "Boxplot", "Star", "Line", "Color", "Pie", "CatBarplot")) {
+  if (type %in% c("Circular", "Barplot", "Boxplot", "Radar", "Line", "Color", "Pie", "CatBarplot")) {
     if (is.null(data)) ## If no data, fall back on training data
       data <- som$data[[1]]
     
@@ -705,7 +705,7 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Radar", "Barplot",
       }
     }
     
-    if (type %in% c("Radar", "Barplot", "Boxplot", "Star", "Line", "Color")) {
+    if (type %in% c("Circular", "Barplot", "Boxplot", "Radar", "Line", "Color")) {
       var.num <- sapply(variables, function(i) is.numeric(data[, i]))
       if (!all(var.num)) {
         warning(paste0("Only numeric variables can be plotted by ", type, 
@@ -765,7 +765,7 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Radar", "Barplot",
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(res$elementId, "-info"))))
   res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(res$elementId, "-message"))))
   res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= paste0(res$elementId, "-names"))))
-  if (type %in% c("Barplot", "Boxplot", "Radar", "Pie", "CatBarplot"))
+  if (type %in% c("Barplot", "Boxplot", "Circular", "Pie", "CatBarplot"))
     res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= paste0(res$elementId, "-legend"), width = "100%")))
   
   res

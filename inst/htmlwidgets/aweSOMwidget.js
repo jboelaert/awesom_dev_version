@@ -115,7 +115,7 @@ HTMLWidgets.widget({
     // Create legend (if appropriate)
     /////////////////////////
 
-    if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Star")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
+    if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Radar")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
       document.getElementById(legendId).innerHTML = ""; //remove old legend
       var legend = d3.select("#" + legendId);
       legend.attr({height: height});
@@ -252,7 +252,7 @@ HTMLWidgets.widget({
         .attr("stroke", "#414141")
         .attr("stroke-opacity", "0.6")
         .attr("stroke-width", cellSize / 100);     
-    } else if (plotType.localeCompare("Radar")==0) {
+    } else if (plotType.localeCompare("Circular")==0) {
       var radii= [0.25, 0.5, 0.75, 1];
       for (var irad= 0; irad < radii.length; irad++) {
       	var axes = thePlot.append("g").selectAll(".cell")
@@ -272,7 +272,7 @@ HTMLWidgets.widget({
           .attr("stroke-opacity", "0.6")
           .attr("stroke-width", cellSize / 100);     
       }
-    } else if (plotType.localeCompare("Star")==0) {
+    } else if (plotType.localeCompare("Radar")==0) {
       var radii= [0.25, 0.5, 0.75, 1];
       for (var irad= 0; irad < radii.length; irad++) {
       	var axes = thePlot.append("g").selectAll(".cell")
@@ -390,9 +390,9 @@ HTMLWidgets.widget({
   				.transition().duration(400)
   				.style("fill-opacity", 1);
   		});
-    } else if (plotType.localeCompare("Radar")==0) {
+    } else if (plotType.localeCompare("Circular")==0) {
       //////////////////////////////////////////////////////////////////////////
-      // Radar plot (circular barplot)
+      // Circular barplot
       //////////////////////////////////////////////////////////////////////////
 
       var barArray = [];
@@ -499,9 +499,9 @@ HTMLWidgets.widget({
   					.attr("opacity", 0.9);
   			});
 
-    } else if(plotType.localeCompare("Star")==0) {
+    } else if(plotType.localeCompare("Radar")==0) {
       //////////////////////////////////////////////////////////////////////////
-      // Star plot (aka Radar plot)
+      // Radar plot
       //////////////////////////////////////////////////////////////////////////
 
       var barArray = [], polyArray = [];

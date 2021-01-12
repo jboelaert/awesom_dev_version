@@ -6,8 +6,8 @@
 \usage{
 aweSOMplot(
   som,
-  type = c("Hitmap", "UMatrix", "Radar", "Barplot", "Boxplot", "Star", "Line", "Color",
-    "Pie", "CatBarplot"),
+  type = c("Hitmap", "UMatrix", "Circular", "Barplot", "Boxplot", "Radar", "Line",
+    "Color", "Pie", "CatBarplot"),
   data = NULL,
   variables = NULL,
   superclass = NULL,
@@ -30,10 +30,10 @@ aweSOMplot(
 
 \item{type}{character, the plot type. The default "Hitmap" is a population
 map. "UMatrix" plots the average distance of each cell to its neighbors, on
-a color scale. "Radar", "Barplot", "Boxplot", "Star" and "Line" are for
-numeric variables. "Color" (heat map) is for a single numeric variable.
-"Pie" (pie chart) and "CatBarplot" are for a single categorical (factor)
-variable.}
+a color scale. "Circular" (barplot), "Barplot", "Boxplot", "Radar" and
+"Line" are for numeric variables. "Color" (heat map) is for a single
+numeric variable. "Pie" (pie chart) and "CatBarplot" are for a single
+categorical (factor) variable.}
 
 \item{data}{data.frame containing the variables to plot. This is typically
 not the training data, but rather the unscaled original data, as it is
@@ -42,10 +42,10 @@ extra variables not used in training. If not provided, the training data is
 used.}
 
 \item{variables}{character vector containing the names of the variable(s) to
-plot. The selected variables must be numeric for types "Radar", "Barplot",
-"Boxplot", "Star", "Color" and "Line", or factor for types "Pie" and
-"CatBarplot". If not provided, all columns of data will be selected. If a 
-numeric variable is provided to a "Pie" or "CatBarplot", it will be split 
+plot. The selected variables must be numeric for types "Circular",
+"Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types "Pie"
+and "CatBarplot". If not provided, all columns of data will be selected. If
+a numeric variable is provided to a "Pie" or "CatBarplot", it will be split
 into a maximum of 30 classes.}
 
 \item{superclass}{integer vector, the superclass of each cell of the SOM.}
@@ -86,8 +86,8 @@ Default is TRUE.}
 The default FALSE displays pies with areas proportional to the number of
 observations in the cells.}
 
-\item{elementId}{user-defined elementId of the widget, can be useful for
-user extensions when embedding the result in an html page.}
+\item{elementId}{user-defined elementId of the widget, can be useful for user
+extensions when embedding the result in an html page.}
 }
 \value{
 Returns an object of class htmlwidget.
@@ -118,21 +118,21 @@ superclasses <- unname(superclust$clustering)
 
 ## Population map ('Hitmap')
 aweSOMplot(som = ok.som, type = 'Hitmap', superclass = superclasses)
-           
+
 ## Plots for numerical variables
 variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
-## Radar
-aweSOMplot(som = ok.som, type = 'Radar', data = iris, 
+## Circular barplot
+aweSOMplot(som = ok.som, type = 'Circular', data = iris,
            variables= variables, superclass = superclasses)
 ## Barplot (numeric variables)
-aweSOMplot(som = ok.som, type = 'Barplot', data = iris, 
+aweSOMplot(som = ok.som, type = 'Barplot', data = iris,
            variables= variables, superclass = superclasses)
 
 ## Plots for categorial variables (iris species, not used for training)
 ## Pie
-aweSOMplot(som = ok.som, type = 'Pie', data = iris, 
+aweSOMplot(som = ok.som, type = 'Pie', data = iris,
            variables= "Species", superclass = superclasses)
 # Barplot (categorical variables)
-aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris, 
+aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris,
            variables= "Species", superclass = superclasses)
 }

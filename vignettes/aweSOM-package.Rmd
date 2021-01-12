@@ -81,15 +81,15 @@ aweSOMplot(som = ok.som, type = 'Hitmap', size = 400)
 
 
 
-The **radar plot** displays the mean value for each of the variables, per cell
+The **circular barplot** displays the mean value for each of the variables, per cell
 ```{r }
-aweSOMplot(som = ok.som, type = 'Radar', data = ok.data, 
+aweSOMplot(som = ok.som, type = 'Circular', data = ok.data, 
            variables = c("Sepal.Length", "Sepal.Width",  
                          "Petal.Length", "Petal.Width"),  
            size = 400)
 ```
 
-This can also be represented with barplots when the number of variables is limited. 
+This can also be represented with standard barplots when the number of variables is small. 
 ```{r}
 aweSOMplot(som = ok.som, type = 'Barplot', data = ok.data, 
            variables = c("Sepal.Length", "Sepal.Width",  

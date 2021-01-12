@@ -243,22 +243,22 @@ shinyUI(fluidPage(
                              #question about that panel below
                              conditionalPanel('input.graphType == "Pie" | input.graphType == "CatBarplot" | input.graphType == "Color" | input.graphType == "Names"', 
                                               uiOutput("plotVarOne")),
-                             conditionalPanel(paste0('input.graphType == "Radar" | ', 
+                             conditionalPanel(paste0('input.graphType == "Circular" | ', 
                                                      'input.graphType == "Line" | ', 
                                                      'input.graphType == "Barplot" | ', 
                                                      'input.graphType == "Boxplot" | ', 
-                                                     'input.graphType == "Star"'), 
+                                                     'input.graphType == "Radar"'), 
                                               uiOutput("plotVarMult")),
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
                                               uiOutput("plotNames")),
                              checkboxInput("plotAdvanced", "Advanced options", F),
                              conditionalPanel("input.plotAdvanced", 
                                               ## Values to plot: means, medians, prototypes
-                                              conditionalPanel(paste0('input.graphType == "Radar" | ', 
+                                              conditionalPanel(paste0('input.graphType == "Circular" | ', 
                                                                       'input.graphType == "Line" | ', 
                                                                       'input.graphType == "Barplot" | ', 
                                                                       'input.graphType == "Color" | ', 
-                                                                      'input.graphType == "Star"'), 
+                                                                      'input.graphType == "Radar"'), 
                                                                fluidRow(
                                                                  column(4, p("Values")),
                                                                  column(7, selectInput("average_format", NULL, 
@@ -270,13 +270,13 @@ shinyUI(fluidPage(
                                               
                                               ## Variable scales
                                               conditionalPanel(paste0('input.graphType == "CatBarplot" | ', 
-                                                                      'input.graphType == "Radar" | ', 
+                                                                      'input.graphType == "Circular" | ', 
                                                                       'input.graphType == "Line" | ', 
                                                                       'input.graphType == "Barplot" | ', 
                                                                       'input.graphType == "Boxplot" | ', 
                                                                       'input.graphType == "Color" | ', 
                                                                       'input.graphType == "UMatrix" | ', 
-                                                                      'input.graphType == "Star"'), 
+                                                                      'input.graphType == "Radar"'), 
                                                                fluidRow(
                                                                  column(4, p("Variables scales")),
                                                                  column(7, selectInput("contrast", NULL,
@@ -351,7 +351,7 @@ shinyUI(fluidPage(
                                                               HTML('<h4 id="theWidget-info"></h4>'),
                                                               HTML('<h4 id="theWidget-message"></h4>'),
                                                               aweSOM:::aweSOMoutput("theWidget")),
-                                                       column(3, conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
+                                                       column(3, conditionalPanel('input.graphType != "Radar" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
                                                                                   HTML('<svg id="theWidget-legend", width="100%"></svg>')))),
                                               wellPanel(HTML('<p id="theWidget-names">Observation names will appear here.</p>')))
                       ))), 

@@ -17,11 +17,11 @@ plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
                                "Superclass Silhouette"= "Silhouette",
                                "Neighbour distance"= "UMatrix", 
                                "Smooth distance"= "SmoothDist"), 
-                    Numeric= c("Radar"= "Radar", 
+                    Numeric= c("Circular Barplot"= "Circular", 
                                "Barplot"= "Barplot", 
                                "Boxplot"= "Boxplot",
                                "Line"= "Line", 
-                                "Star"= "Star", # uncomment to active the star plot
+                               "Radar"= "Radar",
                                "Heat"= "Color"), 
                     Categorical= c("Pie"= "Pie", 
                                    "Barplot"= "CatBarplot"))
@@ -480,11 +480,7 @@ shinyServer(function(input, output, session) {
     }) 
   
   
-  #############################################################################
-  # WORK TBD
-  #############################################################################
   ## Update plot type choices on plot "what" selection
-  #try using it without shiny
   observe({
     input$graphWhat
     isolate({
@@ -493,21 +489,11 @@ shinyServer(function(input, output, session) {
     })
   })
   
-
   ## Update max nb superclasses
- 
-  
-  #try using it without shiny
    observe({
      som <- ok.som()
      updateNumericInput(session, "kohSuperclass", max= som$grid$xdim * som$grid$ydim)
    })
-  
-  
-  
-
-  
-  
 
   ## Update variable selection for graphs
   output$plotVarOne <- renderUI({
@@ -519,12 +505,6 @@ shinyServer(function(input, output, session) {
     })
     
   })
-  
-  
-  
-  
-  
-  
   
   output$plotVarMult <- renderUI({
     if (is.null(ok.som())) return(NULL)
@@ -548,8 +528,6 @@ shinyServer(function(input, output, session) {
     })
   })
     
-  
-  #Code function important for dendogram and further plots
   ## Dendrogram
   output$plotDendrogram <- renderPlot({
     if (input$sup_clust_method != "hierarchical") return(NULL)
@@ -625,7 +603,7 @@ shinyServer(function(input, output, session) {
         "data = ok.data, "
       }, 
       "\n",
-      if (input$graphType %in% c("Radar", "Barplot", "Boxplot", "Line", "Star")) {
+      if (input$graphType %in% c("Cicular", "Barplot", "Boxplot", "Line", "Radar")) {
         paste0("           variables = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
       },
       if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
@@ -636,10 +614,10 @@ shinyServer(function(input, output, session) {
         paste0("obsNames = ok.data$", input$plotNames, ", ")
       }, 
       "\n",
-      if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$contrast != "contrast") {
+      if (input$graphType %in% c("Cicular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$contrast != "contrast") {
         paste0("           scales = '", input$contrast, "',\n")
       },
-      if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$average_format != "mean") {
+      if (input$graphType %in% c("Cicular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$average_format != "mean") {
         paste0("           values = '", input$average_format, "',\n")
       },
       if (input$palsc != "Set3") {
