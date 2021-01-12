@@ -51,8 +51,9 @@ HTMLWidgets.widget({
   	var normalizedExtremesValues= data.normalizedExtremesValues;
   	var realExtremesValues= data.realExtremesValues;
     var isCatBarplot = data.isCatBarplot;
-    var showSuperclass = data.showSuperclass;
-    var showAxes = data.showAxes; // TBD
+    var showSC = data.showSC;
+    var showAxes = data.showAxes;
+    var transparency = data.transparency;
     
     // IDs of plot, legend, infos
     var plotId = el.attributes.id.value;
@@ -73,6 +74,7 @@ HTMLWidgets.widget({
     document.getElementById(namesId).style.textAlign = "center";
     
     document.getElementById(plotId).innerHTML = ""; //remove the old graph
+    document.getElementById(legendId).innerHTML = ""; //remove old legend
     document.getElementById(infoId).innerHTML = "Hover over the plot for information.";
     document.getElementById(messageId).innerHTML = "-";
     document.getElementById(namesId).innerHTML = "-";
@@ -115,8 +117,7 @@ HTMLWidgets.widget({
     // Create legend (if appropriate)
     /////////////////////////
 
-    if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Star")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
-      document.getElementById(legendId).innerHTML = ""; //remove old legend
+    if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Radar")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
       var legend = d3.select("#" + legendId);
       legend.attr({height: height});
       // create a list of keys
@@ -212,80 +213,99 @@ HTMLWidgets.widget({
 
     // Cell mouse actions for all plots
     cells.on('mouseover', function(m, d) {
-			var el = d3.select(this)
-				.transition().duration(10)
-				.style("fill-opacity", 0.8);
+      if (transparency)
+  			d3.select(this).transition().duration(10).style("fill-opacity", 0.8);
       d3.select("#" + infoId).text('Cell ' + parseInt(d.cell+1,10) + ', Superclass ' +
           superclass[d.cell] + ', N= ' + cellPop[d.cell]);
 			d3.select("#" + namesId).text(cellNames[d.cell]);
     });
     cells.on('mouseout', function() {
-      var el = d3.select(this)
-  			.transition().duration(400)
-  			.style("fill-opacity", 1);
+      if (transparency)
+        d3.select(this).transition().duration(400).style("fill-opacity", 1);
     });
 
     
     //////////////////////////////////////////////////////////////////////////
     // Plot background axes
     //////////////////////////////////////////////////////////////////////////
-    if (plotType.localeCompare("Line")==0 || plotType.localeCompare("Barplot")==0 || plotType.localeCompare("Boxplot")==0) {
-      if(topology.localeCompare('rectangular')==0){
-        var xlims= [-0.4, 0.4], ylims = [-0.4, -0.2, 0.0, 0.2, 0.4], refSize= cellSize;
-      } else if(topology.localeCompare('hexagonal')==0){
-        var xlims= [-0.35, 0.35], ylims = [-0.25, -0.125, 0.0, 0.125, 0.25], refSize= innerCellSize;
-      }
-
-    	var axes = thePlot.append("g").selectAll(".cell")
-				.data(d3.range(nbRows * nbColumns))
-				.enter()
-				.append("path")
-				.attr("class", "axis")
-				.attr("d", function(d, i) {
-          if (forceArray(forceArray(normalizedValues[i])[0])[0] == null) return null;
-          var ch= ""
-          for (var iy= 0; iy < ylims.length; iy++)
-            ch = ch + "M " + (cellPositions[i].x + xlims[0] * refSize) + " , " + (cellPositions[i].y + ylims[iy] * cellSize)+
-				          " L " + (cellPositions[i].x + xlims[1] * refSize) + " , " + (cellPositions[i].y + ylims[iy] * refSize);
-  				  return ch;
-				})
-        .attr("stroke", "#414141")
-        .attr("stroke-opacity", "0.6")
-        .attr("stroke-width", cellSize / 100);     
-    } else if (plotType.localeCompare("Radar")==0) {
-      var radii= [0.25, 0.5, 0.75, 1];
-      for (var irad= 0; irad < radii.length; irad++) {
-      	var axes = thePlot.append("g").selectAll(".cell")
-  				.data(d3.range(nbRows * nbColumns))
-  				.enter()
-  				.append("circle")
-  				.attr("class", "axis")
-    			.attr("r", function(d, i) {
-  				  if (forceArray(normalizedValues[i])[0] == null) return null;
-  				  return radii[irad] * 0.95 * 0.4 * innerCellSize;
-          })
-    			.attr("transform", function(d, i) { 
-  				  return 'translate(' + cellPositions[i].x + ',' + cellPositions[i].y + ')';
-  				})
-          .attr("stroke", "#414141")
-          .attr("fill", "none")
-          .attr("stroke-opacity", "0.6")
-          .attr("stroke-width", cellSize / 100);     
-      }
-    } else if (plotType.localeCompare("Star")==0) {
-      var radii= [0.25, 0.5, 0.75, 1];
-      for (var irad= 0; irad < radii.length; irad++) {
+    if (showAxes) {
+      if (plotType.localeCompare("Line")==0 || plotType.localeCompare("Barplot")==0 || plotType.localeCompare("Boxplot")==0) {
+        if(topology.localeCompare('rectangular')==0){
+          var xlims= [-0.4, 0.4], ylims = [-0.4, -0.2, 0.0, 0.2, 0.4], refSize= cellSize;
+        } else if(topology.localeCompare('hexagonal')==0){
+          var xlims= [-0.35, 0.35], ylims = [-0.25, -0.125, 0.0, 0.125, 0.25], refSize= innerCellSize;
+        }
+  
       	var axes = thePlot.append("g").selectAll(".cell")
   				.data(d3.range(nbRows * nbColumns))
   				.enter()
   				.append("path")
   				.attr("class", "axis")
+  				.attr("d", function(d, i) {
+            if (forceArray(forceArray(normalizedValues[i])[0])[0] == null) return null;
+            var ch= ""
+            for (var iy= 0; iy < ylims.length; iy++)
+              ch = ch + "M " + (cellPositions[i].x + xlims[0] * refSize) + " , " + (cellPositions[i].y + ylims[iy] * cellSize)+
+  				          " L " + (cellPositions[i].x + xlims[1] * refSize) + " , " + (cellPositions[i].y + ylims[iy] * refSize);
+    				  return ch;
+  				})
+          .attr("stroke", "#414141")
+          .attr("stroke-opacity", "0.6")
+          .attr("stroke-width", cellSize / 100);     
+      } else if (plotType.localeCompare("Circular")==0) {
+        var radii= [0.25, 0.5, 0.75, 1];
+        for (var irad= 0; irad < radii.length; irad++) {
+        	var axes = thePlot.append("g").selectAll(".cell")
+    				.data(d3.range(nbRows * nbColumns))
+    				.enter()
+    				.append("circle")
+    				.attr("class", "axis")
+      			.attr("r", function(d, i) {
+    				  if (forceArray(normalizedValues[i])[0] == null) return null;
+    				  return radii[irad] * 0.95 * 0.4 * innerCellSize;
+            })
+      			.attr("transform", function(d, i) { 
+    				  return 'translate(' + cellPositions[i].x + ',' + cellPositions[i].y + ')';
+    				})
+            .attr("stroke", "#414141")
+            .attr("fill", "none")
+            .attr("stroke-opacity", "0.6")
+            .attr("stroke-width", cellSize / 100);     
+        }
+      } else if (plotType.localeCompare("Radar")==0) {
+        var radii= [0.25, 0.5, 0.75, 1];
+        for (var irad= 0; irad < radii.length; irad++) {
+        	var axes = thePlot.append("g").selectAll(".cell")
+    				.data(d3.range(nbRows * nbColumns))
+    				.enter()
+    				.append("path")
+    				.attr("class", "axis")
+    				.attr("d", function(d,i) {
+    				  if (forceArray(normalizedValues[i])[0] == null) return null;
+    				  var ch = " M" + (radii[irad] * 0.4 * innerCellSize * Math.cos(-0.5 * Math.PI)) + "," + (radii[irad] * 0.4 * innerCellSize * Math.sin(-0.5 * Math.PI));
+    				  for (var j=1; j<nVars; j++) 
+    				    ch+= " L" + (radii[irad] * 0.4 * innerCellSize * Math.cos(2 * Math.PI * (j / nVars - 0.25))) + "," + (radii[irad] * 0.4 * innerCellSize * Math.sin(2 * Math.PI * (j / nVars - 0.25)));
+    				  return ch + " L" + (radii[irad] * 0.4 * innerCellSize * Math.cos(-0.5 * Math.PI)) + "," + (radii[irad] * 0.4 * innerCellSize * Math.sin(-0.5 * Math.PI));
+    				})
+      			.attr("transform", function(d, i) { 
+    				  return 'translate(' + cellPositions[i].x + ',' + cellPositions[i].y + ')';
+    				})
+            .attr("stroke", "#414141")
+            .attr("fill", "none")
+            .attr("stroke-opacity", "0.6")
+            .attr("stroke-width", cellSize / 100);     
+        }
+      	var axislines = thePlot.append("g").selectAll(".cell")
+  				.data(d3.range(nbRows * nbColumns))
+  				.enter()
+  				.append("path")
+  				.attr("class", "axisline")
   				.attr("d", function(d,i) {
   				  if (forceArray(normalizedValues[i])[0] == null) return null;
-  				  var ch = " M" + (radii[irad] * 0.4 * innerCellSize * Math.cos(-0.5 * Math.PI)) + "," + (radii[irad] * 0.4 * innerCellSize * Math.sin(-0.5 * Math.PI));
-  				  for (var j=1; j<nVars; j++) 
-  				    ch+= " L" + (radii[irad] * 0.4 * innerCellSize * Math.cos(2 * Math.PI * (j / nVars - 0.25))) + "," + (radii[irad] * 0.4 * innerCellSize * Math.sin(2 * Math.PI * (j / nVars - 0.25)));
-  				  return ch + " L" + (radii[irad] * 0.4 * innerCellSize * Math.cos(-0.5 * Math.PI)) + "," + (radii[irad] * 0.4 * innerCellSize * Math.sin(-0.5 * Math.PI));
+  				  var ch = "";
+  				  for (var j=0; j<nVars; j++) 
+  				    ch+= "M0,0 L" + (0.4 * innerCellSize * Math.cos(2 * Math.PI * (j / nVars - 0.25))) + "," + (0.4 * innerCellSize * Math.sin(2 * Math.PI * (j / nVars - 0.25)));
+  				  return ch;
   				})
     			.attr("transform", function(d, i) { 
   				  return 'translate(' + cellPositions[i].x + ',' + cellPositions[i].y + ')';
@@ -295,25 +315,6 @@ HTMLWidgets.widget({
           .attr("stroke-opacity", "0.6")
           .attr("stroke-width", cellSize / 100);     
       }
-    	var axislines = thePlot.append("g").selectAll(".cell")
-				.data(d3.range(nbRows * nbColumns))
-				.enter()
-				.append("path")
-				.attr("class", "axisline")
-				.attr("d", function(d,i) {
-				  if (forceArray(normalizedValues[i])[0] == null) return null;
-				  var ch = "";
-				  for (var j=0; j<nVars; j++) 
-				    ch+= "M0,0 L" + (0.4 * innerCellSize * Math.cos(2 * Math.PI * (j / nVars - 0.25))) + "," + (0.4 * innerCellSize * Math.sin(2 * Math.PI * (j / nVars - 0.25)));
-				  return ch;
-				})
-  			.attr("transform", function(d, i) { 
-				  return 'translate(' + cellPositions[i].x + ',' + cellPositions[i].y + ')';
-				})
-        .attr("stroke", "#414141")
-        .attr("fill", "none")
-        .attr("stroke-opacity", "0.6")
-        .attr("stroke-width", cellSize / 100);     
     }
 
 
@@ -348,11 +349,11 @@ HTMLWidgets.widget({
   			d3.select("#" + infoId).text('Cell ' + parseInt(d.cell+1,10) + ', Superclass ' +
             superclass[d.cell] + ', N= ' + cellPop[d.cell]);
   			d3.select("#" + namesId).text(cellNames[d.cell]);
-				d3.select(this).transition().duration(10).style("fill-opacity", 0.8);
+				if (transparency) d3.select(this).transition().duration(10).style("fill-opacity", 0.8);
       })
 
       inner_shape.on('mouseout', function(m, d) {
-        d3.select(this).transition().duration(400).style("fill-opacity", 1);
+        if (transparency) d3.select(this).transition().duration(400).style("fill-opacity", 1);
       })
 
     } else if (plotType.localeCompare("Color")==0) {
@@ -363,7 +364,7 @@ HTMLWidgets.widget({
           return normalizedValues[i];
   			});
 
-  		if(showSuperclass){
+  		if(showSC){
   		  thePlot.append("g").selectAll(".cell")
     			.data(cellPositions).enter()
     			.append("text")
@@ -377,22 +378,18 @@ HTMLWidgets.widget({
 
   		//hover effects for the hexagons to change opacity and get the text for the cell
   		cells.on('mouseover', function(m, d) {
-  			var el = d3.select(this)
-  				.transition().duration(10)
-  				.style("fill-opacity", 0.8);
+  			if (transparency) d3.select(this).transition().duration(10).style("fill-opacity", 0.8);
   			d3.select("#" + infoId).text('Cell ' + parseInt(d.cell+1,10) + ', superclass ' +
             superclass[d.cell] + ', N= ' + cellPop[d.cell]);
   			d3.select("#" + messageId).text(label + ': ' + (realValues[d.cell] == null ? "-" : realValues[d.cell]));
   			d3.select("#" + namesId).text(cellNames[d.cell]);
   		});
   		cells.on('mouseout', function(m, d, i) {
-  			var el = d3.select(this)
-  				.transition().duration(400)
-  				.style("fill-opacity", 1);
+  			if (transparency) d3.select(this).transition().duration(400).style("fill-opacity", 1);
   		});
-    } else if (plotType.localeCompare("Radar")==0) {
+    } else if (plotType.localeCompare("Circular")==0) {
       //////////////////////////////////////////////////////////////////////////
-      // Radar plot (circular barplot)
+      // Circular barplot
       //////////////////////////////////////////////////////////////////////////
 
       var barArray = [];
@@ -427,7 +424,10 @@ HTMLWidgets.widget({
           thePlot.selectAll("path.piePart")
             .transition().duration(50)
             .attr("stroke", function(dd, di) {return dd.var == d.var ? "white" : "none";})
-  					.attr("opacity", function(dd, di) {return dd.var == d.var ? 1 : 0.6;})
+  					.attr("opacity", function(dd, di) {
+  					  if (!transparency) return 0.9; 
+  					  return dd.var == d.var ? 1 : 0.6;
+  					})
             .attr("stroke-width",2 * cellSize / 100);
         })
         .on('mouseleave', function(m, d) {
@@ -489,7 +489,10 @@ HTMLWidgets.widget({
   					.transition().duration(50)
   					.attr("stroke", function(bd, bi) {return bd.var==d.var ? "white" : "none";})
   					.attr("stroke-width", function(bd, bi) {return bd.var==d.var ? 2 * cellSize / 100 : null;})
-  					.attr("opacity", function(bd, bi) {return bd.var==d.var ? 1 : 0.6;});
+  					.attr("opacity", function(bd, bi) {
+  					  if (!transparency) return 0.9;
+  					  return bd.var==d.var ? 1 : 0.6;
+  					});
     			})
   			.on('mouseleave', function(m, d) {
           d3.select("#" + messageId).text("-");
@@ -499,9 +502,9 @@ HTMLWidgets.widget({
   					.attr("opacity", 0.9);
   			});
 
-    } else if(plotType.localeCompare("Star")==0) {
+    } else if(plotType.localeCompare("Radar")==0) {
       //////////////////////////////////////////////////////////////////////////
-      // Star plot (aka Radar plot)
+      // Radar plot
       //////////////////////////////////////////////////////////////////////////
 
       var barArray = [], polyArray = [];
@@ -546,7 +549,10 @@ HTMLWidgets.widget({
 				.on('mouseover', function(m, d){
       		d3.select("#" + messageId).text(label[d.var] + ': ' + d.real);
       		d3.selectAll(".radarPoint")
-  			  .attr("opacity", function(cd) {return cd.var == d.var ? 1 : 0.5;});
+  			  .attr("opacity", function(cd) {
+  			    if (!transparency) return 0.9;
+  			    return cd.var == d.var ? 1 : 0.5;
+  			  });
     	  })
       	.on('mouseout', function(m, d){
       		d3.select("#" + messageId).text("-");
@@ -740,11 +746,13 @@ HTMLWidgets.widget({
 				thePlot.selectAll(".bp")
 					.transition().duration(50)
           .attr("opacity", function(bd, bi){
+            if (!transparency) return 1;
             return bd.var == d.var ? 1 : 0.5;
           });
 				thePlot.selectAll(".bpOutlier")
 					.transition().duration(50)
           .attr("opacity", function(bd, bi){
+            if (!transparency) return 1;
             return bd.var == d.var ? 1 : 0.5;
           });
   		});
@@ -760,11 +768,13 @@ HTMLWidgets.widget({
 				thePlot.selectAll(".bp")
 					.transition().duration(50)
           .attr("opacity", function(bd, bi){
+            if (!transparency) return 1;
             return bd.var == d.var ? 1 : 0.5;
           });
 				thePlot.selectAll(".bpOutlier")
 					.transition().duration(50)
 					.attr("opacity", function(bd, bi){
+					  if (!transparency) return 1;
             return bd.var == d.var ? 1 : 0.5;
           });
   		});
@@ -774,7 +784,7 @@ HTMLWidgets.widget({
 				thePlot.selectAll(".bpOutlier").transition().duration(50).attr("opacity", 1);
   		});
 
-    } else if(plotType.localeCompare("Camembert")==0) {
+    } else if(plotType.localeCompare("Pie")==0) {
       //////////////////////////////////////////////////////////////////////////
       // Pie plot
       //////////////////////////////////////////////////////////////////////////

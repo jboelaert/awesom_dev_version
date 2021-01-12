@@ -139,7 +139,7 @@ shinyUI(fluidPage(
                         
                       ), 
                       
-                      fluidRow(column(3,  HTML("<h4>How to use aweSOM:</h4>")),
+                      fluidRow(column(3,  HTML("<h4>Help</h4>")),
                                column(2,  actionButton("help_message_intro_to_aweSOM", "", icon = icon("question"), width = NULL)))
                      
                ),
@@ -183,7 +183,8 @@ shinyUI(fluidPage(
                  conditionalPanel("input.trainAdvanced", 
                                   fluidRow(column(4, p("Initialization")), 
                                            column(8, selectInput("kohInit", NULL, 
-                                                                 c("PCA"= "pca", "PCA Obs"= "pca.sample", 
+                                                                 c("PCA Obs"= "pca.sample", 
+                                                                   "PCA"= "pca", 
                                                                    "Random Obs"= "random"), 
                                                                  "pca.sample"))),
                                   fluidRow(column(4, p("rlen")), 
@@ -241,24 +242,25 @@ shinyUI(fluidPage(
                                                             selected= "Hitmap"))),
                              
                              #question about that panel below
-                             conditionalPanel('input.graphType == "Camembert" | input.graphType == "CatBarplot" | input.graphType == "Color" | input.graphType == "Names"', 
+                             conditionalPanel('input.graphType == "Pie" | input.graphType == "CatBarplot" | input.graphType == "Color" | input.graphType == "Names"', 
                                               uiOutput("plotVarOne")),
-                             conditionalPanel(paste0('input.graphType == "Radar" | ', 
-                                                     'input.graphType == "Line" | ', 
+                             conditionalPanel(paste0('input.graphType == "Circular" | ', 
                                                      'input.graphType == "Barplot" | ', 
                                                      'input.graphType == "Boxplot" | ', 
-                                                     'input.graphType == "Star"'), 
+                                                     'input.graphType == "Line" | ', 
+                                                     'input.graphType == "Radar"'), 
                                               uiOutput("plotVarMult")),
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
                                               uiOutput("plotNames")),
                              checkboxInput("plotAdvanced", "Advanced options", F),
                              conditionalPanel("input.plotAdvanced", 
                                               ## Values to plot: means, medians, prototypes
-                                              conditionalPanel(paste0('input.graphType == "Radar" | ', 
-                                                                      'input.graphType == "Line" | ', 
+                                              conditionalPanel(paste0('input.graphType == "Circular" | ', 
                                                                       'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "Boxplot" | ', 
+                                                                      'input.graphType == "Line" | ', 
                                                                       'input.graphType == "Color" | ', 
-                                                                      'input.graphType == "Star"'), 
+                                                                      'input.graphType == "Radar"'), 
                                                                fluidRow(
                                                                  column(4, p("Values")),
                                                                  column(7, selectInput("average_format", NULL, 
@@ -269,28 +271,47 @@ shinyUI(fluidPage(
                                                                  column(1, actionButton("help_average_format", "", icon = icon("question"), width = NULL)))),
                                               
                                               ## Variable scales
-                                              conditionalPanel(paste0('input.graphType == "CatBarplot" | ', 
-                                                                      'input.graphType == "Radar" | ', 
-                                                                      'input.graphType == "Line" | ', 
+                                              conditionalPanel(paste0('input.graphType == "Circular" | ', 
                                                                       'input.graphType == "Barplot" | ', 
                                                                       'input.graphType == "Boxplot" | ', 
+                                                                      'input.graphType == "Line" | ', 
                                                                       'input.graphType == "Color" | ', 
-                                                                      'input.graphType == "UMatrix" | ', 
-                                                                      'input.graphType == "Star"'), 
+                                                                      'input.graphType == "Radar"'), 
                                                                fluidRow(
                                                                  column(4, p("Variables scales")),
                                                                  column(7, selectInput("contrast", NULL,
                                                                                        choices = c("Contrast" = "contrast",
                                                                                                    "Observations Range" = "range",
-                                                                                                   "Same scale" = "no_contrast"),
+                                                                                                   "Same scale" = "same"),
                                                                                        selected = "contrast")),
                                                                  column(1, actionButton("help_contrast", "", icon = icon("question"), width = NULL)))), 
                                               
                                               conditionalPanel('input.graphType == "Boxplot"', 
                                                                checkboxInput("plotOutliers", "Plot outliers", value= T)),
                                               
-                                              conditionalPanel('input.graphType == "Camembert"', 
+                                              conditionalPanel('input.graphType == "Pie"', 
                                                                checkboxInput("plotEqualSize", "Equal pie sizes", F)), 
+                                              
+                                              conditionalPanel('input.graphType == "Color" | input.graphType == "UMatrix"', 
+                                                               checkboxInput("plotShowSC", "Show superclasses", T)), 
+
+                                              ## Show axes
+                                              conditionalPanel(paste0('input.graphType == "Circular" | ', 
+                                                                      'input.graphType == "Line" | ', 
+                                                                      'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "CatBarplot" | ', 
+                                                                      'input.graphType == "Boxplot" | ', 
+                                                                      'input.graphType == "Radar"'), 
+                                                               checkboxInput("plotAxes", "Show axes", value= T)),
+                                              
+                                              ## Use transparency
+                                              conditionalPanel(paste0('input.graphType == "Hitmap" | ', 
+                                                                      'input.graphType == "Circular" | ', 
+                                                                      'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "Boxplot" | ', 
+                                                                      'input.graphType == "CatBarplot" | ', 
+                                                                      'input.graphType == "Radar"'), 
+                                                               checkboxInput("plotTransparency", "Use transparency", value= T)),
                                               
                                               conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "Color" & input.graphType != "UMatrix" & input.graphType != "SmoothDist"', 
                                                                fluidRow(column(4, p("Superclass palette")),
@@ -298,7 +319,7 @@ shinyUI(fluidPage(
                                                                            c("viridis", "grey", "rainbow", "heat", "terrain", 
                                                                              "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
                                                                            "Set3")))), 
-                                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot"', 
+                                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "Hitmap"', 
                                                                fluidRow(column(4, p("Plots palette")),
                                                                         column(8,selectInput("palplot", NULL, 
                                                                                              c("viridis", "grey", "rainbow", "heat", "terrain", 
@@ -351,7 +372,7 @@ shinyUI(fluidPage(
                                                               HTML('<h4 id="theWidget-info"></h4>'),
                                                               HTML('<h4 id="theWidget-message"></h4>'),
                                                               aweSOM:::aweSOMoutput("theWidget")),
-                                                       column(3, conditionalPanel('input.graphType != "Star" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
+                                                       column(3, conditionalPanel('input.graphType != "Radar" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
                                                                                   HTML('<svg id="theWidget-legend", width="100%"></svg>')))),
                                               wellPanel(HTML('<p id="theWidget-names">Observation names will appear here.</p>')))
                       ))), 

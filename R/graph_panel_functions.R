@@ -40,16 +40,15 @@ getPalette <- function(pal, n, reverse= F) {
 
 #' Plot dendogram for hierarchical clustering of SOM cells
 #'
-#' Plots a dendogram that that provides a quality measurement of the superclasses of the SOM
-#' when using hierarchical clustering
+#' Plots a dendogram that that provides a quality measurement of the
+#' superclasses of the SOM when using hierarchical clustering
 #'
-#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
-#' @param ok.hclust hierarchical clustering object
-#' @param input_kohSuperclass number of superclasses
+#' @param clust hierarchical clustering object
+#' @param nclass number of superclasses
 #'
 #' @return Dendogram plot of hierarchical superclass clusters
 #'
-#' @examples 
+#' @examples
 #' ## Build training data
 #' dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 #' ### Scale training data
@@ -58,43 +57,36 @@ getPalette <- function(pal, n, reverse= F) {
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- aweSOM::somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-#'                        rlen = 100, alpha = c(0.05, 0.01), 
-#'                        radius = c(6.08,-6.08), 
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+#'                        rlen = 100, alpha = c(0.05, 0.01),
+#'                        radius = c(6.08,-6.08),
 #'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (hierarchical clustering)
 #' superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
 #' ## Plot superclasses dendrogram
-#' aweSOM::aweSOMdendrogram(ok.som, superclust, 2)
-aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
-  
-  if (is.null(ok.som)) return()
-  plot(ok.hclust, xlab= "", main= "")
-  if (input_kohSuperclass > 1)
-    rect.hclust(ok.hclust, k= input_kohSuperclass)
+#' aweSOM::aweSOMdendrogram(superclust, 2)
+aweSOMdendrogram <- function(clust, nclass){
+  if (is.null(clust)) return(NULL);
+  plot(clust, xlab= "", main= "")
+  if (nclass > 1)
+    rect.hclust(clust, k= nclass)
 }
 
 
 
-
-
-
-
-
-#' Screeplot 
-#' 
-#' Plots a screeplot that that provides a quality measurement of the quality of the superclasses of the SOM. 
-#' Available for both PAM and hierarchical clustering. 
+#' Screeplot
 #'
-#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
-#' @param nclass number of superclasses to be visualized in the screeplot. Default is 2.
-#' @param method Method used for clustering. Hierarchical clustering ("hierarchical") and PAM ("pam") clustering can be used. 
-#' By default hierarchical clustering is applied.
-#' @param hmethod Specifically for hierarchicical clustering, the clustering method can be specified. By default "ward.D2" is used
-#' for other options, see the stats::hclust method documentation.
+#' Screeplot, helps deciding the optimal number of superclasses. Available for
+#' both PAM and hierarchical clustering.
 #'
-#' @return Screeplot
-#' @export
+#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
+#' @param nclass number of superclasses to be visualized in the screeplot.
+#'   Default is 2.
+#' @param method Method used for clustering. Hierarchical clustering
+#'   ("hierarchical") and Partitioning around medoids ("pam") can be used.
+#'   Default is hierarchical clustering.
+#' @param hmethod For hierarchicical clustering, the clustering method, by
+#'   default "complete". See the stats::hclust documentation for more details.
 #'
 #' @examples
 #' ## Build training data
@@ -105,38 +97,37 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-#'                        rlen = 100, alpha = c(0.05, 0.01), 
-#'                        radius = c(6.08,-6.08), 
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+#'                        rlen = 100, alpha = c(0.05, 0.01),
+#'                        radius = c(6.08,-6.08),
 #'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
-#' aweSOMscreeplot(ok.som, method = 'hierarchical', 
-#'                 hmethod = 'ward.D2', nclass = 2)
-aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= "ward.D2"){
-  if (is.null(ok.som)) return()
+#' aweSOMscreeplot(ok.som, method = 'hierarchical',
+#'                 hmethod = 'complete', nclass = 2)
+aweSOMscreeplot <- function(som, nclass= 2, method= "hierarchical", hmethod= "complete"){
+  if (is.null(som)) return(NULL)
   
   if (method == "hierarchical")
-    ok.hclust <- hclust(dist(ok.som$codes[[1]]), hmethod)
+    ok.hclust <- hclust(dist(som$codes[[1]]), hmethod)
   
-  ncells <- nrow(ok.som$codes[[1]])
+  ncells <- nrow(som$codes[[1]])
   nvalues <- max(nclass, min(ncells, max(ceiling(sqrt(ncells)), 10)))
   clust.var <- sapply(1:nvalues, function(k) {
     if (method == "hierarchical") {
       clust <- cutree(ok.hclust, k)
     } else if (method == "pam") 
-      clust <- cluster::pam(ok.som$codes[[1]], k)$clustering
-    clust.means <- do.call(rbind, by(ok.som$codes[[1]], clust, colMeans))[clust, ]
-    mean(rowSums((ok.som$codes[[1]] - clust.means)^2))
+      clust <- cluster::pam(som$codes[[1]], k)$clustering
+    clust.means <- do.call(rbind, by(som$codes[[1]], clust, colMeans))[clust, ]
+    mean(rowSums((som$codes[[1]] - clust.means)^2))
   })
   unexpl <- 100 * round(clust.var / 
-                          (sum(apply(ok.som$codes[[1]], 2, var)) * (ncells - 1) / ncells), 3)
+                          (sum(apply(som$codes[[1]], 2, var)) * (ncells - 1) / ncells), 3)
   plot(unexpl, t= "b", ylim= c(0, 100),
        xlab= "Nb. Superclasses", ylab= "% Unexpl. Variance")
   grid()                      
   abline(h= unexpl[nclass], col= 2)
-  
 }
 
 
@@ -237,18 +228,19 @@ aweSOMsilhouette <- function(ok.som, ok.sc){
 ## Generate plot parameters to be passed to D3 functions
 #################################
 
-
-getPlotParams <- function(type, som, superclass, data, plotsize, varnames, 
-                          normtype= c("range", "contrast"), palsc, palplot, 
-                          cellNames, plotOutliers, reversePal, options= NULL, 
-                          valueFormat) {
+getPlotParams <- function(type, som, superclass, data, plotsize, 
+                          varnames, cellNames, 
+                          normtype, valueFormat,
+                          palsc, palplot, reversePal, 
+                          plotOutliers, showSC, equalSize, 
+                          showAxes, transparency) {
   
   ##########
   ## Common parameters for all plots
   ##########
   
   somsize <- nrow(som$grid$pts)
-  clustering <- factor(som$unit.classif, 1:nrow(som$grid$pts))
+  clustering <- factor(som$unit.classif, 1:somsize)
   clust.table <- table(clustering)
   
   gridInfo <- list(nbLines= som$grid$xdim,
@@ -264,17 +256,19 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
               superclassColor= superclassColor, 
               cellNames= cellNames, 
               cellPop= unname(clust.table), 
-              showAxes= options$showAxes)
+              showAxes= showAxes, 
+              transparency= transparency)
   
   
-  if (type %in% c("Camembert", "CatBarplot")) {
-    if (is.numeric(data)) if (length(unique(data)) > 100) data <- cut(data, 100)
+  if (type %in% c("Pie", "CatBarplot")) {
+    if (length(dim(data)) == 2) data <- data[, varnames]
+    if (is.numeric(data)) if (length(unique(data)) > 30) data <- cut(data, 30)
     data <- as.factor(data)
     unique.values <- levels(data)
     nvalues <- nlevels(data)
   }
   
-  if (type %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "Star")) {
+  if (type %in% c("Circular", "Line", "Barplot", "Boxplot", "Color", "Radar")) {
     if (is.null(dim(data))) {
       data <- data.frame(data)
       colnames(data) <- varnames
@@ -288,7 +282,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     ## Compute normalized values for mean/median/prototype to use in plots
     ##########
     
-    if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
+    if (type %in% c("Circular", "Line", "Barplot", "Color", "Radar")) {
       if (all(varnames %in% colnames(som$codes[[1]]))) {
         prototypes <- som$codes[[1]][, varnames]
       } else
@@ -344,8 +338,8 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
         normValues <- unname(as.list(as.data.frame(t(normValues))))
         realValues <- unname(as.list(as.data.frame(t(realValues))))
         
-      } else if(normtype == "no_contrast"){
-        ## "No contrast" normalization : global 0-1 scale, on obs/protos
+      } else if(normtype == "same"){
+        ## "Same scale" normalization : global 0-1 scale, on obs/protos
         
         if (valueFormat %in% c("mean", "median")) {
           normDat <- as.data.frame(sapply(data, function(x) .05 + .9 * (x - min(data)) / (max(data) - min(data))))
@@ -378,7 +372,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
         normValues[is.na(normValues)] <- "#FFFFFF"
       }
     } else if (type == "Boxplot") {
-      if (normtype == "no_contrast") {
+      if (normtype == "same") {
         normDat <- (data - min(data)) / (max(data) - min(data))
       } else {
         normDat <- as.data.frame(sapply(data, function(x) (x - min(x)) / (max(x) - min(x))))
@@ -407,7 +401,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
   if (type == "Hitmap") {
     res$normalizedValues <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
     res$realValues <- unname(clust.table)
-  } else if (type %in% c("Radar", "Line", "Barplot", "Color", "Star")) {
+  } else if (type %in% c("Circular", "Line", "Barplot", "Color", "Radar")) {
     if (type != "Color") {
       res$nVars <- nvar
       res$labelColor <- getPalette(palplot, nvar, reversePal)
@@ -416,7 +410,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     res$normalizedValues <- normValues
     res$realValues <- realValues
     res$isCatBarplot <- FALSE
-    res$showSuperclass <- TRUE
+    res$showSC <- showSC
   } else if (type == "Boxplot") {
     res$nVars <- nvar
     res$label <- varnames
@@ -434,17 +428,19 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
       res$normalizedExtremesValues <- unname(lapply(boxes.norm, function(x) lapply(1:nvar, function(y) numeric(0))))
       res$realExtremesValues <- unname(lapply(boxes.real, function(x) lapply(1:nvar, function(y) numeric(0))))
     }
-  } else if (type == "Camembert") {
+  } else if (type == "Pie") {
     res$nVars <- nvalues
     res$label <- unique.values
     res$labelColor <- getPalette(palplot, nvalues, reversePal)
-    if (options$equalSize) {
+    if (equalSize) {
       res$normalizedSize <- rep(.9, length(clust.table))
+      res$normalizedSize[clust.table == 0] <- 0
     } else
       res$normalizedSize <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
     res$realSize <- unname(clust.table)
     res$normalizedValues <- unname(lapply(split(data, clustering), 
                                           function(x) {
+                                            # if (!length(x)) return(rep(1/nvalues, nvalues))
                                             if (!length(x)) return(rep(1/nvalues, nvalues))
                                             unname(table(x) / length(x))
                                           }))
@@ -478,25 +474,17 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
 
 
 #################################
-## Core widget function, render D3 plot in an htmlwidget
+## Widget function for shiny interface, render D3 plot in an htmlwidget
 #################################
 
-#' @import htmlwidgets
-#' @export
-aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows, 
-                         graphType= "Hitmap", 
-                         plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
-                         plotOutliers= T, plotEqualSize= F,
-                         contrast= "contrast", average_format= "mean",
-                         plotSize= 100, 
-                         palsc= "Set3", palplot= "viridis", plotRevPal= F,
+aweSOMwidget <- function(ok.som, ok.sc, ok.data, ok.trainrows, 
+                         graphType, plotNames, plotVarMult, plotVarOne, 
+                         plotSize, plotOutliers, plotEqualSize, plotShowSC,
+                         contrast, average_format, palsc, palplot, plotRevPal,
+                         plotAxes, plotTransparency, 
                          width = NULL, height = NULL, elementId = NULL) {
   
-  if (is.null(ok.som) | !(graphType %in% c("Radar", "Camembert", "CatBarplot",
-                                           "Barplot", "Boxplot", 
-                                           "Color", "Star", 
-                                           "Hitmap", "Line", 
-                                           "Names", "UMatrix")))
+  if (is.null(ok.som))
     return(NULL)
   
   ok.clust <- ok.som$unit.classif
@@ -515,12 +503,11 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                              function(x) paste(x, collapse= ", "))) # "&#13;&#10;" "<br />"
   
   
-  
-  if (graphType %in% c("Radar", "Star", "Barplot", "Boxplot", "Line")) {
+  if (graphType %in% c("Circular", "Radar", "Barplot", "Boxplot", "Line")) {
     if (is.null(plotVarMult)) return(NULL)
     plotVar <- plotVarMult
     data <- plot.data[, plotVar]
-  } else if (graphType %in% c("Color", "Camembert", "CatBarplot")) {
+  } else if (graphType %in% c("Color", "Pie", "CatBarplot")) {
     if (is.null(plotVarOne)) return(NULL)
     plotVar <- plotVarOne
     data <- plot.data[, plotVar]
@@ -532,14 +519,13 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
     data <- as.character(plot.data[, plotVarOne])
   }
   
-  options <- list(equalSize= plotEqualSize)
-  
-  plotParams <- getPlotParams(graphType, ok.som, ok.sc,  
-                              data, plotSize, plotVar, contrast,
-                              palsc, palplot, cellNames,
-                              plotOutliers, plotRevPal, options, 
-                              average_format)
-  
+  plotParams <- getPlotParams(graphType, ok.som, ok.sc, data, plotSize, 
+                              plotVar, cellNames,
+                              contrast, average_format,
+                              palsc, palplot, plotRevPal, 
+                              plotOutliers, plotShowSC, plotEqualSize, 
+                              plotAxes, plotTransparency)
+
   # create the widget
   htmlwidgets::createWidget("aweSOMwidget", plotParams, elementId = elementId, 
                             width = plotSize, height = plotSize, package = "aweSOM", 
@@ -567,39 +553,70 @@ aweSOMwidget_html = function(id, style, class, ...){
 #################################
 
 
-#' SOM interactive visualizations
+#' Interactive SOM visualizations
 #'
-#' This function allows to plot interactive visualizations of self-organizing maps (SOM) as html-widgets. 
-#' The following types of visualizations can be displayed that reflect upon distribution of observations per cell and 
-#' distributions of variables per cell: population map ('hitmap'), radar, barplot (for numeric variables), boxplot, lineplot, pie (camembert), 
-#' and barplot ('CatBarplot' for categorical data). The interactive plots display the respective observations per cell as well as further statistical information on 
-#'  selected variables when hovering over these.
+#' Plot interactive visualizations of self-organizing maps (SOM), as an html
+#' page. The plot can represent general map informations, or selected
+#' categorical or numeric variables (not necessarily the ones used during
+#' training). Hover over the map to focus on the selected cell or variable, and
+#' display further information.
 #'
-#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
-#' @param ok.sc superclasses
-#' @param ok.data SOM training dataset
-#' @param omitRows Select to omit specific rows in the ok.data argument.
-#' @param graphType The graph type. Either "hitmap" (for population map), "radar", "barplot" (for numerical variables), 
-#'  "boxplot", "lineplot", "camembert" (pie chart plot), or "CatBarplot" (for categorical variable) . Default is "hitmap"
-#' @param plotNames Select variable by which observations per each cell are displayed as you hover over a cell. Default is "(rownames)"
-#' @param plotVarMult Plotted variables. Concerning the radar, barplot, boxplot, lineplot, this argument allows selecting the variables
-#' which should be displayed within the SOM visualization as a vector of characters indicating the names of the variables. Concering
-#' visualizations of categorical variables, only one variable can be passed to the functon.
-#' @param plotVarOne Julien you probabyl will mege this one so I leave it blank
-#' @param plotOutliers Indicating whether outlier variables in the "boxplot" SOM visualization are displayed. Default is TRUE (outliers are displayed)
-#' @param plotEqualSize ???
-#' @param contrast Controls the scaling of the variables. Default is "constrast" which scales each of the variables indepenently. 
-#' Alternatively, same scales can be used where all variables are displayed on the identical scaled based on global minimum and 
-#' maximum values by using "no_constrast". Or the observations range by using "range"
-#' @param average_format The type of average used for the visualizated variables. Default option is "mean", alternatively 
-#' "median" can be used to displayed the median value of the variables or "prototype" which is the value of the SOM cell protoype
-#' @param plotSize Plot size of the SOM visualization measured as integer value in pixel. Default is 100.
-#' @param palsc The color palette for visualizing superclasses of SOM. Default is "Set3"
-#' @param palplot The  color palette for visualizing variables in SOM cells. Default is "viridis"
-#' @param plotRevPal Boolean whether color palette for variables is reversed. Default is FALSE
-#' @param elementId (optional) user-defined elementId of the widget
+#' @param som ```kohonen``` object, a SOM created by the ```som``` function.
+#' @param type character, the plot type. The default "Hitmap" is a population
+#'   map. "UMatrix" plots the average distance of each cell to its neighbors, on
+#'   a color scale. "Circular" (barplot), "Barplot", "Boxplot", "Radar" and
+#'   "Line" are for numeric variables. "Color" (heat map) is for a single
+#'   numeric variable. "Pie" (pie chart) and "CatBarplot" are for a single
+#'   categorical (factor) variable.
+#' @param data data.frame containing the variables to plot. This is typically
+#'   not the training data, but rather the unscaled original data, as it is
+#'   easier to read the results in the original units, and this allows to plot
+#'   extra variables not used in training. If not provided, the training data is
+#'   used.
+#' @param variables character vector containing the names of the variable(s) to
+#'   plot. The selected variables must be numeric for types "Circular",
+#'   "Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types
+#'   "Pie" and "CatBarplot". If not provided, all columns of data will be
+#'   selected. If a numeric variable is provided to a "Pie" or "CatBarplot", it
+#'   will be split into a maximum of 30 classes.
+#' @param superclass integer vector, the superclass of each cell of the SOM.
+#' @param obsNames character vector, names of the observations to be displayed
+#'   when hovering over the cells of the SOM. Must have a length equal to the
+#'   number of data rows. If not provided, the row names of data will be used.
+#' @param scales character, controls the scaling of the variables on the plot.
+#'   The default "constrast" maximizes the displayed contrast by scaling the
+#'   displayed heights of each variable from minimum to maximum of the displayed
+#'   value. Alternatively, "range" uses the minimum and maximum of the
+#'   observations for each variable, and "same" displays all variables on the
+#'   same scale, using the global minimum and maximum of the data.
+#' @param values character, the type of value to be displayed. The default
+#'   "mean" uses the observation means (from data) for each cell. Alternatively,
+#'   "median" uses the observation medians for each cell, and "prototypes" uses
+#'   the SOM's prototypes values.
+#' @param size numeric, plot size, in pixels. Default 400a.
+#' @param palsc character, the color palette used to represent the superclasses
+#'   as background of the cells. Default is "Set3". Can be "viridis", "grey",
+#'   "rainbow", "heat", "terrain", "topo", "cm", or any palette name of the
+#'   RColorBrewer package.
+#' @param palvar character, the color palette used to represent the variables.
+#'   Default is "viridis", available choices are the same as for palsc.
+#' @param palrev logical, whether color palette for variables is reversed.
+#'   Default is FALSE.
+#' @param showAxes logical, whether to display the axes (for "Circular",
+#'   "Barplot", "Boxplot", "Star", "Line", "CatBarplot"), default TRUE.
+#' @param transparency logical, whether to use transparency when focusing on a
+#'   variable, default TRUE.
+#' @param boxOutliers logical, whether outliers in "Boxplot" are displayed,
+#'   default TRUE.
+#' @param showSC logical, whether to display superclasses as labels in the
+#'   "Color" and "UMatrix" plots, default TRUE.
+#' @param pieEqualSize logical, whether "Pie" should display pies of equal size.
+#'   The default FALSE displays pies with areas proportional to the number of
+#'   observations in the cells.
+#' @param elementId character, user-defined elementId of the widget. Can be
+#'   useful for user extensions when embedding the result in an html page.
 #'
-#' @return Interactive html-widget visualizing a SOM.
+#' @return Returns an object of class htmlwidget.
 #'
 #' @examples
 #' ## Build training data
@@ -610,83 +627,151 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- aweSOM::somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-#'                        rlen = 100, alpha = c(0.05, 0.01), 
-#'                        radius = c(6.08,-6.08), init = init, 
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+#'                        rlen = 100, alpha = c(0.05, 0.01),
+#'                        radius = c(6.08,-6.08), init = init,
 #'                        dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
-#' 
-#' # Plots for numerical variables and population map ('hitmap')
+#'
+#' ## Population map ('Hitmap')
+#' aweSOMplot(som = ok.som, type = 'Hitmap', superclass = superclasses)
+#'
+#' ## Plots for numerical variables
 #' variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
-#' #Hitmap
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
-#'                    graphType = 'Hitmap', plotSize = 100)
-#' #Radar
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
-#'                    graphType = 'Radar', plotVarMult = variables, 
-#'                    plotSize = 100)
-#'                    
-#' #Barplot (numeric variables)
-#' aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
-#'                    graphType = 'Barplot', plotVarMult = variables,
-#'                     plotSize = 100)
-#'                     
-#' # Plots for categorial variables  
-#' #Pie ('camembert')                    
-#' aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-#'            graphType = 'Camembert',  plotVarOne = 'species', plotSize = 400)
-#'            
-#' #Barplot (categorical variables)    
-#' aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,
-#'            graphType = 'CatBarplot',  plotVarOne = 'species', plotSize = 400)                       
+#' ## Circular barplot
+#' aweSOMplot(som = ok.som, type = 'Circular', data = iris,
+#'            variables= variables, superclass = superclasses)
+#' ## Barplot (numeric variables)
+#' aweSOMplot(som = ok.som, type = 'Barplot', data = iris,
+#'            variables= variables, superclass = superclasses)
+#'
+#' ## Plots for categorial variables (iris species, not used for training)
+#' ## Pie
+#' aweSOMplot(som = ok.som, type = 'Pie', data = iris,
+#'            variables= "Species", superclass = superclasses)
+#' # Barplot (categorical variables)
+#' aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris,
+#'            variables= "Species", superclass = superclasses)
 
-# aweSOMplot <- function(som, type= "Hitmap", data= NULL, variables= NULL, 
-#                        superclass= NULL, plotNames= "(rownames)", 
-#                        scales= "contrast", values= "mean",
-#                        plotSize= 100, 
-#                        palsc= "Set3", palplot= "viridis", plotRevPal= F, 
-#                        plotOutliers= T, plotEqualSize= F,
-#                        elementId= NULL) {
-#   
-
-aweSOMplot <- function(ok.som, ok.sc= NULL, ok.data, omitRows= NULL, 
-                       graphType= "Hitmap", 
-                       plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
-                       plotOutliers= T, plotEqualSize= F,
-                       contrast= "contrast", average_format= "mean",
-                       plotSize= 100, 
-                       palsc= "Set3", palplot= "viridis", plotRevPal= F, 
+aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Circular", "Barplot", 
+                                    "Boxplot", "Radar", "Line", "Color",
+                                    "Pie", "CatBarplot"), 
+                       data= NULL, variables= NULL, superclass= NULL, 
+                       obsNames= NULL,
+                       scales= c("contrast", "range", "same"), 
+                       values= c("mean", "median", "prototypes"),
+                       size= 400, 
+                       palsc=  c("Set3", "viridis", "grey", "rainbow", "heat", "terrain", 
+                                 "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
+                       palvar= c("viridis", "grey", "rainbow", "heat", "terrain", 
+                                 "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
+                       palrev= FALSE,
+                       showAxes= TRUE,
+                       transparency= TRUE,
+                       boxOutliers= TRUE, 
+                       showSC = TRUE,
+                       pieEqualSize= FALSE,
                        elementId= NULL) {
-  ok.trainrows <- rep(T, nrow(ok.data))
-  if (length(omitRows) > 0) ok.trainrows[omitRows] <- F
-  
-  if (is.null(ok.sc)) ok.sc <- rep(1, nrow(ok.data))
-  ok.sc <- unname(ok.sc)
 
-  res <- aweSOMwidget(ok.som, ok.sc = ok.sc, ok.data = ok.data, 
-                      ok.trainrows = ok.trainrows, graphType = graphType, 
-                      plotNames = plotNames,
-                      plotVarMult= plotVarMult, plotVarOne= plotVarOne, 
-                      plotOutliers = plotOutliers, plotEqualSize = plotEqualSize, 
-                      contrast = contrast, average_format = average_format, 
-                      plotSize = plotSize, 
-                      palsc = palsc, palplot = palplot, plotRevPal = plotRevPal, 
-                      elementId = elementId)
+  type <- match.arg(type)
+  scales <- match.arg(scales)
+  values <- match.arg(values)
+  palsc <- match.arg(palsc)
+  palvar <- match.arg(palvar)
   
-  elementId <- res$elementId
-  if(is.null(elementId)) {
-    elementId <- paste0('aweSOMwidget-', paste(format(as.hexmode(sample(256, 10, replace = TRUE) - 1), width = 2), collapse = ""))
-    res$elementId <- elementId
+  if (!("kohonen" %in% class(som)))
+    stop("`som` argument must be a `kohonen` object, created by `kohonen::som`")
+  
+  if (type %in% c("Circular", "Barplot", "Boxplot", "Radar", "Line", "Color", "Pie", "CatBarplot")) {
+    if (is.null(data)) ## If no data, fall back on training data
+      data <- som$data[[1]]
+    
+    if (nrow(data) != nrow(som$data[[1]])) 
+      stop("`data` must have the same number of rows as the training data.")
+    
+    if (is.null(variables)) ## If no variables, fall back on all columns
+      variables <- colnames(data)
+    
+    if (! all(variables %in% colnames(data))) 
+      stop(paste0("Variables < ", 
+                  paste(variables[! (variables %in% colnames(data))], collapse= " , "),
+                  " > not found in data"))
+    
+    if (type %in% c("Color", "Pie", "CatBarplot")) {
+      if (length(variables) > 1) {
+        warning(paste0(type, " : Multiple variables provided, only the first one will be plotted."))
+        variables <- variables[1]
+      }
+    }
+    
+    if (type %in% c("Circular", "Barplot", "Boxplot", "Radar", "Line", "Color")) {
+      var.num <- sapply(variables, function(i) is.numeric(data[, i]))
+      if (!all(var.num)) {
+        warning(paste0("Only numeric variables can be plotted by ", type, 
+                       ", variables < ", paste(variables[!var.num], collapse= " , "), 
+                       " > will be dropped."))
+        variables <- variables[var.num]
+      }
+    }
+      
   }
   
-  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(elementId, "-info"))))
-  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(elementId, "-message"))))
-  res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= paste0(elementId, "-names"))))
-  if (graphType %in% c("Barplot", "Boxplot", "Radar", "Camembert", "CatBarplot"))
-    res <- htmlwidgets::appendContent(res, htmltools::tag("svg", list(id= paste0(elementId, "-legend"), width = "100%")))
+  if (!(type %in% c("Hitmap", "UMatrix")))
+    data <- as.data.frame(data)[variables]
+  
+  if (is.null(superclass)) {
+    superclass <- rep(1, nrow(som$grid$pts))
+  } else if (length(superclass) != nrow(som$grid$pts)) {
+    warning("`superclass` must have a length equal to the number of cells on the map. \
+            No superclass will be plotted.")
+    superclass <- rep(1, nrow(som$grid$pts))
+  }
+  superclass <- unname(superclass)
 
+  obsClust <- som$unit.classif
+
+  if (is.null(obsNames)) {
+    if (is.null(rownames(data))) {
+      obsNames <- as.character(1:nrow(som$data[[1]]))
+    } else obsNames <- rownames(data)
+  } else if (length(obsNames) != nrow(data)) {
+    warning("`obsNames` must have a length equal to the number of rows of `data`.")
+    if (is.null(rownames(data))) {
+      obsNames <- as.character(1:nrow(som$data[[1]]))
+    } else obsNames <- rownames(data)
+  }
+  obsNames <- unname(lapply(split(obsNames, factor(obsClust, levels= 1:nrow(som$codes[[1]]))), 
+                            function(x) paste(x, collapse= ", ")))
+  
+  plotParams <- getPlotParams(type, som, superclass, data, size, 
+                              variables, obsNames,
+                              scales, values, palsc, palvar, palrev, 
+                              boxOutliers, showSC, pieEqualSize, 
+                              showAxes, transparency)
+
+  ## Create the widget
+  res <- htmlwidgets::createWidget(
+    "aweSOMwidget", plotParams, elementId = elementId, 
+    width = size, height = size, package = "aweSOM", 
+    sizingPolicy = htmlwidgets::sizingPolicy(defaultWidth = "100%", 
+                                             defaultHeight = "auto", padding= 0))
+
+  ## Add elements for legend and messages
+  if(is.null(res$elementId)) {
+    res$elementId <- paste0(
+      'aweSOMwidget-', paste(format(as.hexmode(sample(256, 10, replace = TRUE) - 1), 
+                                    width = 2), collapse = ""))
+  }
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(res$elementId, "-info"))))
+  res <- htmlwidgets::prependContent(res, htmltools::tag("h4", list(id= paste0(res$elementId, "-message"))))
+  res <- htmlwidgets::appendContent(res, htmltools::tag("p", list(id= paste0(res$elementId, "-names"))))
+  res <- htmlwidgets::appendContent(res, htmltools::tag(
+    "svg", list(id= paste0(res$elementId, "-legend"), width = "100%", 
+                height= ifelse(type %in% c("Circular", "Barplot", "Boxplot", 
+                                           "Pie", "CatBarplot"), "100%", "0"))))
+  
   res
 }
 

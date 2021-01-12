@@ -7,7 +7,7 @@
 aweSOMsmoothdist(x, pal = "viridis", reversePal = F)
 }
 \arguments{
-\item{x}{SOM data object}
+\item{x}{```kohonen``` object, a SOM created by the ```som``` function.}
 
 \item{pal}{The color palette for visualizing distance. Default is "viridis"}
 
@@ -17,7 +17,8 @@ aweSOMsmoothdist(x, pal = "viridis", reversePal = F)
 Smooth distance plot
 }
 \description{
-TBD
+Plots a visualization of the distances between the individual SOM cells. Visualizations for
+hexagonal layout are biased with respect to the quadratic layout of the smooth distance plot.
 }
 \examples{
 ok.data <- iris

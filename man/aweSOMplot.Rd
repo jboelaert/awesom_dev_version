@@ -2,77 +2,114 @@
 % Please edit documentation in R/graph_panel_functions.R
 \name{aweSOMplot}
 \alias{aweSOMplot}
-\title{SOM interactive visualizations}
+\title{Interactive SOM visualizations}
 \usage{
 aweSOMplot(
-  ok.som,
-  ok.sc = NULL,
-  ok.data,
-  omitRows = NULL,
-  graphType = "Hitmap",
-  plotNames = "(rownames)",
-  plotVarMult = NULL,
-  plotVarOne = NULL,
-  plotOutliers = T,
-  plotEqualSize = F,
-  contrast = "contrast",
-  average_format = "mean",
-  plotSize = 100,
-  palsc = "Set3",
-  palplot = "viridis",
-  plotRevPal = F,
+  som,
+  type = c("Hitmap", "UMatrix", "Circular", "Barplot", "Boxplot", "Radar", "Line",
+    "Color", "Pie", "CatBarplot"),
+  data = NULL,
+  variables = NULL,
+  superclass = NULL,
+  obsNames = NULL,
+  scales = c("contrast", "range", "same"),
+  values = c("mean", "median", "prototypes"),
+  size = 400,
+  palsc = c("Set3", "viridis", "grey", "rainbow", "heat", "terrain", "topo", "cm",
+    rownames(RColorBrewer::brewer.pal.info)),
+  palvar = c("viridis", "grey", "rainbow", "heat", "terrain", "topo", "cm",
+    rownames(RColorBrewer::brewer.pal.info)),
+  palrev = FALSE,
+  showAxes = TRUE,
+  transparency = TRUE,
+  boxOutliers = TRUE,
+  showSC = TRUE,
+  pieEqualSize = FALSE,
   elementId = NULL
 )
 }
 \arguments{
-\item{ok.som}{SOM data object}
+\item{som}{```kohonen``` object, a SOM created by the ```som``` function.}
 
-\item{ok.sc}{superclasses}
+\item{type}{character, the plot type. The default "Hitmap" is a population
+map. "UMatrix" plots the average distance of each cell to its neighbors, on
+a color scale. "Circular" (barplot), "Barplot", "Boxplot", "Radar" and
+"Line" are for numeric variables. "Color" (heat map) is for a single
+numeric variable. "Pie" (pie chart) and "CatBarplot" are for a single
+categorical (factor) variable.}
 
-\item{ok.data}{SOM training dataset}
+\item{data}{data.frame containing the variables to plot. This is typically
+not the training data, but rather the unscaled original data, as it is
+easier to read the results in the original units, and this allows to plot
+extra variables not used in training. If not provided, the training data is
+used.}
 
-\item{omitRows}{Select to omit specific rows in the ok.data argument.}
+\item{variables}{character vector containing the names of the variable(s) to
+plot. The selected variables must be numeric for types "Circular",
+"Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types
+"Pie" and "CatBarplot". If not provided, all columns of data will be
+selected. If a numeric variable is provided to a "Pie" or "CatBarplot", it
+will be split into a maximum of 30 classes.}
 
-\item{graphType}{The graph type. Either "hitmap", "radar", "barplot", "boxplot" ,or "lineplot". Default is "hitmap"}
+\item{superclass}{integer vector, the superclass of each cell of the SOM.}
 
-\item{plotNames}{Select variable by which observations per each cell are displayed as you hover over a cell. Default is "(rownames)"}
+\item{obsNames}{character vector, names of the observations to be displayed
+when hovering over the cells of the SOM. Must have a length equal to the
+number of data rows. If not provided, the row names of data will be used.}
 
-\item{plotVarMult}{Plotted variables. Concerning the radar, barplot, boxplot, lineplot, this argument allows selecting the variables
-which should be displayed within the SOM visualization as a vector of characters indicating the names of the variables. Concering
-visualizations of categorical variables, only one variable can be passed to the functon.}
+\item{scales}{character, controls the scaling of the variables on the plot.
+The default "constrast" maximizes the displayed contrast by scaling the
+displayed heights of each variable from minimum to maximum of the displayed
+value. Alternatively, "range" uses the minimum and maximum of the
+observations for each variable, and "same" displays all variables on the
+same scale, using the global minimum and maximum of the data.}
 
-\item{plotVarOne}{Julien you probabyl will mege this one so I leave it blank}
+\item{values}{character, the type of value to be displayed. The default
+"mean" uses the observation means (from data) for each cell. Alternatively,
+"median" uses the observation medians for each cell, and "prototypes" uses
+the SOM's prototypes values.}
 
-\item{plotOutliers}{Indicating whether outlier variables in the "boxplot" SOM visualization are displayed. Default is TRUE (outliers are displayed)}
+\item{size}{numeric, plot size, in pixels. Default 400a.}
 
-\item{plotEqualSize}{???}
+\item{palsc}{character, the color palette used to represent the superclasses
+as background of the cells. Default is "Set3". Can be "viridis", "grey",
+"rainbow", "heat", "terrain", "topo", "cm", or any palette name of the
+RColorBrewer package.}
 
-\item{contrast}{Controls the scaling of the variables. Default is "constrast" which scales each of the variables indepenently. 
-Alternatively, same scales can be used where all variables are displayed on the identical scaled based on global minimum and 
-maximum values by using "no_constrast". Or the observations range by using "range"}
+\item{palvar}{character, the color palette used to represent the variables.
+Default is "viridis", available choices are the same as for palsc.}
 
-\item{average_format}{The type of average used for the visualizated variables. Default option is "mean", alternatively 
-"median" can be used to displayed the median value of the variables or "prototype" which is the value of the SOM cell protoype}
+\item{palrev}{logical, whether color palette for variables is reversed.
+Default is FALSE.}
 
-\item{plotSize}{Plot size of the SOM visualization measured as integer value in pixel. Default is 100.}
+\item{showAxes}{logical, whether to display the axes (for "Circular",
+"Barplot", "Boxplot", "Star", "Line", "CatBarplot"), default TRUE.}
 
-\item{palsc}{The color palette for visualizing superclasses of SOM. Default is "Set3"}
+\item{transparency}{logical, whether to use transparency when focusing on a
+variable, default TRUE.}
 
-\item{palplot}{The  color palette for visualizing variables in SOM cells. Default is "viridis"}
+\item{boxOutliers}{logical, whether outliers in "Boxplot" are displayed,
+default TRUE.}
 
-\item{plotRevPal}{Boolean whether color palette for variables is reversed. Default is FALSE}
+\item{showSC}{logical, whether to display superclasses as labels in the
+"Color" and "UMatrix" plots, default TRUE.}
 
-\item{elementId}{(optional) user-defined elementId of the widget}
+\item{pieEqualSize}{logical, whether "Pie" should display pies of equal size.
+The default FALSE displays pies with areas proportional to the number of
+observations in the cells.}
+
+\item{elementId}{character, user-defined elementId of the widget. Can be
+useful for user extensions when embedding the result in an html page.}
 }
 \value{
-Interactive html-widget visualizing a SOM.
+Returns an object of class htmlwidget.
 }
 \description{
-This function allows to create interactive visualizations of self-organizing maps (SOM) as html-widgets. 
-The following types of visualizations can be displayed that reflect upon distribution of observations per cell and 
-distributions of variables per cell: hitmap, radar, barplot, boxplot, lineplot. Interactive behavior enables
-the display of the respective observations per cell as well as further statistical information on 
-selected variables when hovering over these.
+Plot interactive visualizations of self-organizing maps (SOM), as an html
+page. The plot can represent general map informations, or selected
+categorical or numeric variables (not necessarily the ones used during
+training). Hover over the map to focus on the selected cell or variable, and
+display further information.
 }
 \examples{
 ## Build training data
@@ -83,24 +120,31 @@ dat <- scale(dat)
 ### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
 init <- aweSOM::somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-                       rlen = 100, alpha = c(0.05, 0.01), 
-                       radius = c(6.08,-6.08), init = init, 
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+                       rlen = 100, alpha = c(0.05, 0.01),
+                       radius = c(6.08,-6.08), init = init,
                        dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (PAM clustering)
 superclust <- cluster::pam(ok.som$codes[[1]], 2)
 superclasses <- unname(superclust$clustering)
 
+## Population map ('Hitmap')
+aweSOMplot(som = ok.som, type = 'Hitmap', superclass = superclasses)
+
+## Plots for numerical variables
 variables <- c("Sepal.Length", "Sepal.Width",  "Petal.Length", "Petal.Width")
-#Hitmap
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
-                   graphType = 'Hitmap', plotSize = 100)
-#Radar
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris, 
-                   graphType = 'Radar', plotVarMult = variables, 
-                   plotSize = 100)
-#Barplot
-aweSOM::aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = iris,
-                   graphType = 'Barplot', plotVarMult = variables,
-                    plotSize = 100)
+## Circular barplot
+aweSOMplot(som = ok.som, type = 'Circular', data = iris,
+           variables= variables, superclass = superclasses)
+## Barplot (numeric variables)
+aweSOMplot(som = ok.som, type = 'Barplot', data = iris,
+           variables= variables, superclass = superclasses)
+
+## Plots for categorial variables (iris species, not used for training)
+## Pie
+aweSOMplot(som = ok.som, type = 'Pie', data = iris,
+           variables= "Species", superclass = superclasses)
+# Barplot (categorical variables)
+aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris,
+           variables= "Species", superclass = superclasses)
 }

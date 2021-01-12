@@ -7,7 +7,7 @@
 aweSOMsilhouette(ok.som, ok.sc)
 }
 \arguments{
-\item{ok.som}{SOM data object}
+\item{ok.som}{```kohonen``` object, a SOM created by the ```som``` function.}
 
 \item{ok.sc}{Computed super-classes object resulting from either PAM or hierarchical clustering}
 }
@@ -15,8 +15,8 @@ aweSOMsilhouette(ok.som, ok.sc)
 Silhouette plot for superclass clustering
 }
 \description{
-Create a silhouette plot that provides a quality measurement of the quality of the clustering of each SOM cell 
-for both PAM and hierarchical clustering.
+Plots a silhouette plot that provides a quality measurement of the superclasses of the SOM. 
+Available for for both PAM and hierarchical clustering.
 }
 \examples{
 ## Build training data
