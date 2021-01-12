@@ -12,7 +12,7 @@ aweSOMscreeplot(
 )
 }
 \arguments{
-\item{ok.som}{SOM data object}
+\item{ok.som}{```kohonen``` object, a SOM created by the ```som``` function.}
 
 \item{nclass}{number of superclasses to be visualized in the screeplot. Default is 2.}
 
@@ -26,8 +26,8 @@ for other options, see the stats::hclust method documentation.}
 Screeplot
 }
 \description{
-Creates a screeplot that that provides a quality measurement of the quality of the clustering of each SOM cell 
-for both PAM and hierarchical clustering.
+Plots a screeplot that that provides a quality measurement of the quality of the superclasses of the SOM. 
+Available for both PAM and hierarchical clustering.
 }
 \examples{
 ## Build training data

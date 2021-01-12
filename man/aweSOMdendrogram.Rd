@@ -7,18 +7,18 @@
 aweSOMdendrogram(ok.som, ok.hclust, input_kohSuperclass)
 }
 \arguments{
-\item{ok.som}{SOM data object}
+\item{ok.som}{```kohonen``` object, a SOM created by the ```som``` function.}
 
 \item{ok.hclust}{hierarchical clustering object}
 
 \item{input_kohSuperclass}{number of superclasses}
 }
 \value{
-Dendogram plot of hierarchical superclass clustering
+Dendogram plot of hierarchical superclass clusters
 }
 \description{
-Creates a dendogram that that provides a quality measurement of the quality of the clustering of each SOM cell 
-for hierarchical clustering
+Plots a dendogram that that provides a quality measurement of the superclasses of the SOM
+when using hierarchical clustering
 }
 \examples{
 ## Build training data

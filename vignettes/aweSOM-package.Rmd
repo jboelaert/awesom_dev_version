@@ -107,7 +107,7 @@ Also, variables can be plotted using :
 Categorical variables, or variables that were not taken into account in the creation of the map, can also be plotted.  
 
 ```{r}
-aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Camembert', 
+aweSOMplot(ok.som = ok.som, ok.data = ok.data, graphType = 'Pie', 
            plotVarOne = 'Species', plotSize = 400)
 ```
 

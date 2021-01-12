@@ -774,7 +774,7 @@ HTMLWidgets.widget({
 				thePlot.selectAll(".bpOutlier").transition().duration(50).attr("opacity", 1);
   		});
 
-    } else if(plotType.localeCompare("Camembert")==0) {
+    } else if(plotType.localeCompare("Pie")==0) {
       //////////////////////////////////////////////////////////////////////////
       // Pie plot
       //////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
                                "Line"= "Line", 
                                 "Star"= "Star", # uncomment to active the star plot
                                "Heat"= "Color"), 
-                    Categorical= c("Pie"= "Camembert", 
+                    Categorical= c("Pie"= "Pie", 
                                    "Barplot"= "CatBarplot"))
 
 
@@ -620,40 +620,44 @@ shinyServer(function(input, output, session) {
     ## Reproducible script for plot
     values$codetxt$plot <- paste0(
       "\n## Interactive plot\n", 
-      "aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
-      "           graphType = '", input$graphType, "', \n", 
-      if(any(!ok.trainrows())) {
-        paste0("           omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n")
+      "aweSOMplot(som = ok.som, type = '", input$graphType, "', ", 
+      if (! (input$graphType %in% c("Hitmap", "UMatrix"))) {
+        "data = ok.data, "
       }, 
-      if (input$plotNames != "(rownames)") {
-        paste0("           plotNames = '", input$plotNames, "',\n")
-      },
+      "\n",
       if (input$graphType %in% c("Radar", "Barplot", "Boxplot", "Line", "Star")) {
-        paste0("           plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
+        paste0("           variables = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
       },
-      if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
-        paste0("           plotVarOne = '", input$plotVarOne, "',\n")
+      if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
+        paste0("           variables = '", input$plotVarOne, "',\n")
       },
-      if (input$graphType == "Camembert" && input$plotEqualSize) {
-        paste0("           plotEqualSize = ", input$plotEqualSize, ",\n") 
-      },
+      "           superclass = superclasses, ", 
+      if (input$plotNames != "(rownames)") {
+        paste0("obsNames = ok.data$", input$plotNames, ", ")
+      }, 
+      "\n",
       if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$contrast != "contrast") {
-        paste0("           contrast = '", input$contrast, "',\n")
+        paste0("           scales = '", input$contrast, "',\n")
       },
       if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$average_format != "mean") {
-        paste0("           average_format = '", input$average_format, "',\n")
+        paste0("           values = '", input$average_format, "',\n")
       },
       if (input$palsc != "Set3") {
-        paste0("           palsc = '", input$palsc, "',\n")
+        paste0("           palsc = '", input$palsc, "', \n")
       },
       if (input$palplot != "viridis") {
-        paste0("           palplot = '", input$palplot, "',\n")
+        paste0("           palvar = '", input$palplot, "', \n")
       }, 
       if (input$plotRevPal) {
-        paste0("           plotRevPal = ", input$plotRevPal, ",\n")
+        paste0("           palrev = ", input$plotRevPal, ", \n")
       },
-      "           plotSize = ", input$plotSize, ")"
-    )
+      if (input$graphType == "Boxplot" && !input$plotOutliers) {
+        "           boxOutliers = FALSE,\n"
+      },
+      if (input$graphType == "Pie" && input$plotEqualSize) {
+        paste0("           plotEqualSize = TRUE,\n") 
+      },
+      "           size = ", input$plotSize, ")")
     
     aweSOM:::aweSOMwidget(ok.som= ok.som(), 
                           ok.sc= ok.sc(), 

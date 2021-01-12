@@ -241,7 +241,7 @@ shinyUI(fluidPage(
                                                             selected= "Hitmap"))),
                              
                              #question about that panel below
-                             conditionalPanel('input.graphType == "Camembert" | input.graphType == "CatBarplot" | input.graphType == "Color" | input.graphType == "Names"', 
+                             conditionalPanel('input.graphType == "Pie" | input.graphType == "CatBarplot" | input.graphType == "Color" | input.graphType == "Names"', 
                                               uiOutput("plotVarOne")),
                              conditionalPanel(paste0('input.graphType == "Radar" | ', 
                                                      'input.graphType == "Line" | ', 
@@ -282,14 +282,14 @@ shinyUI(fluidPage(
                                                                  column(7, selectInput("contrast", NULL,
                                                                                        choices = c("Contrast" = "contrast",
                                                                                                    "Observations Range" = "range",
-                                                                                                   "Same scale" = "no_contrast"),
+                                                                                                   "Same scale" = "same"),
                                                                                        selected = "contrast")),
                                                                  column(1, actionButton("help_contrast", "", icon = icon("question"), width = NULL)))), 
                                               
                                               conditionalPanel('input.graphType == "Boxplot"', 
                                                                checkboxInput("plotOutliers", "Plot outliers", value= T)),
                                               
-                                              conditionalPanel('input.graphType == "Camembert"', 
+                                              conditionalPanel('input.graphType == "Pie"', 
                                                                checkboxInput("plotEqualSize", "Equal pie sizes", F)), 
                                               
                                               conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "Color" & input.graphType != "UMatrix" & input.graphType != "SmoothDist"', 
