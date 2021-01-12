@@ -11,7 +11,6 @@ options(shiny.maxRequestSize=2^30) # Max filesize
 
 ## List of possible plots, by "what" type
 plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
-                               # "Names"= "Names", 
                                "Superclass Dendrogram"= "Dendrogram",
                                "Superclass Scree plot"= "Screeplot",
                                "Superclass Silhouette"= "Silhouette",
@@ -20,41 +19,43 @@ plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
                     Numeric= c("Circular Barplot"= "Circular", 
                                "Barplot"= "Barplot", 
                                "Boxplot"= "Boxplot",
-                               "Line"= "Line", 
-                               "Radar"= "Radar",
-                               "Heat"= "Color"), 
+                               "Line plot"= "Line", 
+                               "Radar chart"= "Radar",
+                               "Heat map (Color)"= "Color"), 
                     Categorical= c("Pie"= "Pie", 
                                    "Barplot"= "CatBarplot"))
 
 
 help_messages <- list(import_data_panel = HTML("<h3>Working with aweSOM</h3> <br>
-                          Within this aweSOM application self-organizing Kohonen maps (SOM) can be trained and visualized.
-                          The following functionalities are provided. <br>
-                          
-                          <strong>Import:</strong> Import the data to training dataset. <br>
-                          <strong>Train:</strong>  Train the SOM based on the kohonen package<br>
+                          Use this interface to train and visualize self-organizing maps (SOM, aka Kohonen maps).
+                          Use the tabs above in sequence : <br>
+                          <strong>Import Data:</strong> Import the data to analyze. <br>
+                          <strong>Train:</strong> Train the SOM on selected variables.<br>
                           <strong>Plot:</strong> Visualize the trained SOM <br>
-                          <strong>Export Data:</strong> Export the trained SOM <br>
-                          <strong>R Script:</strong> Access an R script to reproduce your code in R <br>
+                          <strong>Export Data:</strong> Export the trained SOM or clustered data <br>
+                          <strong>R Script:</strong> Generate the R script to reproduce your analysis in R <br>
                           <strong>About:</strong> Further information on this application <br>"),
                       train_panel = HTML("<h3>Advanced Training Options</h3> <br>
-                          <strong>Initialization:</strong> Initialize the nodes of the SOM before training<br>
-                          <strong>Rlen:</strong>  number of times the complete data set will be presented to the network  <br>
-                          <strong>Alpha:</strong> Set the learning rate  <br>
-                          <strong>Radius:</strong> Neighborhood Radius <br>
-                          <strong>Random Seed:</strong> Allows for reproducibility of non-deterministic procedures <br>"),
+                          <strong>Initialization:</strong> Method for prototype initialization. \
+                          'PCA Obs' takes as prototypes the observations that are closest to \
+                          the nodes of a 2d grid placed along the first two components of a PCA. \
+                          The 'PCA' method uses the nodes instead of the observations.\
+                          The 'Random Obs' method samples random observations.<br>
+                          <strong>Rlen:</strong>  Number of times the complete data set will be presented to the network. <br>
+                          <strong>Alpha:</strong> Learning rate. <br>
+                          <strong>Radius:</strong> Neighborhood Radius. <br>
+                          <strong>Random Seed:</strong> Seed of the pseudo-random number generator. \
+                          This allows the results to be reproduced in later work.<br>
+                          See help(kohonen::som) in R for more details about the training options."),
                       help_contrast = HTML("<h3>Variables scales</h3> <br>
-                                           <strong>Contrast:</strong>: scales each of the variables indepenently <br>
-                                           <strong>Observations Range:</strong>:  Difference between the largest and smallest values <br>
-                                           <strong>Same Scales:</strong>: all variables are displayed on the identical scaled 
-                                           based on global minimum and  maximum values  <br>"),
+                                           <strong>Contrast:</strong>: maximum contrast. Scales the heights of each variable from minimum to maximum of the mean/median/prototype.<br>
+                                           <strong>Observations Range:</strong>:  Scales the heights of each variable from minimum to maximum of the observations.<br>
+                                           <strong>Same Scales:</strong>: All heights are displayed on the same scale, using the global minimum and maximum of the observations.<br>"),
                       help_average_format =  HTML("<h3>Values</h3> <br>
-                                            Controls the scaling of the variables <br>
-                                           <strong>Observation Means:</strong>: Display mean of observations per cell <br>
-                                           <strong>Observation Medians:</strong>: Display median of observations per cell <br>
-                                           <strong>Prototypes:</strong>: Display prototype values per cell <br>")
-                      
-                      
+                                            What value to display <br>
+                                           <strong>Observation Means:</strong>: Means of observations per cell <br>
+                                           <strong>Observation Medians:</strong>: Medians of observations per cell <br>
+                                           <strong>Prototypes:</strong>: Prototype values per cell <br>")
 )
 
 
@@ -603,7 +604,7 @@ shinyServer(function(input, output, session) {
         "data = ok.data, "
       }, 
       "\n",
-      if (input$graphType %in% c("Cicular", "Barplot", "Boxplot", "Line", "Radar")) {
+      if (input$graphType %in% c("Circular", "Barplot", "Boxplot", "Line", "Radar")) {
         paste0("           variables = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
       },
       if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
@@ -614,10 +615,10 @@ shinyServer(function(input, output, session) {
         paste0("obsNames = ok.data$", input$plotNames, ", ")
       }, 
       "\n",
-      if (input$graphType %in% c("Cicular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$contrast != "contrast") {
+      if (input$graphType %in% c("Circular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$contrast != "contrast") {
         paste0("           scales = '", input$contrast, "',\n")
       },
-      if (input$graphType %in% c("Cicular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$average_format != "mean") {
+      if (input$graphType %in% c("Circular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$average_format != "mean") {
         paste0("           values = '", input$average_format, "',\n")
       },
       if (input$palsc != "Set3") {
@@ -632,6 +633,15 @@ shinyServer(function(input, output, session) {
       if (input$graphType == "Boxplot" && !input$plotOutliers) {
         "           boxOutliers = FALSE,\n"
       },
+      if (input$graphType %in% c("Color", "UMatrix") && !input$plotShowSC) {
+        "           showSC = FALSE,\n"
+      },
+      if (input$graphType %in% c("Hitmap", "Circular", "Barplot", "Boxplot", "CatBarplot", "Radar") && !input$plotTransparency) {
+        "           transparency = FALSE,\n"
+      },
+      if (input$graphType %in% c("Circular", "Line", "Barplot", "Boxplot", "CatBarplot", "Radar") && !input$plotAxes) {
+        "           showAxes = FALSE,\n"
+      },
       if (input$graphType == "Pie" && input$plotEqualSize) {
         paste0("           plotEqualSize = TRUE,\n") 
       },
@@ -645,14 +655,17 @@ shinyServer(function(input, output, session) {
                           plotNames= input$plotNames, 
                           plotVarMult= input$plotVarMult, 
                           plotVarOne= input$plotVarOne, 
+                          plotSize= input$plotSize, 
                           plotOutliers= input$plotOutliers,
                           plotEqualSize= input$plotEqualSize,
+                          plotShowSC= input$plotShowSC, 
                           contrast= input$contrast, 
                           average_format= input$average_format,
-                          plotSize= input$plotSize, 
                           palsc= input$palsc, 
                           palplot= input$palplot, 
-                          plotRevPal= input$plotRevPal)
+                          plotRevPal= input$plotRevPal, 
+                          plotAxes= input$plotAxes,
+                          plotTransparency= input$plotTransparency)
   })
   
 
@@ -721,30 +734,19 @@ shinyServer(function(input, output, session) {
   
   ### HELP MESSAGES
   observeEvent(input$help_message_training, {
-    showNotification(help_messages$train_panel, 
-    type = "message",
-    duration = 60 ) 
+    showNotification(help_messages$train_panel, type = "message", duration = 60 ) 
   })
-  
-  
   
   observeEvent(input$help_message_intro_to_aweSOM, {
-    showNotification(help_messages$import_data_panel, 
-                     type = "message",
-                     duration = 60 ) 
+    showNotification(help_messages$import_data_panel, type = "message", duration = 60 ) 
   })
   
-  
   observeEvent(input$help_contrast, {
-    showNotification(help_messages$help_contrast, 
-                     type = "message",
-                     duration = 60 ) 
+    showNotification(help_messages$help_contrast, type = "message", duration = 60 ) 
   })
   
   observeEvent(input$help_average_format, {
-    showNotification(help_messages$help_average_format, 
-                     type = "message",
-                     duration = 60 ) 
+    showNotification(help_messages$help_average_format, type = "message", duration = 60 ) 
   })
   
   

@@ -237,11 +237,12 @@ aweSOMsilhouette <- function(ok.som, ok.sc){
 ## Generate plot parameters to be passed to D3 functions
 #################################
 
-
-getPlotParams <- function(type, som, superclass, data, plotsize, varnames, 
-                          normtype= c("range", "contrast"), palsc, palplot, 
-                          cellNames, plotOutliers, reversePal, options= NULL, 
-                          valueFormat) {
+getPlotParams <- function(type, som, superclass, data, plotsize, 
+                          varnames, cellNames, 
+                          normtype, valueFormat,
+                          palsc, palplot, reversePal, 
+                          plotOutliers, showSC, equalSize, 
+                          showAxes, transparency) {
   
   ##########
   ## Common parameters for all plots
@@ -264,7 +265,8 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
               superclassColor= superclassColor, 
               cellNames= cellNames, 
               cellPop= unname(clust.table), 
-              showAxes= options$showAxes)
+              showAxes= showAxes, 
+              transparency= transparency)
   
   
   if (type %in% c("Pie", "CatBarplot")) {
@@ -417,7 +419,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     res$normalizedValues <- normValues
     res$realValues <- realValues
     res$isCatBarplot <- FALSE
-    res$showSuperclass <- TRUE
+    res$showSC <- showSC
   } else if (type == "Boxplot") {
     res$nVars <- nvar
     res$label <- varnames
@@ -439,13 +441,15 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
     res$nVars <- nvalues
     res$label <- unique.values
     res$labelColor <- getPalette(palplot, nvalues, reversePal)
-    if (options$equalSize) {
+    if (equalSize) {
       res$normalizedSize <- rep(.9, length(clust.table))
+      res$normalizedSize[clust.table == 0] <- 0
     } else
       res$normalizedSize <- unname(.9 * sqrt(clust.table) / sqrt(max(clust.table)))
     res$realSize <- unname(clust.table)
     res$normalizedValues <- unname(lapply(split(data, clustering), 
                                           function(x) {
+                                            # if (!length(x)) return(rep(1/nvalues, nvalues))
                                             if (!length(x)) return(rep(1/nvalues, nvalues))
                                             unname(table(x) / length(x))
                                           }))
@@ -479,16 +483,14 @@ getPlotParams <- function(type, som, superclass, data, plotsize, varnames,
 
 
 #################################
-## Core widget function, render D3 plot in an htmlwidget
+## Widget function for shiny interface, render D3 plot in an htmlwidget
 #################################
 
-aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows, 
-                         graphType= "Hitmap", 
-                         plotNames= "(rownames)", plotVarMult= NULL, plotVarOne= NULL, 
-                         plotOutliers= T, plotEqualSize= F,
-                         contrast= "contrast", average_format= "mean",
-                         plotSize= 100, 
-                         palsc= "Set3", palplot= "viridis", plotRevPal= F,
+aweSOMwidget <- function(ok.som, ok.sc, ok.data, ok.trainrows, 
+                         graphType, plotNames, plotVarMult, plotVarOne, 
+                         plotSize, plotOutliers, plotEqualSize, plotShowSC,
+                         contrast, average_format, palsc, palplot, plotRevPal,
+                         plotAxes, plotTransparency, 
                          width = NULL, height = NULL, elementId = NULL) {
   
   if (is.null(ok.som))
@@ -510,7 +512,6 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
                              function(x) paste(x, collapse= ", "))) # "&#13;&#10;" "<br />"
   
   
-  
   if (graphType %in% c("Circular", "Radar", "Barplot", "Boxplot", "Line")) {
     if (is.null(plotVarMult)) return(NULL)
     plotVar <- plotVarMult
@@ -527,14 +528,13 @@ aweSOMwidget <- function(ok.som, ok.sc, ok.clust, ok.data, ok.trainrows,
     data <- as.character(plot.data[, plotVarOne])
   }
   
-  options <- list(equalSize= plotEqualSize)
-  
-  plotParams <- getPlotParams(graphType, ok.som, ok.sc,  
-                              data, plotSize, plotVar, contrast,
-                              palsc, palplot, cellNames,
-                              plotOutliers, plotRevPal, options, 
-                              average_format)
-  
+  plotParams <- getPlotParams(graphType, ok.som, ok.sc, data, plotSize, 
+                              plotVar, cellNames,
+                              contrast, average_format,
+                              palsc, palplot, plotRevPal, 
+                              plotOutliers, plotShowSC, plotEqualSize, 
+                              plotAxes, plotTransparency)
+
   # create the widget
   htmlwidgets::createWidget("aweSOMwidget", plotParams, elementId = elementId, 
                             width = plotSize, height = plotSize, package = "aweSOM", 
@@ -584,10 +584,10 @@ aweSOMwidget_html = function(id, style, class, ...){
 #'   used.
 #' @param variables character vector containing the names of the variable(s) to
 #'   plot. The selected variables must be numeric for types "Circular",
-#'   "Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types "Pie"
-#'   and "CatBarplot". If not provided, all columns of data will be selected. If
-#'   a numeric variable is provided to a "Pie" or "CatBarplot", it will be split
-#'   into a maximum of 30 classes.
+#'   "Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types
+#'   "Pie" and "CatBarplot". If not provided, all columns of data will be
+#'   selected. If a numeric variable is provided to a "Pie" or "CatBarplot", it
+#'   will be split into a maximum of 30 classes.
 #' @param superclass integer vector, the superclass of each cell of the SOM.
 #' @param obsNames character vector, names of the observations to be displayed
 #'   when hovering over the cells of the SOM. Must have a length equal to the
@@ -602,22 +602,28 @@ aweSOMwidget_html = function(id, style, class, ...){
 #'   "mean" uses the observation means (from data) for each cell. Alternatively,
 #'   "median" uses the observation medians for each cell, and "prototypes" uses
 #'   the SOM's prototypes values.
-#' @param size integer, plot size, in pixels. Default 400.
+#' @param size numeric, plot size, in pixels. Default 400a.
 #' @param palsc character, the color palette used to represent the superclasses
 #'   as background of the cells. Default is "Set3". Can be "viridis", "grey",
 #'   "rainbow", "heat", "terrain", "topo", "cm", or any palette name of the
 #'   RColorBrewer package.
 #' @param palvar character, the color palette used to represent the variables.
-#'   Default is "viridis", available choices are the same as the ones for palsc.
+#'   Default is "viridis", available choices are the same as for palsc.
 #' @param palrev logical, whether color palette for variables is reversed.
 #'   Default is FALSE.
-#' @param boxOutliers logical, whether outliers in "Boxplot" are displayed.
-#'   Default is TRUE.
+#' @param showAxes logical, whether to display the axes (for "Circular",
+#'   "Barplot", "Boxplot", "Star", "Line", "CatBarplot"), default TRUE.
+#' @param transparency logical, whether to use transparency when focusing on a
+#'   variable, default TRUE.
+#' @param boxOutliers logical, whether outliers in "Boxplot" are displayed,
+#'   default TRUE.
+#' @param showSC logical, whether to display superclasses as labels in the
+#'   "Color" and "UMatrix" plots, default TRUE.
 #' @param pieEqualSize logical, whether "Pie" should display pies of equal size.
 #'   The default FALSE displays pies with areas proportional to the number of
 #'   observations in the cells.
-#' @param elementId user-defined elementId of the widget, can be useful for user
-#'   extensions when embedding the result in an html page.
+#' @param elementId character, user-defined elementId of the widget. Can be
+#'   useful for user extensions when embedding the result in an html page.
 #'
 #' @return Returns an object of class htmlwidget.
 #'
@@ -671,7 +677,11 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Circular", "Barplot",
                        palvar= c("viridis", "grey", "rainbow", "heat", "terrain", 
                                  "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
                        palrev= FALSE,
-                       boxOutliers= TRUE, pieEqualSize= FALSE,
+                       showAxes= TRUE,
+                       transparency= TRUE,
+                       boxOutliers= TRUE, 
+                       showSC = TRUE,
+                       pieEqualSize= FALSE,
                        elementId= NULL) {
 
   type <- match.arg(type)
@@ -717,7 +727,8 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Circular", "Barplot",
       
   }
   
-  data <- as.data.frame(data)[variables]
+  if (!(type %in% c("Hitmap", "UMatrix")))
+    data <- as.data.frame(data)[variables]
   
   if (is.null(superclass)) {
     superclass <- rep(1, nrow(som$grid$pts))
@@ -743,11 +754,11 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Circular", "Barplot",
   obsNames <- unname(lapply(split(obsNames, factor(obsClust, levels= 1:nrow(som$codes[[1]]))), 
                             function(x) paste(x, collapse= ", ")))
   
-  options <- list(equalSize= pieEqualSize)
-  
   plotParams <- getPlotParams(type, som, superclass, data, size, 
-                              variables, scales, palsc, palvar, obsNames,
-                              boxOutliers, palrev, options, values)
+                              variables, obsNames,
+                              scales, values, palsc, palvar, palrev, 
+                              boxOutliers, showSC, pieEqualSize, 
+                              showAxes, transparency)
 
   ## Create the widget
   res <- htmlwidgets::createWidget(
@@ -768,7 +779,7 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Circular", "Barplot",
   res <- htmlwidgets::appendContent(res, htmltools::tag(
     "svg", list(id= paste0(res$elementId, "-legend"), width = "100%", 
                 height= ifelse(type %in% c("Circular", "Barplot", "Boxplot", 
-                                           "Pie", "CatBarplot"), "auto", "0"))))
+                                           "Pie", "CatBarplot"), "100%", "0"))))
   
   res
 }

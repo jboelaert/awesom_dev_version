@@ -20,7 +20,10 @@ aweSOMplot(
   palvar = c("viridis", "grey", "rainbow", "heat", "terrain", "topo", "cm",
     rownames(RColorBrewer::brewer.pal.info)),
   palrev = FALSE,
+  showAxes = TRUE,
+  transparency = TRUE,
   boxOutliers = TRUE,
+  showSC = TRUE,
   pieEqualSize = FALSE,
   elementId = NULL
 )
@@ -43,10 +46,10 @@ used.}
 
 \item{variables}{character vector containing the names of the variable(s) to
 plot. The selected variables must be numeric for types "Circular",
-"Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types "Pie"
-and "CatBarplot". If not provided, all columns of data will be selected. If
-a numeric variable is provided to a "Pie" or "CatBarplot", it will be split
-into a maximum of 30 classes.}
+"Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types
+"Pie" and "CatBarplot". If not provided, all columns of data will be
+selected. If a numeric variable is provided to a "Pie" or "CatBarplot", it
+will be split into a maximum of 30 classes.}
 
 \item{superclass}{integer vector, the superclass of each cell of the SOM.}
 
@@ -66,7 +69,7 @@ same scale, using the global minimum and maximum of the data.}
 "median" uses the observation medians for each cell, and "prototypes" uses
 the SOM's prototypes values.}
 
-\item{size}{integer, plot size, in pixels. Default 400.}
+\item{size}{numeric, plot size, in pixels. Default 400a.}
 
 \item{palsc}{character, the color palette used to represent the superclasses
 as background of the cells. Default is "Set3". Can be "viridis", "grey",
@@ -74,20 +77,29 @@ as background of the cells. Default is "Set3". Can be "viridis", "grey",
 RColorBrewer package.}
 
 \item{palvar}{character, the color palette used to represent the variables.
-Default is "viridis", available choices are the same as the ones for palsc.}
+Default is "viridis", available choices are the same as for palsc.}
 
 \item{palrev}{logical, whether color palette for variables is reversed.
 Default is FALSE.}
 
-\item{boxOutliers}{logical, whether outliers in "Boxplot" are displayed.
-Default is TRUE.}
+\item{showAxes}{logical, whether to display the axes (for "Circular",
+"Barplot", "Boxplot", "Star", "Line", "CatBarplot"), default TRUE.}
+
+\item{transparency}{logical, whether to use transparency when focusing on a
+variable, default TRUE.}
+
+\item{boxOutliers}{logical, whether outliers in "Boxplot" are displayed,
+default TRUE.}
+
+\item{showSC}{logical, whether to display superclasses as labels in the
+"Color" and "UMatrix" plots, default TRUE.}
 
 \item{pieEqualSize}{logical, whether "Pie" should display pies of equal size.
 The default FALSE displays pies with areas proportional to the number of
 observations in the cells.}
 
-\item{elementId}{user-defined elementId of the widget, can be useful for user
-extensions when embedding the result in an html page.}
+\item{elementId}{character, user-defined elementId of the widget. Can be
+useful for user extensions when embedding the result in an html page.}
 }
 \value{
 Returns an object of class htmlwidget.
