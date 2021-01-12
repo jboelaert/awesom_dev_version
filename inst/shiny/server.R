@@ -461,22 +461,28 @@ shinyServer(function(input, output, session) {
     filename= paste0(Sys.Date(), "-aweSOM.html"), 
     content= function(file) {
       if (is.null(ok.som())) return(NULL)
-      widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
-                                 ok.sc= ok.sc(), 
-                                 ok.data= ok.data(), 
-                                 omitRows= which(!ok.trainrows()), 
-                                 graphType= input$graphType, 
-                                 plotNames= input$plotNames, 
-                                 plotVarMult= input$plotVarMult, 
-                                 plotVarOne= input$plotVarOne, 
-                                 plotOutliers= input$plotOutliers,
-                                 plotEqualSize= input$plotEqualSize,
-                                 contrast= input$contrast, 
-                                 average_format= input$average_format,
-                                 plotSize= input$plotSize, 
-                                 palsc= input$palsc, 
-                                 palplot= input$palplot, 
-                                 plotRevPal= input$plotRevPal)
+      widg <- aweSOM::aweSOMplot(som= ok.som(), type = input$graphType,
+                                 data = ok.data(), 
+                                 variables = if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
+                                   input$plotVarOne
+                                 } else {
+                                   input$plotVarMult
+                                 },
+                                 superclass = ok.sc(), 
+                                 obsNames = if (input$plotNames != "(rownames)") {
+                                   input$plotNames
+                                 } else {
+                                   NULL
+                                 }, 
+                                 scales = input$contrast, 
+                                 values = input$average_format, 
+                                 size = input$plotSize, palsc = input$palsc, 
+                                 palvar = input$palplot, palrev = input$plotRevPal, 
+                                 showAxes = input$plotAxes, 
+                                 transparency = input$plotTransparency, 
+                                 boxOutliers = input$plotOutliers,
+                                 showSC = input$plotShowSC, 
+                                 pieEqualSize = input$plotEqualSize)
       htmlwidgets::saveWidget(widg, file = file)
     }) 
   

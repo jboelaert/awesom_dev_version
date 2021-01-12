@@ -133,10 +133,7 @@ shinyUI(fluidPage(
                                            ## Possible: encoding, user_na, skip, n_max
                                            fluidRow(column(4, p('Skip rows')), 
                                                     column(8, numericInput('skip_spss', NULL, 0, min= 0)))),
-                          
-                          
                         )
-                        
                       ), 
                       
                       fluidRow(column(3,  HTML("<h4>Help</h4>")),
@@ -159,9 +156,6 @@ shinyUI(fluidPage(
              wellPanel(fluidRow(column(2, h3("Map info:")),
                                 column(10, verbatimTextOutput("Message")))),
 
-
-             # map training -------------------------------------------------------------
-             
              fluidRow(column(4, wellPanel( 
                  h3("Train new map:"),
                  actionButton("trainbutton", HTML("<b>Train SOM</b>"), width= "100%"),
@@ -173,12 +167,8 @@ shinyUI(fluidPage(
 
                  checkboxInput("trainscale", "Scale training data", T), 
                  
-                 
-            
-                 
                  fluidRow(column(4, checkboxInput("trainAdvanced", "Advanced options", F)),
                           column(4, actionButton("help_message_training", "", icon = icon("question"), width = NULL))),
-
 
                  conditionalPanel("input.trainAdvanced", 
                                   fluidRow(column(4, p("Initialization")), 
@@ -203,8 +193,6 @@ shinyUI(fluidPage(
                  #   fileInput("importmapbutton", "Import (RDS)"))),
                column(8, 
                       h3("Training variables:"),
-
-                      # <- respective observers are in place at server.R
                       fluidRow(column(4, actionButton("varNum", "Select numeric variables")), 
                                column(4, actionButton("varAll", "Select all variables")), 
                                column(4, actionButton("varNone", "Unselect all variables"))),
@@ -215,13 +203,8 @@ shinyUI(fluidPage(
                       uiOutput("trainVarOptions"),
                       
                       
-                      ))), #<- where does this belong to, how does the update with the buttons above happen
-    
-    
-    
-    
-    # map visuals -------------------------------------------------------------
-    
+                      ))),
+
     tabPanel("Plot", 
              fluidRow(column(4, 
                              ## Sélection du graphique et des variables
@@ -344,9 +327,9 @@ shinyUI(fluidPage(
                              hr(),
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist"', 
                                               fluidRow(column(2, h4("Save:")),
-                                                       column(4, downloadButton('downloadInteractive', "Interactive html")), 
-                                                       column(3, downloadButton('downloadPng', 'png')),
-                                                       column(3, downloadButton('downloadSvg', 'svg'))),
+                                                       column(5, downloadButton('downloadInteractive', "Interactive (html)")), 
+                                                       # column(3, downloadButton('downloadPng', 'png')),
+                                                       column(5, downloadButton('downloadSvg', 'Static (svg)'))),
                                               hr()),
                              fluidRow(column(4, h4("Roll the dice:")), 
                                       column(8, actionButton('retrainButton', "Train new SOM"))),

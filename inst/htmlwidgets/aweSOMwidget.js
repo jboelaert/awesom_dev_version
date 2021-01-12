@@ -82,15 +82,21 @@ HTMLWidgets.widget({
     /////////////////////////
     // Static download handlers
     /////////////////////////
-    function downloadPng(link, filename) {
+/*    function downloadPng(link, filename) {
       var svg = document.getElementById(plotId).children[0];
       svg.toDataURL("image/png", {
           callback: function(data) {
             link.href = data;
             link.download = filename;
           }
-      })
+      });
     }
+    downPngEl = document.getElementById("downloadPng");
+    if(typeof(downPngEl) != 'undefined' && downPngEl != null){
+      downPngEl.addEventListener('click', function() {
+        downloadPng(this, 'somplot.png');}, false);
+    }*/
+    
     function downloadSvg(link, filename) {
       var svg = document.getElementById(plotId).children[0];
       svg.toDataURL("image/svg+xml", {
@@ -98,16 +104,10 @@ HTMLWidgets.widget({
             link.href = data;
             link.download = filename;
           }
-      })
-    }
-    
-    downPngEl = document.getElementById("downloadPng");
-    if(typeof(downPngEl) != 'undefined' && downPngEl != null){
-      downPngEl.addEventListener('click', function() {
-        downloadPng(this, 'somplot.png');}, false);
+      });
     }
     downSvgEl = document.getElementById("downloadSvg");
-    if(typeof(downSvgEl) != 'undefined' && downSvgEl != null){
+    if(typeof(downSvgEl) != 'undefined' && downSvgEl !== null){
       downSvgEl.addEventListener('click', function() {
         downloadSvg(this, 'somplot.svg');}, false);
     }
