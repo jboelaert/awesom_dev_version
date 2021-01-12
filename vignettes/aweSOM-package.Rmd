@@ -152,16 +152,15 @@ aweSOM provides inbuilt functions to create three different plots that allow ass
 ###  aweSOMdendrogram
 aweSOMdendrogram returns a dendogram for hierarchical clustering performed on an SOM object. For the example below, the hierarchical clustering performed in the previous section is used and 2 superclasses are visualized. This function is only valid for hierarchical clustering.
 ```{r, fig.width=7, fig.height=4}
-aweSOMdendrogram(ok.som = ok.som, ok.hclust = superclust_hclust, 
-                 input_kohSuperclass = 2)
+aweSOMdendrogram(clust = superclust_hclust, nclass = 2)
 ```
 
 ### aweSOMscreeplot
 aweSOMscreeplot [tbd] JULIEN TU PEUX EXPLIQUER?
 
 ```{r, fig.width=7, fig.height=4 } 
-aweSOMscreeplot(ok.som = ok.som, method = 'hierarchical', 
-                hmethod = 'ward.D2', nclass = 2)
+aweSOMscreeplot(som = ok.som, method = 'hierarchical', 
+                hmethod = 'complete', nclass = 2)
 ```
 
 ### aweSOMsilhouette

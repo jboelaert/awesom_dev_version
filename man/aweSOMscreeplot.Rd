@@ -4,30 +4,24 @@
 \alias{aweSOMscreeplot}
 \title{Screeplot}
 \usage{
-aweSOMscreeplot(
-  ok.som,
-  nclass = 2,
-  method = "hierarchical",
-  hmethod = "ward.D2"
-)
+aweSOMscreeplot(som, nclass = 2, method = "hierarchical", hmethod = "complete")
 }
 \arguments{
-\item{ok.som}{```kohonen``` object, a SOM created by the ```som``` function.}
+\item{som}{`kohonen` object, a SOM created by the `kohonen::som` function.}
 
-\item{nclass}{number of superclasses to be visualized in the screeplot. Default is 2.}
+\item{nclass}{number of superclasses to be visualized in the screeplot.
+Default is 2.}
 
-\item{method}{Method used for clustering. Hierarchical clustering ("hierarchical") and PAM ("pam") clustering can be used. 
-By default hierarchical clustering is applied.}
+\item{method}{Method used for clustering. Hierarchical clustering
+("hierarchical") and Partitioning around medoids ("pam") can be used.
+Default is hierarchical clustering.}
 
-\item{hmethod}{Specifically for hierarchicical clustering, the clustering method can be specified. By default "ward.D2" is used
-for other options, see the stats::hclust method documentation.}
-}
-\value{
-Screeplot
+\item{hmethod}{For hierarchicical clustering, the clustering method, by
+default "complete". See the stats::hclust documentation for more details.}
 }
 \description{
-Plots a screeplot that that provides a quality measurement of the quality of the superclasses of the SOM. 
-Available for both PAM and hierarchical clustering.
+Screeplot, helps deciding the optimal number of superclasses. Available for
+both PAM and hierarchical clustering.
 }
 \examples{
 ## Build training data
@@ -38,13 +32,13 @@ dat <- scale(dat)
 ### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
 init <- somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-                       rlen = 100, alpha = c(0.05, 0.01), 
-                       radius = c(6.08,-6.08), 
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+                       rlen = 100, alpha = c(0.05, 0.01),
+                       radius = c(6.08,-6.08),
                        init = init, dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (PAM clustering)
 superclust <- cluster::pam(ok.som$codes[[1]], 2)
 superclasses <- unname(superclust$clustering)
-aweSOMscreeplot(ok.som, method = 'hierarchical', 
-                hmethod = 'ward.D2', nclass = 2)
+aweSOMscreeplot(ok.som, method = 'hierarchical',
+                hmethod = 'complete', nclass = 2)
 }

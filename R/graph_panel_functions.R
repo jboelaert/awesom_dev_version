@@ -40,16 +40,15 @@ getPalette <- function(pal, n, reverse= F) {
 
 #' Plot dendogram for hierarchical clustering of SOM cells
 #'
-#' Plots a dendogram that that provides a quality measurement of the superclasses of the SOM
-#' when using hierarchical clustering
+#' Plots a dendogram that that provides a quality measurement of the
+#' superclasses of the SOM when using hierarchical clustering
 #'
-#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
-#' @param ok.hclust hierarchical clustering object
-#' @param input_kohSuperclass number of superclasses
+#' @param clust hierarchical clustering object
+#' @param nclass number of superclasses
 #'
 #' @return Dendogram plot of hierarchical superclass clusters
 #'
-#' @examples 
+#' @examples
 #' ## Build training data
 #' dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 #' ### Scale training data
@@ -58,43 +57,36 @@ getPalette <- function(pal, n, reverse= F) {
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- aweSOM::somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-#'                        rlen = 100, alpha = c(0.05, 0.01), 
-#'                        radius = c(6.08,-6.08), 
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+#'                        rlen = 100, alpha = c(0.05, 0.01),
+#'                        radius = c(6.08,-6.08),
 #'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (hierarchical clustering)
 #' superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
 #' ## Plot superclasses dendrogram
-#' aweSOM::aweSOMdendrogram(ok.som, superclust, 2)
-aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
-  
-  if (is.null(ok.som)) return()
-  plot(ok.hclust, xlab= "", main= "")
-  if (input_kohSuperclass > 1)
-    rect.hclust(ok.hclust, k= input_kohSuperclass)
+#' aweSOM::aweSOMdendrogram(superclust, 2)
+aweSOMdendrogram <- function(clust, nclass){
+  if (is.null(clust)) return(NULL);
+  plot(clust, xlab= "", main= "")
+  if (nclass > 1)
+    rect.hclust(clust, k= nclass)
 }
 
 
 
-
-
-
-
-
-#' Screeplot 
-#' 
-#' Plots a screeplot that that provides a quality measurement of the quality of the superclasses of the SOM. 
-#' Available for both PAM and hierarchical clustering. 
+#' Screeplot
 #'
-#' @param ok.som ```kohonen``` object, a SOM created by the ```som``` function.
-#' @param nclass number of superclasses to be visualized in the screeplot. Default is 2.
-#' @param method Method used for clustering. Hierarchical clustering ("hierarchical") and PAM ("pam") clustering can be used. 
-#' By default hierarchical clustering is applied.
-#' @param hmethod Specifically for hierarchicical clustering, the clustering method can be specified. By default "ward.D2" is used
-#' for other options, see the stats::hclust method documentation.
+#' Screeplot, helps deciding the optimal number of superclasses. Available for
+#' both PAM and hierarchical clustering.
 #'
-#' @return Screeplot
-#' @export
+#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
+#' @param nclass number of superclasses to be visualized in the screeplot.
+#'   Default is 2.
+#' @param method Method used for clustering. Hierarchical clustering
+#'   ("hierarchical") and Partitioning around medoids ("pam") can be used.
+#'   Default is hierarchical clustering.
+#' @param hmethod For hierarchicical clustering, the clustering method, by
+#'   default "complete". See the stats::hclust documentation for more details.
 #'
 #' @examples
 #' ## Build training data
@@ -105,38 +97,37 @@ aweSOMdendrogram <- function(ok.som, ok.hclust, input_kohSuperclass){
 #' ### RNG Seed (for reproducibility)
 #' ### Initialization (PCA grid)
 #' init <- somInit(dat, 4, 4)
-#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-#'                        rlen = 100, alpha = c(0.05, 0.01), 
-#'                        radius = c(6.08,-6.08), 
+#' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+#'                        rlen = 100, alpha = c(0.05, 0.01),
+#'                        radius = c(6.08,-6.08),
 #'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
 #' superclasses <- unname(superclust$clustering)
-#' aweSOMscreeplot(ok.som, method = 'hierarchical', 
-#'                 hmethod = 'ward.D2', nclass = 2)
-aweSOMscreeplot <- function(ok.som, nclass= 2, method= "hierarchical", hmethod= "ward.D2"){
-  if (is.null(ok.som)) return()
+#' aweSOMscreeplot(ok.som, method = 'hierarchical',
+#'                 hmethod = 'complete', nclass = 2)
+aweSOMscreeplot <- function(som, nclass= 2, method= "hierarchical", hmethod= "complete"){
+  if (is.null(som)) return(NULL)
   
   if (method == "hierarchical")
-    ok.hclust <- hclust(dist(ok.som$codes[[1]]), hmethod)
+    ok.hclust <- hclust(dist(som$codes[[1]]), hmethod)
   
-  ncells <- nrow(ok.som$codes[[1]])
+  ncells <- nrow(som$codes[[1]])
   nvalues <- max(nclass, min(ncells, max(ceiling(sqrt(ncells)), 10)))
   clust.var <- sapply(1:nvalues, function(k) {
     if (method == "hierarchical") {
       clust <- cutree(ok.hclust, k)
     } else if (method == "pam") 
-      clust <- cluster::pam(ok.som$codes[[1]], k)$clustering
-    clust.means <- do.call(rbind, by(ok.som$codes[[1]], clust, colMeans))[clust, ]
-    mean(rowSums((ok.som$codes[[1]] - clust.means)^2))
+      clust <- cluster::pam(som$codes[[1]], k)$clustering
+    clust.means <- do.call(rbind, by(som$codes[[1]], clust, colMeans))[clust, ]
+    mean(rowSums((som$codes[[1]] - clust.means)^2))
   })
   unexpl <- 100 * round(clust.var / 
-                          (sum(apply(ok.som$codes[[1]], 2, var)) * (ncells - 1) / ncells), 3)
+                          (sum(apply(som$codes[[1]], 2, var)) * (ncells - 1) / ncells), 3)
   plot(unexpl, t= "b", ylim= c(0, 100),
        xlab= "Nb. Superclasses", ylab= "% Unexpl. Variance")
   grid()                      
   abline(h= unexpl[nclass], col= 2)
-  
 }
 
 

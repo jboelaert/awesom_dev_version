@@ -4,21 +4,19 @@
 \alias{aweSOMdendrogram}
 \title{Plot dendogram for hierarchical clustering of SOM cells}
 \usage{
-aweSOMdendrogram(ok.som, ok.hclust, input_kohSuperclass)
+aweSOMdendrogram(clust, nclass)
 }
 \arguments{
-\item{ok.som}{```kohonen``` object, a SOM created by the ```som``` function.}
+\item{clust}{hierarchical clustering object}
 
-\item{ok.hclust}{hierarchical clustering object}
-
-\item{input_kohSuperclass}{number of superclasses}
+\item{nclass}{number of superclasses}
 }
 \value{
 Dendogram plot of hierarchical superclass clusters
 }
 \description{
-Plots a dendogram that that provides a quality measurement of the superclasses of the SOM
-when using hierarchical clustering
+Plots a dendogram that that provides a quality measurement of the
+superclasses of the SOM when using hierarchical clustering
 }
 \examples{
 ## Build training data
@@ -29,12 +27,12 @@ dat <- scale(dat)
 ### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
 init <- aweSOM::somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-                       rlen = 100, alpha = c(0.05, 0.01), 
-                       radius = c(6.08,-6.08), 
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+                       rlen = 100, alpha = c(0.05, 0.01),
+                       radius = c(6.08,-6.08),
                        init = init, dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (hierarchical clustering)
 superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
 ## Plot superclasses dendrogram
-aweSOM::aweSOMdendrogram(ok.som, superclust, 2)
+aweSOM::aweSOMdendrogram(superclust, 2)
 }

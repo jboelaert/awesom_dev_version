@@ -535,9 +535,9 @@ shinyServer(function(input, output, session) {
     values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
                                   "aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
-    aweSOM::aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+    aweSOM::aweSOMdendrogram(ok.hclust(), input$kohSuperclass)
     }, width = reactive({input$plotSize / 4 + 500}),
-  height = reactive({input$plotSize / 4 + 500}))
+    height = reactive({input$plotSize / 4 + 500}))
   
   
   ## Scree plot
