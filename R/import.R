@@ -1,6 +1,6 @@
 
 
-ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, input_quote, input_dec, input_encoding,
+import.csv.txt <- function(input_dataFile, input_header, input_sep, input_quote, input_dec, input_encoding,
                                      input_dataFile_datapath){
    if (is.null((input_dataFile))){ 
     return(NULL)
@@ -38,7 +38,7 @@ ok.data.function.csv.txt <- function(input_dataFile, input_header, input_sep, in
 
 
 
-ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, input_trim_spaces, input_range_specified_bol,
+import.excel_xlsx <- function(input_dataFile, input_column_names, input_trim_spaces, input_range_specified_bol,
                                         input_range_specs, input_worksheet_specified_bol,  input_worksheet_specs,
                                         input_dataFile_datapath, input_rows_to_skip){
   if (is.null((input_dataFile))){ 
@@ -79,7 +79,7 @@ ok.data.function.excel_xlsx <- function(input_dataFile, input_column_names, inpu
 
 
 
-ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, input_trim_spaces_xls, input_range_specified_bol_xls,
+import.excel_xls <- function(input_dataFile, input_column_names_xls, input_trim_spaces_xls, input_range_specified_bol_xls,
                                        input_range_specs_xls, input_worksheet_specified_bol_xls, input_worksheet_specs_xls,
                                        input_dataFile_datapath, input_rows_to_skip_xls){
   if (is.null((input_dataFile))){ 
@@ -125,7 +125,7 @@ ok.data.function.excel_xls <- function(input_dataFile, input_column_names_xls, i
 
 
 
-ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath, input_skip_spss){
+import.spss <- function(input_dataFile, input_dataFile_datapath, input_skip_spss){
   if (is.null((input_dataFile))) return(NULL)
 
   data_read_reproducible <- paste0("ok.data <- data.frame(haven::read_spss('", 
@@ -147,7 +147,7 @@ ok.data.function.spss <- function(input_dataFile, input_dataFile_datapath, input
 
 
 
-ok.data.function.stata <- function(input_dataFile, input_dataFile_datapath){
+import.stata <- function(input_dataFile, input_dataFile_datapath){
   if (is.null((input_dataFile))){ 
     return(NULL)
   }
@@ -163,7 +163,7 @@ ok.data.function.stata <- function(input_dataFile, input_dataFile_datapath){
 
 
 
-ok.data.function.sas.data <- function(input_dataFile, input_dataFile_datapath ){
+import.sas.data <- function(input_dataFile, input_dataFile_datapath ){
   if (is.null((input_dataFile))) return(NULL)
   
   data_read_reproducible <- paste0("ok.data <- data.frame(haven::read_sas('", 

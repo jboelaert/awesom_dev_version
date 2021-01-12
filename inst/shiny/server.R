@@ -74,13 +74,13 @@ shinyServer(function(input, output, session) {
   # Current imported data
   ok.data <- reactive({
     if(input$file_type == "csv_txt"){ 
-      imported_file_object <- aweSOM:::ok.data.function.csv.txt(
+      imported_file_object <- aweSOM:::import.csv.txt(
         input_dataFile = input$dataFile ,input_header = input$header, 
         input_sep = input$sep, input_quote = input$quote, input_dec = input$dec,
         input_encoding = input$encoding, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "excel_xlsx"){
-      imported_file_object <-  aweSOM:::ok.data.function.excel_xlsx(
+      imported_file_object <-  aweSOM:::import.excel_xlsx(
         input_dataFile = input$dataFile, input_column_names = input$column_names, 
         input_trim_spaces = input$trim_spaces, 
         input_range_specified_bol = input$range_specified_bol, 
@@ -90,7 +90,7 @@ shinyServer(function(input, output, session) {
         input_dataFile_datapath = input$dataFile$datapath,
         input_rows_to_skip = input$rows_to_skip)
     } else if(input$file_type == "excel_xls"){
-      imported_file_object <- aweSOM:::ok.data.function.excel_xls(
+      imported_file_object <- aweSOM:::import.excel_xls(
         input_dataFile = input$dataFile, 
         input_column_names_xls = input$column_names_xls,
         input_trim_spaces_xls = input$trim_spaces_xls,
@@ -101,16 +101,16 @@ shinyServer(function(input, output, session) {
         input_dataFile_datapath = input$dataFile$datapath,
         input_rows_to_skip_xls = input$rows_to_skip_xls)
     } else if(input$file_type == "spss"){
-      imported_file_object <- aweSOM:::ok.data.function.spss(
+      imported_file_object <- aweSOM:::import.spss(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath, 
         input_skip_spss = input$skip_spss)
     } else if(input$file_type == "stata"){
-      imported_file_object <- aweSOM:::ok.data.function.stata(
+      imported_file_object <- aweSOM:::import.stata(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "sas_data"){
-      imported_file_object <- aweSOM:::ok.data.function.sas.data(
+      imported_file_object <- aweSOM:::import.sas.data(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath)
     }
