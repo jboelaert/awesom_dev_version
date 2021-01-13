@@ -48,14 +48,14 @@ help_messages <- list(import_data_panel = HTML("<h3>Working with aweSOM</h3> <br
                           This allows the results to be reproduced in later work.<br>
                           See help(kohonen::som) in R for more details about the training options."),
                       help_contrast = HTML("<h3>Variables scales</h3> <br>
-                                           <strong>Contrast:</strong>: maximum contrast. Scales the heights of each variable from minimum to maximum of the mean/median/prototype.<br>
-                                           <strong>Observations Range:</strong>:  Scales the heights of each variable from minimum to maximum of the observations.<br>
-                                           <strong>Same Scales:</strong>: All heights are displayed on the same scale, using the global minimum and maximum of the observations.<br>"),
+                                           <strong>Contrast:</strong> maximum contrast. Scales the heights of each variable from minimum to maximum of the mean/median/prototype.<br>
+                                           <strong>Observations Range:</strong>  Scales the heights of each variable from minimum to maximum of the observations.<br>
+                                           <strong>Same Scales:</strong> All heights are displayed on the same scale, using the global minimum and maximum of the observations.<br>"),
                       help_average_format =  HTML("<h3>Values</h3> <br>
                                             What value to display <br>
-                                           <strong>Observation Means:</strong>: Means of observations per cell <br>
-                                           <strong>Observation Medians:</strong>: Medians of observations per cell <br>
-                                           <strong>Prototypes:</strong>: Prototype values per cell <br>")
+                                           <strong>Observation Means:</strong> Means of observations per cell <br>
+                                           <strong>Observation Medians:</strong> Medians of observations per cell <br>
+                                           <strong>Prototypes:</strong> Prototype values per cell <br>")
 )
 
 
@@ -386,7 +386,8 @@ shinyServer(function(input, output, session) {
   
   
   ## Assign superclasses to cells
-  ok.sc <- eventReactive(c(ok.som(), input$sup_clust_method, input$sup_clust_hcmethod), {
+  ok.sc <- eventReactive(c(ok.som(), input$kohSuperclass, 
+                           input$sup_clust_method, input$sup_clust_hcmethod), {
     if(is.null(ok.som())) return(NULL)
 
     if (input$sup_clust_method == "hierarchical") {
@@ -452,7 +453,7 @@ shinyServer(function(input, output, session) {
  
   
   #############################################################################
-  ## Panel "Graph"
+  ## Panel "Plot"
   #############################################################################
   
   

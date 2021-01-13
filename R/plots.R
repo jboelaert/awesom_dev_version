@@ -748,12 +748,22 @@ aweSOMplot <- function(som, type= c("Hitmap", "UMatrix", "Circular", "Barplot",
                               boxOutliers, showSC, pieEqualSize, 
                               showAxes, transparency)
 
+  ## Compute widget dimensions
+  if (som$grid$topo == "rectangular") {
+    cellSize <- size / max(som$grid$xdim, som$grid$ydim)
+    widWidth <- min(size, cellSize * som$grid$ydim)
+    widHeight <- min(size, cellSize * som$grid$xdim)
+  } else {
+    hexRadius <- min(size / (sqrt(3) * (som$grid$ydim + 0.5)), 
+                     size / (1.5 * som$grid$xdim + 0.5))
+    widWidth <- min(size, hexRadius * (sqrt(3) * (som$grid$ydim + 0.5)))
+    widHeight <- min(size, hexRadius * (1.5 * som$grid$xdim + 0.5))
+  }
+  
   ## Create the widget
   res <- htmlwidgets::createWidget(
     "aweSOMwidget", plotParams, elementId = elementId, 
-    width = size, height = size, package = "aweSOM", 
-    sizingPolicy = htmlwidgets::sizingPolicy(defaultWidth = "100%", 
-                                             defaultHeight = "auto", padding= 0))
+    width = widWidth, height = widHeight, package = "aweSOM")
 
   ## Add elements for legend and messages
   if(is.null(res$elementId)) {
