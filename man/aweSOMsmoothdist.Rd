@@ -4,34 +4,44 @@
 \alias{aweSOMsmoothdist}
 \title{Smooth Distance Plot}
 \usage{
-aweSOMsmoothdist(x, pal = "viridis", reversePal = F)
+aweSOMsmoothdist(
+  som,
+  pal = c("viridis", "grey", "rainbow", "heat", "terrain", "topo", "cm",
+    rownames(RColorBrewer::brewer.pal.info)),
+  reversePal = F
+)
 }
 \arguments{
-\item{x}{SOM data object}
+\item{som}{`kohonen` object, a SOM created by the `kohonen::som` function.}
 
-\item{pal}{The color palette for visualizing distance. Default is "viridis"}
+\item{pal}{character, the color palette. Default is "viridis". Can be
+"viridis", "grey", "rainbow", "heat", "terrain", "topo", "cm", or any
+palette name of the RColorBrewer package.}
 
-\item{reversePal}{Boolean whether color palette for variables is reversed. Default is FALSE}
-}
-\value{
-Smooth distance plot
+\item{reversePal}{logical, whether color palette should be reversed. Default
+is FALSE.}
 }
 \description{
-TBD
+Plots a visualization of the distances between the SOM cells. Based on the
+U-Matrix, which is computed for each cell as the mean distance to its
+immediate neighbors.
+}
+\details{
+Note: the resulting smooth distance plot is inexact for the
+  hexagonal map layout.
 }
 \examples{
-ok.data <- iris
 ## Build training data
-dat <- ok.data[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
+dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 ### Scale training data
 dat <- scale(dat)
 ## Train SOM
 ### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
 init <- somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-                       rlen = 100, alpha = c(0.05, 0.01), 
-                       radius = c(6.08,-6.08), init = init, 
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'rectangular'),
+                       rlen = 100, alpha = c(0.05, 0.01),
+                       radius = c(6.08,-6.08), init = init,
                        dist.fcts = 'sumofsquares')
 aweSOMsmoothdist(ok.som)
 }

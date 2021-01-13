@@ -11,50 +11,51 @@ options(shiny.maxRequestSize=2^30) # Max filesize
 
 ## List of possible plots, by "what" type
 plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
-                               # "Names"= "Names", 
                                "Superclass Dendrogram"= "Dendrogram",
                                "Superclass Scree plot"= "Screeplot",
                                "Superclass Silhouette"= "Silhouette",
                                "Neighbour distance"= "UMatrix", 
                                "Smooth distance"= "SmoothDist"), 
-                    Numeric= c("Radar"= "Radar", 
+                    Numeric= c("Circular Barplot"= "Circular", 
                                "Barplot"= "Barplot", 
                                "Boxplot"= "Boxplot",
-                               "Line"= "Line", 
-                                "Star"= "Star", # uncomment to active the star plot
-                               "Heat"= "Color"), 
-                    Categorical= c("Pie"= "Camembert", 
+                               "Line plot"= "Line", 
+                               "Radar chart"= "Radar",
+                               "Heat map (Color)"= "Color"), 
+                    Categorical= c("Pie"= "Pie", 
                                    "Barplot"= "CatBarplot"))
 
 
 help_messages <- list(import_data_panel = HTML("<h3>Working with aweSOM</h3> <br>
-                          Within this aweSOM application self-organizing Kohonen maps (SOM) can be trained and visualized.
-                          The following functionalities are provided. <br>
-                          
-                          <strong>Import:</strong> Import the data to training dataset. <br>
-                          <strong>Train:</strong>  Train the SOM based on the kohonen package<br>
+                          Use this interface to train and visualize self-organizing maps (SOM, aka Kohonen maps).
+                          Use the tabs above in sequence : <br>
+                          <strong>Import Data:</strong> Import the data to analyze. <br>
+                          <strong>Train:</strong> Train the SOM on selected variables.<br>
                           <strong>Plot:</strong> Visualize the trained SOM <br>
-                          <strong>Export Data:</strong> Export the trained SOM <br>
-                          <strong>R Script:</strong> Access an R script to reproduce your code in R <br>
+                          <strong>Export Data:</strong> Export the trained SOM or clustered data <br>
+                          <strong>R Script:</strong> Generate the R script to reproduce your analysis in R <br>
                           <strong>About:</strong> Further information on this application <br>"),
                       train_panel = HTML("<h3>Advanced Training Options</h3> <br>
-                          <strong>Initialization:</strong> Initialize the nodes of the SOM before training<br>
-                          <strong>Rlen:</strong>  number of times the complete data set will be presented to the network  <br>
-                          <strong>Alpha:</strong> Set the learning rate  <br>
-                          <strong>Radius:</strong> Neighborhood Radius <br>
-                          <strong>Random Seed:</strong> Allows for reproducibility of non-deterministic procedures <br>"),
+                          <strong>Initialization:</strong> Method for prototype initialization. \
+                          'PCA Obs' takes as prototypes the observations that are closest to \
+                          the nodes of a 2d grid placed along the first two components of a PCA. \
+                          The 'PCA' method uses the nodes instead of the observations.\
+                          The 'Random Obs' method samples random observations.<br>
+                          <strong>Rlen:</strong>  Number of times the complete data set will be presented to the network. <br>
+                          <strong>Alpha:</strong> Learning rate. <br>
+                          <strong>Radius:</strong> Neighborhood Radius. <br>
+                          <strong>Random Seed:</strong> Seed of the pseudo-random number generator. \
+                          This allows the results to be reproduced in later work.<br>
+                          See help(kohonen::som) in R for more details about the training options."),
                       help_contrast = HTML("<h3>Variables scales</h3> <br>
-                                           <strong>Contrast:</strong>: scales each of the variables indepenently <br>
-                                           <strong>Observations Range:</strong>:  Difference between the largest and smallest values <br>
-                                           <strong>Same Scales:</strong>: all variables are displayed on the identical scaled 
-                                           based on global minimum and  maximum values  <br>"),
+                                           <strong>Contrast:</strong>: maximum contrast. Scales the heights of each variable from minimum to maximum of the mean/median/prototype.<br>
+                                           <strong>Observations Range:</strong>:  Scales the heights of each variable from minimum to maximum of the observations.<br>
+                                           <strong>Same Scales:</strong>: All heights are displayed on the same scale, using the global minimum and maximum of the observations.<br>"),
                       help_average_format =  HTML("<h3>Values</h3> <br>
-                                            Controls the scaling of the variables <br>
-                                           <strong>Observation Means:</strong>: Display mean of observations per cell <br>
-                                           <strong>Observation Medians:</strong>: Display median of observations per cell <br>
-                                           <strong>Prototypes:</strong>: Display prototype values per cell <br>")
-                      
-                      
+                                            What value to display <br>
+                                           <strong>Observation Means:</strong>: Means of observations per cell <br>
+                                           <strong>Observation Medians:</strong>: Medians of observations per cell <br>
+                                           <strong>Prototypes:</strong>: Prototype values per cell <br>")
 )
 
 
@@ -73,13 +74,13 @@ shinyServer(function(input, output, session) {
   # Current imported data
   ok.data <- reactive({
     if(input$file_type == "csv_txt"){ 
-      imported_file_object <- aweSOM:::ok.data.function.csv.txt(
+      imported_file_object <- aweSOM:::import.csv.txt(
         input_dataFile = input$dataFile ,input_header = input$header, 
         input_sep = input$sep, input_quote = input$quote, input_dec = input$dec,
         input_encoding = input$encoding, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "excel_xlsx"){
-      imported_file_object <-  aweSOM:::ok.data.function.excel_xlsx(
+      imported_file_object <-  aweSOM:::import.excel_xlsx(
         input_dataFile = input$dataFile, input_column_names = input$column_names, 
         input_trim_spaces = input$trim_spaces, 
         input_range_specified_bol = input$range_specified_bol, 
@@ -89,7 +90,7 @@ shinyServer(function(input, output, session) {
         input_dataFile_datapath = input$dataFile$datapath,
         input_rows_to_skip = input$rows_to_skip)
     } else if(input$file_type == "excel_xls"){
-      imported_file_object <- aweSOM:::ok.data.function.excel_xls(
+      imported_file_object <- aweSOM:::import.excel_xls(
         input_dataFile = input$dataFile, 
         input_column_names_xls = input$column_names_xls,
         input_trim_spaces_xls = input$trim_spaces_xls,
@@ -100,16 +101,16 @@ shinyServer(function(input, output, session) {
         input_dataFile_datapath = input$dataFile$datapath,
         input_rows_to_skip_xls = input$rows_to_skip_xls)
     } else if(input$file_type == "spss"){
-      imported_file_object <- aweSOM:::ok.data.function.spss(
+      imported_file_object <- aweSOM:::import.spss(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath, 
         input_skip_spss = input$skip_spss)
     } else if(input$file_type == "stata"){
-      imported_file_object <- aweSOM:::ok.data.function.stata(
+      imported_file_object <- aweSOM:::import.stata(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath)
     } else if(input$file_type == "sas_data"){
-      imported_file_object <- aweSOM:::ok.data.function.sas.data(
+      imported_file_object <- aweSOM:::import.sas.data(
         input_dataFile = input$dataFile, 
         input_dataFile_datapath = input$dataFile$datapath)
     }
@@ -460,31 +461,33 @@ shinyServer(function(input, output, session) {
     filename= paste0(Sys.Date(), "-aweSOM.html"), 
     content= function(file) {
       if (is.null(ok.som())) return(NULL)
-      widg <- aweSOM::aweSOMplot(ok.som= ok.som(), 
-                                 ok.sc= ok.sc(), 
-                                 ok.data= ok.data(), 
-                                 omitRows= which(!ok.trainrows()), 
-                                 graphType= input$graphType, 
-                                 plotNames= input$plotNames, 
-                                 plotVarMult= input$plotVarMult, 
-                                 plotVarOne= input$plotVarOne, 
-                                 plotOutliers= input$plotOutliers,
-                                 plotEqualSize= input$plotEqualSize,
-                                 contrast= input$contrast, 
-                                 average_format= input$average_format,
-                                 plotSize= input$plotSize, 
-                                 palsc= input$palsc, 
-                                 palplot= input$palplot, 
-                                 plotRevPal= input$plotRevPal)
+      widg <- aweSOM::aweSOMplot(som= ok.som(), type = input$graphType,
+                                 data = ok.data(), 
+                                 variables = if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
+                                   input$plotVarOne
+                                 } else {
+                                   input$plotVarMult
+                                 },
+                                 superclass = ok.sc(), 
+                                 obsNames = if (input$plotNames != "(rownames)") {
+                                   input$plotNames
+                                 } else {
+                                   NULL
+                                 }, 
+                                 scales = input$contrast, 
+                                 values = input$average_format, 
+                                 size = input$plotSize, palsc = input$palsc, 
+                                 palvar = input$palplot, palrev = input$plotRevPal, 
+                                 showAxes = input$plotAxes, 
+                                 transparency = input$plotTransparency, 
+                                 boxOutliers = input$plotOutliers,
+                                 showSC = input$plotShowSC, 
+                                 pieEqualSize = input$plotEqualSize)
       htmlwidgets::saveWidget(widg, file = file)
     }) 
   
   
-  #############################################################################
-  # WORK TBD
-  #############################################################################
   ## Update plot type choices on plot "what" selection
-  #try using it without shiny
   observe({
     input$graphWhat
     isolate({
@@ -493,21 +496,11 @@ shinyServer(function(input, output, session) {
     })
   })
   
-
   ## Update max nb superclasses
- 
-  
-  #try using it without shiny
    observe({
      som <- ok.som()
      updateNumericInput(session, "kohSuperclass", max= som$grid$xdim * som$grid$ydim)
    })
-  
-  
-  
-
-  
-  
 
   ## Update variable selection for graphs
   output$plotVarOne <- renderUI({
@@ -519,12 +512,6 @@ shinyServer(function(input, output, session) {
     })
     
   })
-  
-  
-  
-  
-  
-  
   
   output$plotVarMult <- renderUI({
     if (is.null(ok.som())) return(NULL)
@@ -548,17 +535,15 @@ shinyServer(function(input, output, session) {
     })
   })
     
-  
-  #Code function important for dendogram and further plots
   ## Dendrogram
   output$plotDendrogram <- renderPlot({
     if (input$sup_clust_method != "hierarchical") return(NULL)
     values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
                                   "aweSOMdendrogram(ok.som, superclust, ", 
                                   input$kohSuperclass, ")\n")
-    aweSOM::aweSOMdendrogram(ok.som(), ok.hclust(), input_kohSuperclass = input$kohSuperclass)
+    aweSOM::aweSOMdendrogram(ok.hclust(), input$kohSuperclass)
     }, width = reactive({input$plotSize / 4 + 500}),
-  height = reactive({input$plotSize / 4 + 500}))
+    height = reactive({input$plotSize / 4 + 500}))
   
   
   ## Scree plot
@@ -620,40 +605,53 @@ shinyServer(function(input, output, session) {
     ## Reproducible script for plot
     values$codetxt$plot <- paste0(
       "\n## Interactive plot\n", 
-      "aweSOMplot(ok.som = ok.som, ok.sc = superclasses, ok.data = ok.data,\n", 
-      "           graphType = '", input$graphType, "', \n", 
-      if(any(!ok.trainrows())) {
-        paste0("           omitRows = c(", paste(which(!ok.trainrows), collapse= ", "), "),\n")
+      "aweSOMplot(som = ok.som, type = '", input$graphType, "', ", 
+      if (! (input$graphType %in% c("Hitmap", "UMatrix"))) {
+        "data = ok.data, "
       }, 
+      "\n",
+      if (input$graphType %in% c("Circular", "Barplot", "Boxplot", "Line", "Radar")) {
+        paste0("           variables = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
+      },
+      if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
+        paste0("           variables = '", input$plotVarOne, "',\n")
+      },
+      "           superclass = superclasses, ", 
       if (input$plotNames != "(rownames)") {
-        paste0("           plotNames = '", input$plotNames, "',\n")
+        paste0("obsNames = ok.data$", input$plotNames, ", ")
+      }, 
+      "\n",
+      if (input$graphType %in% c("Circular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$contrast != "contrast") {
+        paste0("           scales = '", input$contrast, "',\n")
       },
-      if (input$graphType %in% c("Radar", "Barplot", "Boxplot", "Line", "Star")) {
-        paste0("           plotVarMult = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
-      },
-      if (input$graphType %in% c("Color", "Camembert", "CatBarplot")) {
-        paste0("           plotVarOne = '", input$plotVarOne, "',\n")
-      },
-      if (input$graphType == "Camembert" && input$plotEqualSize) {
-        paste0("           plotEqualSize = ", input$plotEqualSize, ",\n") 
-      },
-      if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$contrast != "contrast") {
-        paste0("           contrast = '", input$contrast, "',\n")
-      },
-      if (input$graphType %in% c("Radar", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Star") && input$average_format != "mean") {
-        paste0("           average_format = '", input$average_format, "',\n")
+      if (input$graphType %in% c("Circular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$average_format != "mean") {
+        paste0("           values = '", input$average_format, "',\n")
       },
       if (input$palsc != "Set3") {
-        paste0("           palsc = '", input$palsc, "',\n")
+        paste0("           palsc = '", input$palsc, "', \n")
       },
       if (input$palplot != "viridis") {
-        paste0("           palplot = '", input$palplot, "',\n")
+        paste0("           palvar = '", input$palplot, "', \n")
       }, 
       if (input$plotRevPal) {
-        paste0("           plotRevPal = ", input$plotRevPal, ",\n")
+        paste0("           palrev = ", input$plotRevPal, ", \n")
       },
-      "           plotSize = ", input$plotSize, ")"
-    )
+      if (input$graphType == "Boxplot" && !input$plotOutliers) {
+        "           boxOutliers = FALSE,\n"
+      },
+      if (input$graphType %in% c("Color", "UMatrix") && !input$plotShowSC) {
+        "           showSC = FALSE,\n"
+      },
+      if (input$graphType %in% c("Hitmap", "Circular", "Barplot", "Boxplot", "CatBarplot", "Radar") && !input$plotTransparency) {
+        "           transparency = FALSE,\n"
+      },
+      if (input$graphType %in% c("Circular", "Line", "Barplot", "Boxplot", "CatBarplot", "Radar") && !input$plotAxes) {
+        "           showAxes = FALSE,\n"
+      },
+      if (input$graphType == "Pie" && input$plotEqualSize) {
+        paste0("           plotEqualSize = TRUE,\n") 
+      },
+      "           size = ", input$plotSize, ")")
     
     aweSOM:::aweSOMwidget(ok.som= ok.som(), 
                           ok.sc= ok.sc(), 
@@ -663,14 +661,17 @@ shinyServer(function(input, output, session) {
                           plotNames= input$plotNames, 
                           plotVarMult= input$plotVarMult, 
                           plotVarOne= input$plotVarOne, 
+                          plotSize= input$plotSize, 
                           plotOutliers= input$plotOutliers,
                           plotEqualSize= input$plotEqualSize,
+                          plotShowSC= input$plotShowSC, 
                           contrast= input$contrast, 
                           average_format= input$average_format,
-                          plotSize= input$plotSize, 
                           palsc= input$palsc, 
                           palplot= input$palplot, 
-                          plotRevPal= input$plotRevPal)
+                          plotRevPal= input$plotRevPal, 
+                          plotAxes= input$plotAxes,
+                          plotTransparency= input$plotTransparency)
   })
   
 
@@ -739,30 +740,19 @@ shinyServer(function(input, output, session) {
   
   ### HELP MESSAGES
   observeEvent(input$help_message_training, {
-    showNotification(help_messages$train_panel, 
-    type = "message",
-    duration = 60 ) 
+    showNotification(help_messages$train_panel, type = "message", duration = 60 ) 
   })
-  
-  
   
   observeEvent(input$help_message_intro_to_aweSOM, {
-    showNotification(help_messages$import_data_panel, 
-                     type = "message",
-                     duration = 60 ) 
+    showNotification(help_messages$import_data_panel, type = "message", duration = 60 ) 
   })
   
-  
   observeEvent(input$help_contrast, {
-    showNotification(help_messages$help_contrast, 
-                     type = "message",
-                     duration = 60 ) 
+    showNotification(help_messages$help_contrast, type = "message", duration = 60 ) 
   })
   
   observeEvent(input$help_average_format, {
-    showNotification(help_messages$help_average_format, 
-                     type = "message",
-                     duration = 60 ) 
+    showNotification(help_messages$help_average_format, type = "message", duration = 60 ) 
   })
   
   

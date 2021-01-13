@@ -69,20 +69,19 @@ somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "rand
 }
 
 
-
 #' Distance measures of a SOM
 #'
 #' Several distance measures between cells or prototypes of a trained SOM (in
 #' grid space, in data space).
 #'
-#' @param x ```kohonen``` object, a SOM created by the ```som``` function.
+#' @param som ```kohonen``` object, a SOM created by the ```som``` function.
 #'
 #' @return A list with distance measures
 #'
-somDist <- function(x){
-  if (is.null(x)) return(NULL)
-  proto.gridspace.dist <- kohonen::unit.distances(x$grid, F)
-  proto.dataspace.dist <- as.matrix(dist(x$codes[[1]]))
+somDist <- function(som){
+  if (is.null(som)) return(NULL)
+  proto.gridspace.dist <- kohonen::unit.distances(som$grid, F)
+  proto.dataspace.dist <- as.matrix(dist(som$codes[[1]]))
   neigh <- round(proto.gridspace.dist, 3) == 1
   proto.dataspace.dist.neigh <- proto.dataspace.dist
   proto.dataspace.dist.neigh[!neigh] <- NA
@@ -95,19 +94,19 @@ somDist <- function(x){
 
 #' Calculate SOM quality measures
 #'
-#' @param x ```kohonen``` object, a SOM created by the ```som``` function.
+#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
 #' @param traindat matrix containing the training data
 #'
 #' @return A list with quality measures : quantization error, share of explained
 #'   variance, topographic error and Kaski-Lagus error.
 #' 
-somQuality <- function(x, traindat){
-  if(is.null(x)) return(NULL)
-  ok.dist <- somDist(x)
+somQuality <- function(som, traindat){
+  if(is.null(som)) return(NULL)
+  ok.dist <- somDist(som)
   
   ## BMU, Squared distance from obs to BMU
-  bmu <- x$unit.classif
-  sqdist <- rowSums((traindat - x$codes[[1]][bmu, ])^2)
+  bmu <- som$unit.classif
+  sqdist <- rowSums((traindat - som$codes[[1]][bmu, ])^2)
   
   ## Quantization error
   err.quant <- mean(sqdist)
@@ -119,7 +118,7 @@ somQuality <- function(x, traindat){
   
   ## Topographic error
   bmu2 <- apply(traindat, 1, function(row) {
-    dist <- colSums((t(x$codes[[1]]) - row)^2)
+    dist <- colSums((t(som$codes[[1]]) - row)^2)
     order(dist)[2]
   })
   err.topo <- mean(!ok.dist$neigh.matrix[cbind(bmu, bmu2)])
@@ -129,7 +128,7 @@ somQuality <- function(x, traindat){
   err.kaski <- mean(err.kaski + sqrt(sqdist))
   
   ## Distribution of individuals in cells
-  cellpop <- table(factor(x$unit.classif, levels= 1:nrow(x$grid$pts)))
+  cellpop <- table(factor(som$unit.classif, levels= 1:nrow(som$grid$pts)))
   
   res <- list(err.quant= err.quant, err.varratio= err.varratio, 
               err.topo= err.topo, err.kaski= err.kaski, cellpop= cellpop)

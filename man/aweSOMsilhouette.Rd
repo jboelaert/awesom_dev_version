@@ -4,19 +4,18 @@
 \alias{aweSOMsilhouette}
 \title{Silhouette plot}
 \usage{
-aweSOMsilhouette(ok.som, ok.sc)
+aweSOMsilhouette(som, clust)
 }
 \arguments{
-\item{ok.som}{SOM data object}
+\item{som}{`kohonen` object, a SOM created by the `kohonen::som` function.}
 
-\item{ok.sc}{Computed super-classes object resulting from either PAM or hierarchical clustering}
-}
-\value{
-Silhouette plot for superclass clustering
+\item{clust}{object containing the result of the super-clustering of the SOM
+prototypes (either a `hclust` or a `pam` object).}
 }
 \description{
-Create a silhouette plot that provides a quality measurement of the quality of the clustering of each SOM cell 
-for both PAM and hierarchical clustering.
+Plots a silhouette plot, used to assess the quality of the super-clustering
+of SOM prototypes into superclasses. Available for both PAM and
+hierarchical clustering.
 }
 \examples{
 ## Build training data
@@ -27,8 +26,8 @@ dat <- scale(dat)
 ### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
 init <- somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-                       rlen = 100, alpha = c(0.05, 0.01), 
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+                       rlen = 100, alpha = c(0.05, 0.01),
                        radius = c(6.08,-6.08), init = init,
                        dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (PAM clustering)

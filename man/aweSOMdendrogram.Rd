@@ -2,23 +2,18 @@
 % Please edit documentation in R/graph_panel_functions.R
 \name{aweSOMdendrogram}
 \alias{aweSOMdendrogram}
-\title{Plot dendogram for hierarchical clustering of SOM cells}
+\title{Plot dendogram of hierarchical clustering of SOM cells}
 \usage{
-aweSOMdendrogram(ok.som, ok.hclust, input_kohSuperclass)
+aweSOMdendrogram(clust, nclass)
 }
 \arguments{
-\item{ok.som}{SOM data object}
+\item{clust}{an object of class `hclust`, the result of a hierarchical
+clustering performed by `stats::hclust`.}
 
-\item{ok.hclust}{hierarchical clustering object}
-
-\item{input_kohSuperclass}{number of superclasses}
-}
-\value{
-Dendogram plot of hierarchical superclass clustering
+\item{nclass}{number of superclasses}
 }
 \description{
-Creates a dendogram that that provides a quality measurement of the quality of the clustering of each SOM cell 
-for hierarchical clustering
+Plots the dendogram of a hierarchical clustering of the SOM prototypes.
 }
 \examples{
 ## Build training data
@@ -26,15 +21,14 @@ dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 ### Scale training data
 dat <- scale(dat)
 ## Train SOM
-### RNG Seed (for reproducibility)
 ### Initialization (PCA grid)
-init <- aweSOM::somInit(dat, 4, 4)
-ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
-                       rlen = 100, alpha = c(0.05, 0.01), 
-                       radius = c(6.08,-6.08), 
+init <- somInit(dat, 4, 4)
+ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
+                       rlen = 100, alpha = c(0.05, 0.01),
+                       radius = c(6.08,-6.08),
                        init = init, dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (hierarchical clustering)
-superclust <- hclust(dist(ok.som$codes[[1]]), 'ward.D2')
+superclust <- hclust(dist(ok.som$codes[[1]]), 'complete')
 ## Plot superclasses dendrogram
-aweSOM::aweSOMdendrogram(ok.som, superclust, 2)
+aweSOMdendrogram(superclust, 2)
 }
