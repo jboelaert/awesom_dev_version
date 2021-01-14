@@ -6,7 +6,7 @@ Maintainer: Julien Boelaert <julien.boelaert@univ-lille.fr>
 Author: Julien Boelaert [aut, cre], Etienne Ollion [aut], Jan Sodoge [aut], Mohamed Megdoud [ctb], Otmane Naji [ctb], Arnaud Lemba Kote [ctb], Theo Renou [ctb], Samuel Hym [ctb]
 Description: Interactive plots and interface for Kohonen self-organizing maps.
 Depends: R (>= 3.0)
-Imports: kohonen, shiny, htmlwidgets, htmltools, RColorBrewer, viridis, e1071, data.table, DT, class, haven, foreign, readxl, stats, cluster, rclipboard, rmarkdown
+Imports: kohonen, shiny, htmlwidgets, htmltools, rclipboard, rmarkdown, RColorBrewer, viridis, data.table, DT, stats, cluster, e1071, kernlab, haven, foreign, readxl
 License: GPL (>= 2)
 Suggests: 
     knitr

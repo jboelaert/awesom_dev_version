@@ -232,8 +232,7 @@ shinyUI(fluidPage(
                                                      'input.graphType == "Boxplot" | ', 
                                                      'input.graphType == "Line" | ', 
                                                      'input.graphType == "Radar"'), 
-                                              uiOutput("plotVarMult"), 
-                                              actionButton("plotArrange", "Rearrange vars")),
+                                              uiOutput("plotVarMult")),
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
                                               uiOutput("plotNames")),
                              checkboxInput("plotAdvanced", "Advanced options", F),
@@ -279,7 +278,7 @@ shinyUI(fluidPage(
                                               conditionalPanel('input.graphType == "Color" | input.graphType == "UMatrix"', 
                                                                checkboxInput("plotShowSC", "Show superclasses", T)), 
 
-                                              ## Show axes
+                                              ## Show axes, re-arrange variables
                                               conditionalPanel(paste0('input.graphType == "Circular" | ', 
                                                                       'input.graphType == "Line" | ', 
                                                                       'input.graphType == "Barplot" | ', 
