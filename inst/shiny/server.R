@@ -525,6 +525,32 @@ shinyServer(function(input, output, session) {
 
     })
   })
+  
+  ## Rearrange variables order if "Arrange" button is hit
+  eventReactive(input$plotArrange, {
+    vars <- input$plotVarMult
+    if (input$average_format == "mean") {
+      cellValues <- do.call(rbind, lapply(split(ok.data()[, vars], ok.som()$unit.classif), 
+                                          colMeans))
+    } else if (input$average_format == "median") { 
+      cellValues <- do.call(rbind, lapply(split(ok.data()[, vars], ok.som()$unit.classif), 
+                                          function(x) apply(x, 2, median)))
+    } else if (input$average_format == "prototypes") { 
+      cellValues <- ok.som()$codes[[1]][, vars]
+    }
+    
+    if (scales == "range") {
+      for (i in vars) cellValues[, i] <- (cellValues[, i] - min(ok.data()[, i])) / (max(ok.data()[, i]) - min(ok.data()[, i]))
+    } else if (scales == "contrast") {
+      for (i in vars) cellValues[, i] <- (cellValues[, i] - min(cellValues[, i])) / (max(cellValues[, i]) - min(cellValues[, i]))
+    }
+    
+    protopca <- prcomp(cellValues)
+    cors <- sapply(1:length(vars), function(i) cor(cellValues[, i], protopca$x[, 1]))
+    updateSelectInput(session, "plotVarMult", selected = vars[cors])
+  })
+  
+  ## Populate observation names selector
   output$plotNames <- renderUI({
     if (is.null(ok.data())) return(NULL)
     isolate({
