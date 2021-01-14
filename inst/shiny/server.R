@@ -566,7 +566,7 @@ shinyServer(function(input, output, session) {
   output$plotSilhouette <- renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses silhouette plot\n", 
                                   "aweSOMsilhouette(ok.som, superclass)\n")
-    aweSOM::aweSOMsilhouette(ok.som = ok.som(), ok.sc = ok.sc())
+    aweSOM::aweSOMsilhouette(ok.som(), ok.sc())
   },
   width = reactive({input$plotSize / 4 + 500}),
   height = reactive({input$plotSize / 4 + 500}))
@@ -583,7 +583,7 @@ shinyServer(function(input, output, session) {
                                     ", reversePal = T"
                                   },
                                   ")\n")
-    aweSOM::aweSOMsmoothdist(x = ok.som(), pal = input$palplot, reversePal = input$plotRevPal)
+    aweSOM::aweSOMsmoothdist(som = ok.som(), pal = input$palplot, reversePal = input$plotRevPal)
   },
   width = reactive({(input$plotSize / 4 + 500) * 1.1}), # not the most elegant solution yet to get the plot squared but it does the job
   height = reactive({input$plotSize / 4 + 500 }))
@@ -591,9 +591,7 @@ shinyServer(function(input, output, session) {
   ## warning for smooth distance hex based plot
   output$smooth_dist_warning <- renderText({
     if(input$kohTopo == "hexagonal"){ 
-      
-      return("This might be a biased version since the topology of a hexagonal grid cannnot be account
-          for within this plot") 
+      return("Warning: the smooth distance plot is inaccurate for hexagonal grids.") 
     }
   })
   

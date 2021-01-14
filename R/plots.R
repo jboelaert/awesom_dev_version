@@ -99,7 +99,7 @@ aweSOMdendrogram <- function(clust, nclass){
 #'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
-#' superclasses <- unname(superclust$clustering)
+#' superclasses <- superclust$clustering
 #' aweSOMscreeplot(ok.som, method = 'hierarchical',
 #'                 hmethod = 'complete', nclass = 2)
 aweSOMscreeplot <- function(som, nclass= 2, 
@@ -207,7 +207,7 @@ aweSOMsmoothdist <- function(som,
 #'                        dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
-#' superclasses <- unname(superclust$clustering)
+#' superclasses <- superclust$clustering
 #' aweSOMsilhouette(ok.som, superclasses)
 aweSOMsilhouette <- function(som, clust){
   if (is.null(som)) return(NULL)
@@ -388,7 +388,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
     realValues <- round(unname(rowMeans(proto.dataspace.dist, na.rm= T)), 4)
     normValues <- (realValues - min(realValues)) / (max(realValues) - min(realValues))
     normValues <- getPalette(palplot, 8, reversePal)[cut(normValues , seq(-.001, 1.001, length.out= 9))]
-    varnames <- "Mean distance to neighbours"
+    varnames <- "Mean distance to neighbors"
     type <- "Color"
     res$plotType <- "Color"
   }
@@ -630,7 +630,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #'                        dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
-#' superclasses <- unname(superclust$clustering)
+#' superclasses <- superclust$clustering
 #'
 #' ## Population map ('Hitmap')
 #' aweSOMplot(som = ok.som, type = 'Hitmap', superclass = superclasses)
