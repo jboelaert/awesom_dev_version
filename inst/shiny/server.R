@@ -202,7 +202,7 @@ shinyServer(function(input, output, session) {
   # Update training radius on change of grid
   observe({
     if (is.null(ok.data())) return()
-    tmpgrid <- class::somgrid(input$kohDimx, input$kohDimy, input$kohTopo)
+    tmpgrid <- kohonen::somgrid(input$kohDimx, input$kohDimy, input$kohTopo)
     tmpgrid$n.hood <- ifelse(input$kohTopo == "hexagonal", "circular", "square")
     radius <- round(unname(quantile(kohonen::unit.distances(tmpgrid, FALSE), .67)), 2)
     updateNumericInput(session, "trainRadius1", value= radius)
@@ -518,7 +518,9 @@ shinyServer(function(input, output, session) {
     if (is.null(ok.som())) return(NULL)
     isolate({
       tmp.numeric <- sapply(ok.data(), is.numeric)
-      fluidRow(column(4, p("Plot variables:")), 
+      fluidRow(column(4, p("Plot variables:"), 
+                      conditionalPanel("input.plotAdvanced", 
+                                       actionButton("plotArrange", "Reorder variables"))), 
                column(8, selectInput("plotVarMult", NULL, multiple= T,
                                      choices= colnames(ok.data())[tmp.numeric],
                                      selected= ok.trainvars()[tmp.numeric[ok.trainvars()]])))
@@ -527,27 +529,29 @@ shinyServer(function(input, output, session) {
   })
   
   ## Rearrange variables order if "Arrange" button is hit
-  eventReactive(input$plotArrange, {
+  observeEvent(input$plotArrange, {
     vars <- input$plotVarMult
-    if (input$average_format == "mean") {
-      cellValues <- do.call(rbind, lapply(split(ok.data()[, vars], ok.som()$unit.classif), 
-                                          colMeans))
-    } else if (input$average_format == "median") { 
-      cellValues <- do.call(rbind, lapply(split(ok.data()[, vars], ok.som()$unit.classif), 
-                                          function(x) apply(x, 2, median)))
-    } else if (input$average_format == "prototypes") { 
-      cellValues <- ok.som()$codes[[1]][, vars]
+    if (length(vars) >= 2) {
+      if (input$average_format == "mean") {
+        cellValues <- do.call(rbind, lapply(split(ok.data()[, vars], ok.som()$unit.classif), 
+                                            colMeans))
+      } else if (input$average_format == "median") { 
+        cellValues <- do.call(rbind, lapply(split(ok.data()[, vars], ok.som()$unit.classif), 
+                                            function(x) apply(x, 2, median)))
+      } else if (input$average_format == "prototypes") { 
+        if (! all(vars %in% colnames(ok.som()$codes[[1]]))) return(NULL)
+        cellValues <- ok.som()$codes[[1]][, vars]
+      }
+      
+      if (input$contrast == "range") {
+        for (i in vars) cellValues[, i] <- (cellValues[, i] - min(ok.data()[, i])) / (max(ok.data()[, i]) - min(ok.data()[, i]))
+      } else if (input$contrast == "contrast") {
+        for (i in vars) cellValues[, i] <- (cellValues[, i] - min(cellValues[, i])) / (max(cellValues[, i]) - min(cellValues[, i]))
+      }
+      
+      arrange <- kernlab::kpca(t(cellValues))@rotated[, 1]
+      updateSelectInput(session, "plotVarMult", selected = vars[order(arrange)])
     }
-    
-    if (scales == "range") {
-      for (i in vars) cellValues[, i] <- (cellValues[, i] - min(ok.data()[, i])) / (max(ok.data()[, i]) - min(ok.data()[, i]))
-    } else if (scales == "contrast") {
-      for (i in vars) cellValues[, i] <- (cellValues[, i] - min(cellValues[, i])) / (max(cellValues[, i]) - min(cellValues[, i]))
-    }
-    
-    protopca <- prcomp(cellValues)
-    cors <- sapply(1:length(vars), function(i) cor(cellValues[, i], protopca$x[, 1]))
-    updateSelectInput(session, "plotVarMult", selected = vars[cors])
   })
   
   ## Populate observation names selector
