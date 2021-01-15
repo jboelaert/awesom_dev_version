@@ -648,7 +648,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' ## Pie
 #' aweSOMplot(som = ok.som, type = 'Pie', data = iris,
 #'            variables= "Species", superclass = superclasses)
-#' # Barplot (categorical variables)
+#' ## Barplot (categorical variables)
 #' aweSOMplot(som = ok.som, type = 'CatBarplot', data = iris,
 #'            variables= "Species", superclass = superclasses)
 

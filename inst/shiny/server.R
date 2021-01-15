@@ -29,8 +29,8 @@ plotChoices <- list(MapInfo= c("Population map"= "Hitmap",
 help_messages <- list(import_data_panel = HTML("<h3>Working with aweSOM</h3> <br>
                           Use this interface to train and visualize self-organizing maps (SOM, aka Kohonen maps).
                           Use the tabs above in sequence : <br>
-                          <strong>Import Data:</strong> Import the data to analyze. <br>
-                          <strong>Train:</strong> Train the SOM on selected variables.<br>
+                          <strong>Import Data:</strong> Import the data to analyze<br>
+                          <strong>Train:</strong> Train the SOM on selected variables<br>
                           <strong>Plot:</strong> Visualize the trained SOM <br>
                           <strong>Export Data:</strong> Export the trained SOM or clustered data <br>
                           <strong>R Script:</strong> Generate the R script to reproduce your analysis in R <br>

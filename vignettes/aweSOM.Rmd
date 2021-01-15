@@ -1,11 +1,11 @@
 ---
-title: "aweSOM-package"
+title: "aweSOM"
 output: 
   rmarkdown::html_vignette:
     toc: TRUE
 
 vignette: >
-  %\VignetteIndexEntry{aweSOM-package}
+  %\VignetteIndexEntry{aweSOM}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -117,6 +117,7 @@ aweSOMsmoothdist(iris.som)
 ## Plotting numeric variables on the map
 
 ```aweSOMplot``` offers several types of plots for numeric variables : 
+
 * circular barplot
 * barplot
 * boxplot
