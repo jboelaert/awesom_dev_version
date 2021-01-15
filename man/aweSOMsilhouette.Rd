@@ -7,10 +7,10 @@
 aweSOMsilhouette(som, clust)
 }
 \arguments{
-\item{som}{`kohonen` object, a SOM created by the `kohonen::som` function.}
+\item{som}{\code{kohonen} object, a SOM created by the \code{kohonen::som} function.}
 
 \item{clust}{object containing the result of the super-clustering of the SOM
-prototypes (either a `hclust` or a `pam` object).}
+prototypes (either a \code{hclust} or a \code{pam} object).}
 }
 \description{
 Plots a silhouette plot, used to assess the quality of the super-clustering
@@ -28,7 +28,7 @@ dat <- scale(dat)
 init <- somInit(dat, 4, 4)
 ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
                        rlen = 100, alpha = c(0.05, 0.01),
-                       radius = c(6.08,-6.08), init = init,
+                       radius = c(2.65,-2.65), init = init,
                        dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (PAM clustering)
 superclust <- cluster::pam(ok.som$codes[[1]], 2)

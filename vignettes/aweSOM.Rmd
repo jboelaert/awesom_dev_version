@@ -203,7 +203,7 @@ By default, the area of each pie is proportional to its cell's population. This 
 
 ## Choosing the number of superclasses
 
-_aweSOM_ offers three diagnostics plot for choosing the number of superclasses. 
+__aweSOM__ offers three diagnostics plot for choosing the number of superclasses. 
 
 ```aweSOMscreeplot``` produces a scree plot, that shows the quality of the clustering (percentage of unexplained variance of the prototypes, lower is better) for varying numbers of superclasses. It supports hierarchical and pam clustering. The rule of thumb is to choose the number of superclasses at the inflection point of this curve.
 

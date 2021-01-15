@@ -13,7 +13,8 @@ aweSOMscreeplot(
 )
 }
 \arguments{
-\item{som}{`kohonen` object, a SOM created by the `kohonen::som` function.}
+\item{som}{\code{kohonen} object, a SOM created by the \code{kohonen::som}
+function.}
 
 \item{nclass}{number of superclasses to be visualized in the screeplot.
 Default is 2.}
@@ -23,7 +24,8 @@ Default is 2.}
 Default is hierarchical clustering.}
 
 \item{hmethod}{For hierarchicical clustering, the clustering method, by
-default "complete". See the stats::hclust documentation for more details.}
+default "complete". See the \code{stats::hclust} documentation for more
+details.}
 }
 \description{
 Screeplot, helps deciding the optimal number of superclasses. Available for
@@ -39,7 +41,7 @@ dat <- scale(dat)
 init <- somInit(dat, 4, 4)
 ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
                        rlen = 100, alpha = c(0.05, 0.01),
-                       radius = c(6.08,-6.08),
+                       radius = c(2.65,-2.65),
                        init = init, dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (PAM clustering)
 superclust <- cluster::pam(ok.som$codes[[1]], 2)

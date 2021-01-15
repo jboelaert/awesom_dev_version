@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SOM interactive visualizations — aweSOMplot • aweSOM</title>
+<title>Interactive SOM visualizations — aweSOMplot • aweSOM</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,12 +46,12 @@
 
 
 
-<meta property="og:title" content="SOM interactive visualizations — aweSOMplot" />
-<meta property="og:description" content="This function allows to create interactive visualizations of self-organizing maps (SOM) as html-widgets. 
-The following types of visualizations can be displayed that reflect upon distribution of observations per cell and 
-distributions of variables per cell: hitmap, radar, barplot, boxplot, lineplot. Interactive behavior enables
-the display of the respective observations per cell as well as further statistical information on 
-selected variables when hovering over these." />
+<meta property="og:title" content="Interactive SOM visualizations — aweSOMplot" />
+<meta property="og:description" content="Plot interactive visualizations of self-organizing maps (SOM), as an html
+page. The plot can represent general map informations, or selected
+categorical or numeric variables (not necessarily the ones used during
+training). Hover over the map to focus on the selected cell or variable, and
+display further information." />
 <meta property="og:image" content="https://jansodoge.github.io/awesom_dev_version/logo.png" />
 
 
@@ -92,13 +92,13 @@ selected variables when hovering over these." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home"></span>
+    <span class="fa fa-home"></span>
      
     Home
   </a>
 </li>
 <li>
-  <a href="../articles/aweSOM-package.html">Get Started</a>
+  <a href="../articles/aweSOM.html">Get Started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -119,36 +119,40 @@ selected variables when hovering over these." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>SOM interactive visualizations</h1>
+    <h1>Interactive SOM visualizations</h1>
     
     <div class="hidden name"><code>aweSOMplot.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function allows to create interactive visualizations of self-organizing maps (SOM) as html-widgets. 
-The following types of visualizations can be displayed that reflect upon distribution of observations per cell and 
-distributions of variables per cell: hitmap, radar, barplot, boxplot, lineplot. Interactive behavior enables
-the display of the respective observations per cell as well as further statistical information on 
-selected variables when hovering over these.</p>
+    <p>Plot interactive visualizations of self-organizing maps (SOM), as an html
+page. The plot can represent general map informations, or selected
+categorical or numeric variables (not necessarily the ones used during
+training). Hover over the map to focus on the selected cell or variable, and
+display further information.</p>
     </div>
 
     <pre class="usage"><span class='fu'>aweSOMplot</span><span class='op'>(</span>
-  <span class='va'>ok.som</span>,
-  ok.sc <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>ok.data</span>,
-  omitRows <span class='op'>=</span> <span class='cn'>NULL</span>,
-  graphType <span class='op'>=</span> <span class='st'>"Hitmap"</span>,
-  plotNames <span class='op'>=</span> <span class='st'>"(rownames)"</span>,
-  plotVarMult <span class='op'>=</span> <span class='cn'>NULL</span>,
-  plotVarOne <span class='op'>=</span> <span class='cn'>NULL</span>,
-  plotOutliers <span class='op'>=</span> <span class='cn'>T</span>,
-  plotEqualSize <span class='op'>=</span> <span class='cn'>F</span>,
-  contrast <span class='op'>=</span> <span class='st'>"contrast"</span>,
-  average_format <span class='op'>=</span> <span class='st'>"mean"</span>,
-  plotSize <span class='op'>=</span> <span class='fl'>100</span>,
-  palsc <span class='op'>=</span> <span class='st'>"Set3"</span>,
-  palplot <span class='op'>=</span> <span class='st'>"viridis"</span>,
-  plotRevPal <span class='op'>=</span> <span class='cn'>F</span>,
+  <span class='va'>som</span>,
+  type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Hitmap"</span>, <span class='st'>"UMatrix"</span>, <span class='st'>"Circular"</span>, <span class='st'>"Barplot"</span>, <span class='st'>"Boxplot"</span>, <span class='st'>"Radar"</span>, <span class='st'>"Line"</span>,
+    <span class='st'>"Color"</span>, <span class='st'>"Pie"</span>, <span class='st'>"CatBarplot"</span><span class='op'>)</span>,
+  data <span class='op'>=</span> <span class='cn'>NULL</span>,
+  variables <span class='op'>=</span> <span class='cn'>NULL</span>,
+  superclass <span class='op'>=</span> <span class='cn'>NULL</span>,
+  obsNames <span class='op'>=</span> <span class='cn'>NULL</span>,
+  scales <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"contrast"</span>, <span class='st'>"range"</span>, <span class='st'>"same"</span><span class='op'>)</span>,
+  values <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"mean"</span>, <span class='st'>"median"</span>, <span class='st'>"prototypes"</span><span class='op'>)</span>,
+  size <span class='op'>=</span> <span class='fl'>400</span>,
+  palsc <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Set3"</span>, <span class='st'>"viridis"</span>, <span class='st'>"grey"</span>, <span class='st'>"rainbow"</span>, <span class='st'>"heat"</span>, <span class='st'>"terrain"</span>, <span class='st'>"topo"</span>, <span class='st'>"cm"</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span><span class='fu'>RColorBrewer</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html'>brewer.pal.info</a></span><span class='op'>)</span><span class='op'>)</span>,
+  palvar <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"viridis"</span>, <span class='st'>"grey"</span>, <span class='st'>"rainbow"</span>, <span class='st'>"heat"</span>, <span class='st'>"terrain"</span>, <span class='st'>"topo"</span>, <span class='st'>"cm"</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span><span class='op'>(</span><span class='fu'>RColorBrewer</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html'>brewer.pal.info</a></span><span class='op'>)</span><span class='op'>)</span>,
+  palrev <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  showAxes <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  transparency <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  boxOutliers <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  showSC <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  pieEqualSize <span class='op'>=</span> <span class='cn'>FALSE</span>,
   elementId <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre>
 
@@ -156,83 +160,118 @@ selected variables when hovering over these.</p>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ok.som</th>
-      <td><p>SOM data object</p></td>
+      <th>som</th>
+      <td><p><code>kohonen</code> object, a SOM created by the <code><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>kohonen::som</a></code> function.</p></td>
     </tr>
     <tr>
-      <th>ok.sc</th>
-      <td><p>superclasses</p></td>
+      <th>type</th>
+      <td><p>character, the plot type. The default "Hitmap" is a population
+map. "UMatrix" plots the average distance of each cell to its neighbors, on
+a color scale. "Circular" (barplot), "Barplot", "Boxplot", "Radar" and
+"Line" are for numeric variables. "Color" (heat map) is for a single
+numeric variable. "Pie" (pie chart) and "CatBarplot" are for a single
+categorical (factor) variable.</p></td>
     </tr>
     <tr>
-      <th>ok.data</th>
-      <td><p>SOM training dataset</p></td>
+      <th>data</th>
+      <td><p>data.frame containing the variables to plot. This is typically
+not the training data, but rather the unscaled original data, as it is
+easier to read the results in the original units, and this allows to plot
+extra variables not used in training. If not provided, the training data is
+used.</p></td>
     </tr>
     <tr>
-      <th>omitRows</th>
-      <td><p>Select to omit specific rows in the ok.data argument.</p></td>
+      <th>variables</th>
+      <td><p>character vector containing the names of the variable(s) to
+plot. The selected variables must be numeric for types "Circular",
+"Barplot", "Boxplot", "Radar", "Color" and "Line", or factor for types
+"Pie" and "CatBarplot". If not provided, all columns of data will be
+selected. If a numeric variable is provided to a "Pie" or "CatBarplot", it
+will be split into a maximum of 30 classes.</p></td>
     </tr>
     <tr>
-      <th>graphType</th>
-      <td><p>The graph type. Either "hitmap", "radar", "barplot", "boxplot" ,or "lineplot". Default is "hitmap"</p></td>
+      <th>superclass</th>
+      <td><p>integer vector, the superclass of each cell of the SOM.</p></td>
     </tr>
     <tr>
-      <th>plotNames</th>
-      <td><p>Select variable by which observations per each cell are displayed as you hover over a cell. Default is "(rownames)"</p></td>
+      <th>obsNames</th>
+      <td><p>character vector, names of the observations to be displayed
+when hovering over the cells of the SOM. Must have a length equal to the
+number of data rows. If not provided, the row names of data will be used.</p></td>
     </tr>
     <tr>
-      <th>plotVarMult</th>
-      <td><p>Plotted variables. Concerning the radar, barplot, boxplot, lineplot, this argument allows selecting the variables
-which should be displayed within the SOM visualization as a vector of characters indicating the names of the variables. Concering
-visualizations of categorical variables, only one variable can be passed to the functon.</p></td>
+      <th>scales</th>
+      <td><p>character, controls the scaling of the variables on the plot.
+The default "constrast" maximizes the displayed contrast by scaling the
+displayed heights of each variable from minimum to maximum of the displayed
+value. Alternatively, "range" uses the minimum and maximum of the
+observations for each variable, and "same" displays all variables on the
+same scale, using the global minimum and maximum of the data.</p></td>
     </tr>
     <tr>
-      <th>plotVarOne</th>
-      <td><p>Julien you probabyl will mege this one so I leave it blank</p></td>
+      <th>values</th>
+      <td><p>character, the type of value to be displayed. The default
+"mean" uses the observation means (from data) for each cell. Alternatively,
+"median" uses the observation medians for each cell, and "prototypes" uses
+the SOM's prototypes values.</p></td>
     </tr>
     <tr>
-      <th>plotOutliers</th>
-      <td><p>Indicating whether outlier variables in the "boxplot" SOM visualization are displayed. Default is TRUE (outliers are displayed)</p></td>
-    </tr>
-    <tr>
-      <th>plotEqualSize</th>
-      <td><p>???</p></td>
-    </tr>
-    <tr>
-      <th>contrast</th>
-      <td><p>Controls the scaling of the variables. Default is "constrast" which scales each of the variables indepenently. 
-Alternatively, same scales can be used where all variables are displayed on the identical scaled based on global minimum and 
-maximum values by using "no_constrast". Or the observations range by using "range"</p></td>
-    </tr>
-    <tr>
-      <th>average_format</th>
-      <td><p>The type of average used for the visualizated variables. Default option is "mean", alternatively 
-"median" can be used to displayed the median value of the variables or "prototype" which is the value of the SOM cell protoype</p></td>
-    </tr>
-    <tr>
-      <th>plotSize</th>
-      <td><p>Plot size of the SOM visualization measured as integer value in pixel. Default is 100.</p></td>
+      <th>size</th>
+      <td><p>numeric, plot size, in pixels. Default 400.</p></td>
     </tr>
     <tr>
       <th>palsc</th>
-      <td><p>The color palette for visualizing superclasses of SOM. Default is "Set3"</p></td>
+      <td><p>character, the color palette used to represent the superclasses
+as background of the cells. Default is "Set3". Can be "viridis", "grey",
+"rainbow", "heat", "terrain", "topo", "cm", or any palette name of the
+RColorBrewer package.</p></td>
     </tr>
     <tr>
-      <th>palplot</th>
-      <td><p>The  color palette for visualizing variables in SOM cells. Default is "viridis"</p></td>
+      <th>palvar</th>
+      <td><p>character, the color palette used to represent the variables.
+Default is "viridis", available choices are the same as for palsc.</p></td>
     </tr>
     <tr>
-      <th>plotRevPal</th>
-      <td><p>Boolean whether color palette for variables is reversed. Default is FALSE</p></td>
+      <th>palrev</th>
+      <td><p>logical, whether color palette for variables is reversed.
+Default is FALSE.</p></td>
+    </tr>
+    <tr>
+      <th>showAxes</th>
+      <td><p>logical, whether to display the axes (for "Circular",
+"Barplot", "Boxplot", "Star", "Line", "CatBarplot"), default TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>transparency</th>
+      <td><p>logical, whether to use transparency when focusing on a
+variable, default TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>boxOutliers</th>
+      <td><p>logical, whether outliers in "Boxplot" are displayed,
+default TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>showSC</th>
+      <td><p>logical, whether to display superclasses as labels in the
+"Color" and "UMatrix" plots, default TRUE.</p></td>
+    </tr>
+    <tr>
+      <th>pieEqualSize</th>
+      <td><p>logical, whether "Pie" should display pies of equal size.
+The default FALSE displays pies with areas proportional to the number of
+observations in the cells.</p></td>
     </tr>
     <tr>
       <th>elementId</th>
-      <td><p>(optional) user-defined elementId of the widget</p></td>
+      <td><p>character, user-defined elementId of the widget. Can be
+useful for user extensions when embedding the result in an html page.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Interactive html-widget visualizing a SOM.</p>
+    <p>Returns an object of class <code>htmlwidget</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Build training data</span>
@@ -240,29 +279,35 @@ maximum values by using "no_constrast". Or the observations range by using "rang
 <span class='co'>### Scale training data</span>
 <span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/scale.html'>scale</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>)</span>
 <span class='co'>## Train SOM</span>
-<span class='co'>### RNG Seed (for reproducibility)</span>
 <span class='co'>### Initialization (PCA grid)</span>
-<span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'><a href='somInit.html'>somInit</a></span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
-<span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>, 
-                       rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>, 
-                       radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6.08</span>,<span class='op'>-</span><span class='fl'>6.08</span><span class='op'>)</span>, init <span class='op'>=</span> <span class='va'>init</span>, 
+<span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'><a href='somInit.html'>somInit</a></span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
+<span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>,
+                       rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>,
+                       radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2.65</span>,<span class='op'>-</span><span class='fl'>2.65</span><span class='op'>)</span>, init <span class='op'>=</span> <span class='va'>init</span>,
                        dist.fcts <span class='op'>=</span> <span class='st'>'sumofsquares'</span><span class='op'>)</span>
 <span class='co'>## Group cells into superclasses (PAM clustering)</span>
 <span class='va'>superclust</span> <span class='op'>&lt;-</span> <span class='fu'>cluster</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/cluster/man/pam.html'>pam</a></span><span class='op'>(</span><span class='va'>ok.som</span><span class='op'>$</span><span class='va'>codes</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, <span class='fl'>2</span><span class='op'>)</span>
-<span class='va'>superclasses</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/unname.html'>unname</a></span><span class='op'>(</span><span class='va'>superclust</span><span class='op'>$</span><span class='va'>clustering</span><span class='op'>)</span>
+<span class='va'>superclasses</span> <span class='op'>&lt;-</span> <span class='va'>superclust</span><span class='op'>$</span><span class='va'>clustering</span>
 
+<span class='co'>## Population map ('Hitmap')</span>
+<span class='fu'>aweSOMplot</span><span class='op'>(</span>som <span class='op'>=</span> <span class='va'>ok.som</span>, type <span class='op'>=</span> <span class='st'>'Hitmap'</span>, superclass <span class='op'>=</span> <span class='va'>superclasses</span><span class='op'>)</span>
+
+<span class='co'>## Plots for numerical variables</span>
 <span class='va'>variables</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Sepal.Length"</span>, <span class='st'>"Sepal.Width"</span>,  <span class='st'>"Petal.Length"</span>, <span class='st'>"Petal.Width"</span><span class='op'>)</span>
-<span class='co'>#Hitmap</span>
-<span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>aweSOMplot</span><span class='op'>(</span>ok.som <span class='op'>=</span> <span class='va'>ok.som</span>, ok.sc <span class='op'>=</span> <span class='va'>superclasses</span>, ok.data <span class='op'>=</span> <span class='va'>iris</span>, 
-                   graphType <span class='op'>=</span> <span class='st'>'Hitmap'</span>, plotSize <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span>
-<span class='co'>#Radar</span>
-<span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>aweSOMplot</span><span class='op'>(</span>ok.som <span class='op'>=</span> <span class='va'>ok.som</span>, ok.sc <span class='op'>=</span> <span class='va'>superclasses</span>, ok.data <span class='op'>=</span> <span class='va'>iris</span>, 
-                   graphType <span class='op'>=</span> <span class='st'>'Radar'</span>, plotVarMult <span class='op'>=</span> <span class='va'>variables</span>, 
-                   plotSize <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span>
-<span class='co'>#Barplot</span>
-<span class='fu'>aweSOM</span><span class='fu'>::</span><span class='fu'>aweSOMplot</span><span class='op'>(</span>ok.som <span class='op'>=</span> <span class='va'>ok.som</span>, ok.sc <span class='op'>=</span> <span class='va'>superclasses</span>, ok.data <span class='op'>=</span> <span class='va'>iris</span>,
-                   graphType <span class='op'>=</span> <span class='st'>'Barplot'</span>, plotVarMult <span class='op'>=</span> <span class='va'>variables</span>,
-                    plotSize <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span>
+<span class='co'>## Circular barplot</span>
+<span class='fu'>aweSOMplot</span><span class='op'>(</span>som <span class='op'>=</span> <span class='va'>ok.som</span>, type <span class='op'>=</span> <span class='st'>'Circular'</span>, data <span class='op'>=</span> <span class='va'>iris</span>,
+           variables<span class='op'>=</span> <span class='va'>variables</span>, superclass <span class='op'>=</span> <span class='va'>superclasses</span><span class='op'>)</span>
+<span class='co'>## Barplot (numeric variables)</span>
+<span class='fu'>aweSOMplot</span><span class='op'>(</span>som <span class='op'>=</span> <span class='va'>ok.som</span>, type <span class='op'>=</span> <span class='st'>'Barplot'</span>, data <span class='op'>=</span> <span class='va'>iris</span>,
+           variables<span class='op'>=</span> <span class='va'>variables</span>, superclass <span class='op'>=</span> <span class='va'>superclasses</span><span class='op'>)</span>
+
+<span class='co'>## Plots for categorial variables (iris species, not used for training)</span>
+<span class='co'>## Pie</span>
+<span class='fu'>aweSOMplot</span><span class='op'>(</span>som <span class='op'>=</span> <span class='va'>ok.som</span>, type <span class='op'>=</span> <span class='st'>'Pie'</span>, data <span class='op'>=</span> <span class='va'>iris</span>,
+           variables<span class='op'>=</span> <span class='st'>"Species"</span>, superclass <span class='op'>=</span> <span class='va'>superclasses</span><span class='op'>)</span>
+<span class='co'>## Barplot (categorical variables)</span>
+<span class='fu'>aweSOMplot</span><span class='op'>(</span>som <span class='op'>=</span> <span class='va'>ok.som</span>, type <span class='op'>=</span> <span class='st'>'CatBarplot'</span>, data <span class='op'>=</span> <span class='va'>iris</span>,
+           variables<span class='op'>=</span> <span class='st'>"Species"</span>, superclass <span class='op'>=</span> <span class='va'>superclasses</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

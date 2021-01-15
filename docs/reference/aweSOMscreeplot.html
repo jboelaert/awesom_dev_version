@@ -47,8 +47,8 @@
 
 
 <meta property="og:title" content="Screeplot — aweSOMscreeplot" />
-<meta property="og:description" content="Creates a screeplot that that provides a quality measurement of the quality of the clustering of each SOM cell 
-for both PAM and hierarchical clustering." />
+<meta property="og:description" content="Screeplot, helps deciding the optimal number of superclasses. Available for
+both PAM and hierarchical clustering." />
 <meta property="og:image" content="https://jansodoge.github.io/awesom_dev_version/logo.png" />
 
 
@@ -89,13 +89,13 @@ for both PAM and hierarchical clustering." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home"></span>
+    <span class="fa fa-home"></span>
      
     Home
   </a>
 </li>
 <li>
-  <a href="../articles/aweSOM-package.html">Get Started</a>
+  <a href="../articles/aweSOM.html">Get Started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -122,43 +122,45 @@ for both PAM and hierarchical clustering." />
     </div>
 
     <div class="ref-description">
-    <p>Creates a screeplot that that provides a quality measurement of the quality of the clustering of each SOM cell 
-for both PAM and hierarchical clustering.</p>
+    <p>Screeplot, helps deciding the optimal number of superclasses. Available for
+both PAM and hierarchical clustering.</p>
     </div>
 
     <pre class="usage"><span class='fu'>aweSOMscreeplot</span><span class='op'>(</span>
-  <span class='va'>ok.som</span>,
+  <span class='va'>som</span>,
   nclass <span class='op'>=</span> <span class='fl'>2</span>,
-  method <span class='op'>=</span> <span class='st'>"hierarchical"</span>,
-  hmethod <span class='op'>=</span> <span class='st'>"ward.D2"</span>
+  method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"hierarchical"</span>, <span class='st'>"pam"</span><span class='op'>)</span>,
+  hmethod <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"complete"</span>, <span class='st'>"ward.D2"</span>, <span class='st'>"ward.D"</span>, <span class='st'>"single"</span>, <span class='st'>"average"</span>, <span class='st'>"mcquitty"</span>,
+    <span class='st'>"median"</span>, <span class='st'>"centroid"</span><span class='op'>)</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ok.som</th>
-      <td><p>SOM data object</p></td>
+      <th>som</th>
+      <td><p><code>kohonen</code> object, a SOM created by the <code><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>kohonen::som</a></code>
+function.</p></td>
     </tr>
     <tr>
       <th>nclass</th>
-      <td><p>number of superclasses to be visualized in the screeplot. Default is 2.</p></td>
+      <td><p>number of superclasses to be visualized in the screeplot.
+Default is 2.</p></td>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>Method used for clustering. Hierarchical clustering ("hierarchical") and PAM ("pam") clustering can be used. 
-By default hierarchical clustering is applied.</p></td>
+      <td><p>Method used for clustering. Hierarchical clustering
+("hierarchical") and Partitioning around medoids ("pam") can be used.
+Default is hierarchical clustering.</p></td>
     </tr>
     <tr>
       <th>hmethod</th>
-      <td><p>Specifically for hierarchicical clustering, the clustering method can be specified. By default "ward.D2" is used
-for other options, see the stats::hclust method documentation.</p></td>
+      <td><p>For hierarchicical clustering, the clustering method, by
+default "complete". See the <code><a href='https://rdrr.io/r/stats/hclust.html'>stats::hclust</a></code> documentation for more
+details.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>Screeplot</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Build training data</span>
@@ -166,18 +168,17 @@ for other options, see the stats::hclust method documentation.</p></td>
 <span class='co'>### Scale training data</span>
 <span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/scale.html'>scale</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>)</span>
 <span class='co'>## Train SOM</span>
-<span class='co'>### RNG Seed (for reproducibility)</span>
 <span class='co'>### Initialization (PCA grid)</span>
 <span class='va'>init</span> <span class='op'>&lt;-</span> <span class='fu'><a href='somInit.html'>somInit</a></span><span class='op'>(</span><span class='va'>dat</span>, <span class='fl'>4</span>, <span class='fl'>4</span><span class='op'>)</span>
-<span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>, 
-                       rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>, 
-                       radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>6.08</span>,<span class='op'>-</span><span class='fl'>6.08</span><span class='op'>)</span>, 
+<span class='va'>ok.som</span> <span class='op'>&lt;-</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>som</a></span><span class='op'>(</span><span class='va'>dat</span>, grid <span class='op'>=</span> <span class='fu'>kohonen</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/kohonen/man/unit.distances.html'>somgrid</a></span><span class='op'>(</span><span class='fl'>4</span>, <span class='fl'>4</span>, <span class='st'>'hexagonal'</span><span class='op'>)</span>,
+                       rlen <span class='op'>=</span> <span class='fl'>100</span>, alpha <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.01</span><span class='op'>)</span>,
+                       radius <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2.65</span>,<span class='op'>-</span><span class='fl'>2.65</span><span class='op'>)</span>,
                        init <span class='op'>=</span> <span class='va'>init</span>, dist.fcts <span class='op'>=</span> <span class='st'>'sumofsquares'</span><span class='op'>)</span>
 <span class='co'>## Group cells into superclasses (PAM clustering)</span>
 <span class='va'>superclust</span> <span class='op'>&lt;-</span> <span class='fu'>cluster</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/cluster/man/pam.html'>pam</a></span><span class='op'>(</span><span class='va'>ok.som</span><span class='op'>$</span><span class='va'>codes</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>, <span class='fl'>2</span><span class='op'>)</span>
-<span class='va'>superclasses</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/unname.html'>unname</a></span><span class='op'>(</span><span class='va'>superclust</span><span class='op'>$</span><span class='va'>clustering</span><span class='op'>)</span>
-<span class='fu'>aweSOMscreeplot</span><span class='op'>(</span><span class='va'>ok.som</span>, method <span class='op'>=</span> <span class='st'>'hierarchical'</span>, 
-                hmethod <span class='op'>=</span> <span class='st'>'ward.D2'</span>, nclass <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
+<span class='va'>superclasses</span> <span class='op'>&lt;-</span> <span class='va'>superclust</span><span class='op'>$</span><span class='va'>clustering</span>
+<span class='fu'>aweSOMscreeplot</span><span class='op'>(</span><span class='va'>ok.som</span>, method <span class='op'>=</span> <span class='st'>'hierarchical'</span>,
+                hmethod <span class='op'>=</span> <span class='st'>'complete'</span>, nclass <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
 </div><div class='img'><img src='aweSOMscreeplot-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

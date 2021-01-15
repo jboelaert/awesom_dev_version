@@ -12,7 +12,7 @@ aweSOMsmoothdist(
 )
 }
 \arguments{
-\item{som}{`kohonen` object, a SOM created by the `kohonen::som` function.}
+\item{som}{\code{kohonen} object, a SOM created by the \code{kohonen::som} function.}
 
 \item{pal}{character, the color palette. Default is "viridis". Can be
 "viridis", "grey", "rainbow", "heat", "terrain", "topo", "cm", or any
@@ -41,7 +41,7 @@ dat <- scale(dat)
 init <- somInit(dat, 4, 4)
 ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'rectangular'),
                        rlen = 100, alpha = c(0.05, 0.01),
-                       radius = c(6.08,-6.08), init = init,
+                       radius = c(2.65,-2.65), init = init,
                        dist.fcts = 'sumofsquares')
 aweSOMsmoothdist(ok.som)
 }

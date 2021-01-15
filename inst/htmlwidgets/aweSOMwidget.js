@@ -114,36 +114,6 @@ HTMLWidgets.widget({
 
 
     /////////////////////////
-    // Create legend (if appropriate)
-    /////////////////////////
-
-    if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Radar")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
-      var legend = d3.select("#" + legendId);
-      legend.attr({height: height});
-      // create a list of keys
-      var keys = label;
-      var  colors  = labelColor;
-      legend.selectAll("mydots")
-        .data(keys)
-        .enter()
-        .append("circle")
-        .attr("cx", function(d,i){ return (Math.floor(i/10) * 200 + 10);})
-        .attr("cy", function(d,i){ return i % 10 * 20 + 10; }) // 100 is where the first dot appears. 25 is the distance between dots
-        .attr("r", 7)
-        .style("fill", function(d,i){return colors[i];});
-      legend.selectAll("mylabels")
-        .data(keys)
-        .enter()
-        .append("text")
-        .attr("x", function(d,i){ return (Math.floor(i/10) * 200 + 25);})
-        .attr("y", function(d,i){ return i % 10 * 20 + 15; }) // 100 is where the first dot appears. 25 is the distance between dots
-        .style("fill", "black")
-        .text(function(d){ return d;})
-        .attr("text-anchor", "left")
-        .style("alignment-baseline", "left");
-    }
-    
-    /////////////////////////
     // Create rectangular or hexagonal grid
     /////////////////////////
     
@@ -328,6 +298,36 @@ HTMLWidgets.widget({
       }
     }
 
+    /////////////////////////
+    // Create legend (if appropriate)
+    /////////////////////////
+
+    if(plotType.localeCompare("Hitmap")!=0 && plotType.localeCompare("Radar")!=0 && plotType.localeCompare("Line")!=0 && plotType.localeCompare("Color")!=0) {
+      var legend = d3.select("#" + legendId);
+		  legend.attr("height", height);
+      // create a list of keys
+      var keys = label;
+      var  colors  = labelColor;
+      legend.selectAll("mydots")
+        .data(keys)
+        .enter()
+        .append("circle")
+        .attr("cx", function(d,i){ return (Math.floor(i/10) * 200 + 10);})
+        .attr("cy", function(d,i){ return i % 10 * 20 + 10; }) // 100 is where the first dot appears. 25 is the distance between dots
+        .attr("r", 7)
+        .style("fill", function(d,i){return colors[i];});
+      legend.selectAll("mylabels")
+        .data(keys)
+        .enter()
+        .append("text")
+        .attr("x", function(d,i){ return (Math.floor(i/10) * 200 + 25);})
+        .attr("y", function(d,i){ return i % 10 * 20 + 15; }) // 100 is where the first dot appears. 25 is the distance between dots
+        .style("fill", "black")
+        .text(function(d){ return d;})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "left");
+    }
+    
 
     ////////////////////////////////////////////////////////////////////////////
     // Cell plots

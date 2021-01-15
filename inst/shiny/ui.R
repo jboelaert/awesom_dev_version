@@ -381,13 +381,13 @@ shinyUI(fluidPage(
              verbatimTextOutput("codeTxt")), 
     tabPanel("About", 
              fluidRow(column(6, 
-                             h1("aweSOM"), 
-                             h3("Interactive Self-Organizing Maps"),
+                             h2("aweSOM"), 
+                             h4("interactive self-organizing maps"),
                              wellPanel(HTML('<strong>aweSOM</strong> offers a set of tools to explore and analyze numeric 
-                                  data with Self-Organizing Maps (also known as <a href="https://en.wikipedia.org/wiki/Self-organizing_map">Kohonen maps</a> 
+                                  data with Self-Organizing Maps (also known as <a href="https://en.wikipedia.org/wiki/Self-organizing_map">Kohonen maps</a>),
                                   a form of artificial neural network originally created by <a href="https://en.wikipedia.org/wiki/Teuvo_Kohonen">Teuvo Kohonen</a>
-                                  ) in the 1980s. The package introduces interactive plots, making analysis of the SOM easier.<br>'),
-                                       HTML("<br> Use this interface to train and visualize self-organizing maps, using the tabs above in sequence : <br>
+                                  in the 1980s. The package introduces interactive plots, making analysis of the SOM easier.<br>'),
+                                       HTML("<br> Use this interface to train and visualize SOMs, using the tabs above in sequence : <br>
                                          <strong>Import Data:</strong> Import the data to analyze<br>
                                          <strong>Train:</strong> Train the SOM on selected variables<br>
                                          <strong>Plot:</strong> Visualize the trained SOM <br>

@@ -6,7 +6,7 @@
 #' prototype. In self-organizing maps, each cell of the map has its own
 #' prototype, and training is performed by iteratively adjusting the prototypes.
 #' This function creates an initial guess for the prototypes of a SOM grid, to
-#' be used as the `init` argument to the `kohonen::som` function (see example).
+#' be used as the \code{init} argument to the \code{kohonen::som} function (see example).
 #'
 #' @param traindat Matrix of training data, that will also be used to train the
 #'   SOM.
@@ -30,7 +30,7 @@
 #' init <- somInit(dat, 4, 4)
 #' the.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
 #'                         rlen = 100, alpha = c(0.05, 0.01), 
-#'                         radius = c(6.08,-6.08), init = init, 
+#'                         radius = c(2.65,-2.65), init = init, 
 #'                         dist.fcts = 'sumofsquares')
 somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "random")) {
   method <- match.arg(method)
@@ -74,7 +74,7 @@ somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "rand
 #' Several distance measures between cells or prototypes of a trained SOM (in
 #' grid space, in data space).
 #'
-#' @param som ```kohonen``` object, a SOM created by the ```som``` function.
+#' @param som \code{kohonen} object, a SOM created by the \code{som} function.
 #'
 #' @return A list with distance measures
 #'
@@ -92,20 +92,28 @@ somDist <- function(som){
 }
 
 
-#' Calculate SOM quality measures
+#' SOM quality measures
 #'
-#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
-#' @param traindat matrix containing the training data
+#' @param som \code{kohonen} object, a SOM created by the \code{kohonen::som} function.
+#' @param traindat matrix containing the training data.
 #'
 #' @references Kohonen T. (2001) \emph{Self-Organizing Maps}, 3rd edition,
 #'   Springer Press, Berlin.
 #'
-#' Kaski, S. and Lagus, K. (1996) Comparing Self-Organizing Maps. In C. von der
-#' Malsburg, W. von Seelen, J. C. Vorbruggen, and B. Sendho (Eds.)
-#' \emph{Proceedings of ICANN96, International Conference on Articial Neural
-#' Networks , Lecture Notes in Computer Science} vol. 1112, pp. 809-814.
-#' Springer, Berlin.
+#'   Kaski, S. and Lagus, K. (1996) Comparing Self-Organizing Maps. In C. von
+#'   der Malsburg, W. von Seelen, J. C. Vorbruggen, and B. Sendho (Eds.)
+#'   \emph{Proceedings of ICANN96, International Conference on Articial Neural
+#'   Networks , Lecture Notes in Computer Science} vol. 1112, pp. 809-814.
+#'   Springer, Berlin.
 #'
+#' @details Four measures of SOM quality are returned : 
+#' \describe{
+#'   \item{Quantization error:}{Average squared distance between the data points and the map's prototypes to which they are mapped. Lower is better.}
+#'   \item{Percentage of explained variance:}{Similar to other clustering methods, the share of total variance that is explained by the clustering (equal to 1 minus the ratio of quantization error to total variance). Higher is better.}
+#'   \item{Topographic error:}{Measures how well the topographic structure of the data is preserved on the map. It is computed as the share of observations for which the best-matching node is not a neighbor of the second-best matching node on the map. Lower is better: 0 indicates excellent topographic representation (all best and second-best matching nodes are neighbors), 1 is the maximum error (best and second-best nodes are never neighbors).}
+#'   \item{Kaski-Lagus error:}{Combines aspects of the quantization and topographic error. It is the sum of the mean distance between points and their best-matching prototypes, and of the mean geodesic distance (pairwise prototype distances following the SOM grid) between the points and their second-best matching prototype.}
+#' }
+#' 
 #' @return A list with quality measures : quantization error, share of explained
 #'   variance, topographic error and Kaski-Lagus error.
 #'   

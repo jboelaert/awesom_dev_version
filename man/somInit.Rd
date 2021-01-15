@@ -25,7 +25,7 @@ observations: each observation is assigned to the cluster of its closest
 prototype. In self-organizing maps, each cell of the map has its own
 prototype, and training is performed by iteratively adjusting the prototypes.
 This function creates an initial guess for the prototypes of a SOM grid, to
-be used as the `init` argument to the `kohonen::som` function (see example).
+be used as the \code{init} argument to the \code{kohonen::som} function (see example).
 }
 \details{
 The default method "pca.sample" takes as prototypes the observations
@@ -42,6 +42,6 @@ dat <- scale(dat)
 init <- somInit(dat, 4, 4)
 the.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'), 
                         rlen = 100, alpha = c(0.05, 0.01), 
-                        radius = c(6.08,-6.08), init = init, 
+                        radius = c(2.65,-2.65), init = init, 
                         dist.fcts = 'sumofsquares')
 }

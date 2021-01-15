@@ -29,7 +29,7 @@ aweSOMplot(
 )
 }
 \arguments{
-\item{som}{`kohonen` object, a SOM created by the `som` function.}
+\item{som}{\code{kohonen} object, a SOM created by the \code{kohonen::som} function.}
 
 \item{type}{character, the plot type. The default "Hitmap" is a population
 map. "UMatrix" plots the average distance of each cell to its neighbors, on
@@ -102,7 +102,7 @@ observations in the cells.}
 useful for user extensions when embedding the result in an html page.}
 }
 \value{
-Returns an object of class htmlwidget.
+Returns an object of class \code{htmlwidget}.
 }
 \description{
 Plot interactive visualizations of self-organizing maps (SOM), as an html
@@ -121,7 +121,7 @@ dat <- scale(dat)
 init <- somInit(dat, 4, 4)
 ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
                        rlen = 100, alpha = c(0.05, 0.01),
-                       radius = c(6.08,-6.08), init = init,
+                       radius = c(2.65,-2.65), init = init,
                        dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (PAM clustering)
 superclust <- cluster::pam(ok.som$codes[[1]], 2)

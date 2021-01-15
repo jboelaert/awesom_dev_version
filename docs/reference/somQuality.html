@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calculate SOM quality measures — somQuality • aweSOM</title>
+<title>SOM quality measures — somQuality • aweSOM</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Calculate SOM quality measures — somQuality" />
-<meta property="og:description" content="Calculate SOM quality measures" />
+<meta property="og:title" content="SOM quality measures — somQuality" />
+<meta property="og:description" content="SOM quality measures" />
 <meta property="og:image" content="https://jansodoge.github.io/awesom_dev_version/logo.png" />
 
 
@@ -88,13 +88,13 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home"></span>
+    <span class="fa fa-home"></span>
      
     Home
   </a>
 </li>
 <li>
-  <a href="../articles/aweSOM-package.html">Get Started</a>
+  <a href="../articles/aweSOM.html">Get Started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -115,27 +115,27 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Calculate SOM quality measures</h1>
+    <h1>SOM quality measures</h1>
     
     <div class="hidden name"><code>somQuality.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Calculate SOM quality measures</p>
+    <p>SOM quality measures</p>
     </div>
 
-    <pre class="usage"><span class='fu'>somQuality</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>traindat</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>somQuality</span><span class='op'>(</span><span class='va'>som</span>, <span class='va'>traindat</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>```kohonen``` object, a SOM created by the ```som``` function.</p></td>
+      <th>som</th>
+      <td><p><code>kohonen</code> object, a SOM created by the <code><a href='https://rdrr.io/pkg/kohonen/man/supersom.html'>kohonen::som</a></code> function.</p></td>
     </tr>
     <tr>
       <th>traindat</th>
-      <td><p>matrix containing the training data</p></td>
+      <td><p>matrix containing the training data.</p></td>
     </tr>
     </table>
 
@@ -143,6 +143,25 @@
 
     <p>A list with quality measures : quantization error, share of explained
   variance, topographic error and Kaski-Lagus error.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Four measures of SOM quality are returned :</p><dl>
+  <dt>Quantization error:</dt><dd><p>Average squared distance between the data points and the map's prototypes to which they are mapped. Lower is better.</p></dd>
+  <dt>Percentage of explained variance:</dt><dd><p>Similar to other clustering methods, the share of total variance that is explained by the clustering (equal to 1 minus the ratio of quantization error to total variance). Higher is better.</p></dd>
+  <dt>Topographic error:</dt><dd><p>Measures how well the topographic structure of the data is preserved on the map. It is computed as the share of observations for which the best-matching node is not a neighbor of the second-best matching node on the map. Lower is better: 0 indicates excellent topographic representation (all best and second-best matching nodes are neighbors), 1 is the maximum error (best and second-best nodes are never neighbors).</p></dd>
+  <dt>Kaski-Lagus error:</dt><dd><p>Combines aspects of the quantization and topographic error. It is the sum of the mean distance between points and their best-matching prototypes, and of the mean geodesic distance (pairwise prototype distances following the SOM grid) between the points and their second-best matching prototype.</p></dd>
+
+</dl>
+
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Kohonen T. (2001) <em>Self-Organizing Maps</em>, 3rd edition,
+  Springer Press, Berlin.</p>
+<p>Kaski, S. and Lagus, K. (1996) Comparing Self-Organizing Maps. In C. von
+  der Malsburg, W. von Seelen, J. C. Vorbruggen, and B. Sendho (Eds.)
+  <em>Proceedings of ICANN96, International Conference on Articial Neural
+  Networks , Lecture Notes in Computer Science</em> vol. 1112, pp. 809-814.
+  Springer, Berlin.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

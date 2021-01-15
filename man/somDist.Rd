@@ -7,7 +7,7 @@
 somDist(som)
 }
 \arguments{
-\item{som}{```kohonen``` object, a SOM created by the ```som``` function.}
+\item{som}{\code{kohonen} object, a SOM created by the \code{som} function.}
 }
 \value{
 A list with distance measures

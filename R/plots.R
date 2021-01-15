@@ -42,8 +42,8 @@ getPalette <- function(pal, n, reverse= F) {
 #'
 #' Plots the dendogram of a hierarchical clustering of the SOM prototypes.
 #'
-#' @param clust an object of class `hclust`, the result of a hierarchical
-#'   clustering performed by `stats::hclust`.
+#' @param clust an object of class \code{hclust}, the result of a hierarchical
+#'   clustering performed by \code{stats::hclust}.
 #' @param nclass number of superclasses
 #'
 #' @examples
@@ -56,7 +56,7 @@ getPalette <- function(pal, n, reverse= F) {
 #' init <- somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
 #'                        rlen = 100, alpha = c(0.05, 0.01),
-#'                        radius = c(6.08,-6.08),
+#'                        radius = c(2.65,-2.65),
 #'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (hierarchical clustering)
 #' superclust <- hclust(dist(ok.som$codes[[1]]), 'complete')
@@ -76,14 +76,16 @@ aweSOMdendrogram <- function(clust, nclass){
 #' Screeplot, helps deciding the optimal number of superclasses. Available for
 #' both PAM and hierarchical clustering.
 #'
-#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
+#' @param som \code{kohonen} object, a SOM created by the \code{kohonen::som}
+#'   function.
 #' @param nclass number of superclasses to be visualized in the screeplot.
 #'   Default is 2.
 #' @param method Method used for clustering. Hierarchical clustering
 #'   ("hierarchical") and Partitioning around medoids ("pam") can be used.
 #'   Default is hierarchical clustering.
 #' @param hmethod For hierarchicical clustering, the clustering method, by
-#'   default "complete". See the stats::hclust documentation for more details.
+#'   default "complete". See the \code{stats::hclust} documentation for more
+#'   details.
 #'
 #' @examples
 #' ## Build training data
@@ -95,7 +97,7 @@ aweSOMdendrogram <- function(clust, nclass){
 #' init <- somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
 #'                        rlen = 100, alpha = c(0.05, 0.01),
-#'                        radius = c(6.08,-6.08),
+#'                        radius = c(2.65,-2.65),
 #'                        init = init, dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
@@ -140,7 +142,7 @@ aweSOMscreeplot <- function(som, nclass= 2,
 #' U-Matrix, which is computed for each cell as the mean distance to its
 #' immediate neighbors.
 #'
-#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
+#' @param som \code{kohonen} object, a SOM created by the \code{kohonen::som} function.
 #' @param pal character, the color palette. Default is "viridis". Can be
 #'   "viridis", "grey", "rainbow", "heat", "terrain", "topo", "cm", or any
 #'   palette name of the RColorBrewer package.
@@ -161,7 +163,7 @@ aweSOMscreeplot <- function(som, nclass= 2,
 #' init <- somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'rectangular'),
 #'                        rlen = 100, alpha = c(0.05, 0.01),
-#'                        radius = c(6.08,-6.08), init = init,
+#'                        radius = c(2.65,-2.65), init = init,
 #'                        dist.fcts = 'sumofsquares')
 #' aweSOMsmoothdist(ok.som)
 aweSOMsmoothdist <- function(som, 
@@ -188,9 +190,9 @@ aweSOMsmoothdist <- function(som,
 #' of SOM prototypes into superclasses. Available for both PAM and
 #' hierarchical clustering.
 #'
-#' @param som `kohonen` object, a SOM created by the `kohonen::som` function.
+#' @param som \code{kohonen} object, a SOM created by the \code{kohonen::som} function.
 #' @param clust object containing the result of the super-clustering of the SOM
-#'   prototypes (either a `hclust` or a `pam` object).
+#'   prototypes (either a \code{hclust} or a \code{pam} object).
 #'
 #' @examples
 #' ## Build training data
@@ -203,7 +205,7 @@ aweSOMsmoothdist <- function(som,
 #' init <- somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
 #'                        rlen = 100, alpha = c(0.05, 0.01),
-#'                        radius = c(6.08,-6.08), init = init,
+#'                        radius = c(2.65,-2.65), init = init,
 #'                        dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)
@@ -559,7 +561,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' training). Hover over the map to focus on the selected cell or variable, and
 #' display further information.
 #'
-#' @param som `kohonen` object, a SOM created by the `som` function.
+#' @param som \code{kohonen} object, a SOM created by the \code{kohonen::som} function.
 #' @param type character, the plot type. The default "Hitmap" is a population
 #'   map. "UMatrix" plots the average distance of each cell to its neighbors, on
 #'   a color scale. "Circular" (barplot), "Barplot", "Boxplot", "Radar" and
@@ -614,7 +616,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' @param elementId character, user-defined elementId of the widget. Can be
 #'   useful for user extensions when embedding the result in an html page.
 #'
-#' @return Returns an object of class htmlwidget.
+#' @return Returns an object of class \code{htmlwidget}.
 #'
 #' @examples
 #' ## Build training data
@@ -626,7 +628,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #' init <- somInit(dat, 4, 4)
 #' ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
 #'                        rlen = 100, alpha = c(0.05, 0.01),
-#'                        radius = c(6.08,-6.08), init = init,
+#'                        radius = c(2.65,-2.65), init = init,
 #'                        dist.fcts = 'sumofsquares')
 #' ## Group cells into superclasses (PAM clustering)
 #' superclust <- cluster::pam(ok.som$codes[[1]], 2)

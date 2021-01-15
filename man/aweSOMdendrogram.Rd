@@ -7,8 +7,8 @@
 aweSOMdendrogram(clust, nclass)
 }
 \arguments{
-\item{clust}{an object of class `hclust`, the result of a hierarchical
-clustering performed by `stats::hclust`.}
+\item{clust}{an object of class \code{hclust}, the result of a hierarchical
+clustering performed by \code{stats::hclust}.}
 
 \item{nclass}{number of superclasses}
 }
@@ -25,7 +25,7 @@ dat <- scale(dat)
 init <- somInit(dat, 4, 4)
 ok.som <- kohonen::som(dat, grid = kohonen::somgrid(4, 4, 'hexagonal'),
                        rlen = 100, alpha = c(0.05, 0.01),
-                       radius = c(6.08,-6.08),
+                       radius = c(2.65,-2.65),
                        init = init, dist.fcts = 'sumofsquares')
 ## Group cells into superclasses (hierarchical clustering)
 superclust <- hclust(dist(ok.som$codes[[1]]), 'complete')

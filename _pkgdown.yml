@@ -13,18 +13,20 @@ navbar:
       icon: fa-home
       href: index.html
     - text: "Get Started"
-      href: articles/aweSOM-package.html
+      href: articles/aweSOM.html
     - text: "Reference"
       href: reference/index.html
     
     
 reference:
+- title: aweSOM package
+- contents: 
+  - aweSOM-package
 - title: General SOM
 - contents:
-  - somDist
-  - somInit
   - somInit
   - somQuality
+  - somDist
 - title: Plot SOM
 - contents:
   - aweSOMplot
@@ -37,10 +39,3 @@ reference:
 - title: Launch aweSOM web-interface
 - contents:
   - aweSOM
-
-    
-
-
-
-
-    
