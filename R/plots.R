@@ -47,7 +47,7 @@ getPalette <- function(pal, n, reverse= FALSE) {
 #' @param nclass an integer, number of superclasses
 #' 
 #' @return Returns \code{NULL} if \code{nclass} is 1, or else a \code{list}
-#'   containing the SOM cells indexes of each superclass.
+#'   containing the indices of the SOM cells in each superclass.
 #'
 #' @examples
 #' ## Build training data
@@ -74,10 +74,10 @@ aweSOMdendrogram <- function(clust, nclass){
 
 
 
-#' Screeplot
+#' Screeplot of SOM superclasses
 #'
-#' Screeplot, helps deciding the optimal number of superclasses. Available for
-#' both PAM and hierarchical clustering.
+#' The screeplot, helps deciding the optimal number of superclasses. Available
+#' for both PAM and hierarchical clustering.
 #'
 #' @param som \code{kohonen} object, a SOM created by the \code{kohonen::som}
 #'   function.
@@ -141,7 +141,7 @@ aweSOMscreeplot <- function(som, nclass= 2,
 
 
 
-#' Smooth Distance Plot
+#' Smooth Distance Plot for SOM
 #'
 #' Plots a visualization of the distances between the SOM cells. Based on the
 #' U-Matrix, which is computed for each cell as the mean distance to its
@@ -191,7 +191,7 @@ aweSOMsmoothdist <- function(som,
 
 
 
-#' Silhouette plot
+#' Silhouette plot of SOM superclasses
 #'
 #' Plots a silhouette plot, used to assess the quality of the super-clustering
 #' of SOM prototypes into superclasses. Available for both PAM and
@@ -562,7 +562,7 @@ aweSOMwidget_html = function(id, style, class, ...){
 #################################
 
 
-#' Interactive SOM visualizations
+#' Interactive SOM plots
 #'
 #' Plot interactive visualizations of self-organizing maps (SOM), as an html
 #' page. The plot can represent general map informations, or selected

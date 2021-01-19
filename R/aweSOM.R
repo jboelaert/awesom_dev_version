@@ -6,13 +6,15 @@
 #'
 #' Launches the (offline) web-based interface for training and visualizing
 #' self-organizing maps.
+#' 
+#' @return No return value, used for side effects.
 #'
-#' @return No return value, used for side effects. If the interface does not
-#'   open automatically, open the printed link in a web browser.
-#'
-#' @details To open large files within the interface, use
-#'   \code{options(shiny.maxRequestSize=2^30)} in the console before lauching
-#'   the interface.
+#' @details If the interface does not open automatically, open the printed link
+#'   in a web browser.
+#'   
+#'   To open large files within the interface, use
+#'   \code{options(shiny.maxRequestSize=2^30)} (or a suitably large file size)
+#'   before lauching the interface.
 #'
 #' @references Kohonen T. (2001) \emph{Self-Organizing Maps}, 3rd edition,
 #'   Springer Press, Berlin. <doi:10.1007/978-3-642-56927-2>

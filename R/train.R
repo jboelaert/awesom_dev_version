@@ -32,7 +32,8 @@
 #'                         rlen = 100, alpha = c(0.05, 0.01), 
 #'                         radius = c(2.65,-2.65), init = init, 
 #'                         dist.fcts = 'sumofsquares')
-somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "random")) {
+somInit <- function(traindat, nrows, ncols, 
+                    method= c("pca.sample", "pca", "random")) {
   method <- match.arg(method)
   if (method == "random") {
     init <- traindat[sample(nrow(traindat), nrows * ncols, replace= TRUE), ]
@@ -69,7 +70,7 @@ somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "rand
 }
 
 
-#' Distance measures of a SOM
+#' Distance measures on a SOM
 #'
 #' Several distance measures between cells or prototypes of a trained SOM (in
 #' grid space, in data space).
@@ -94,6 +95,8 @@ somDist <- function(som){
 
 
 #' SOM quality measures
+#' 
+#' Computes several quality measures on a trained SOM (see Details).
 #'
 #' @param som \code{kohonen} object, a SOM created by the \code{kohonen::som} function.
 #' @param traindat matrix containing the training data.
@@ -116,7 +119,8 @@ somDist <- function(som){
 #' }
 #' 
 #' @return A \code{list} containing quality measures : quantization error, share
-#'   of explained variance, topographic error and Kaski-Lagus error.
+#'   of explained variance, topographic error and Kaski-Lagus error (see
+#'   Details).
 #'   
 somQuality <- function(som, traindat){
   if(is.null(som)) return(NULL)
