@@ -270,13 +270,13 @@ shinyUI(fluidPage(
                                                                  column(1, actionButton("help_contrast", "", icon = icon("question"), width = NULL)))), 
                                               
                                               conditionalPanel('input.graphType == "Boxplot"', 
-                                                               checkboxInput("plotOutliers", "Plot outliers", value= T)),
+                                                               checkboxInput("plotOutliers", "Plot outliers", value= TRUE)),
                                               
                                               conditionalPanel('input.graphType == "Pie"', 
-                                                               checkboxInput("plotEqualSize", "Equal pie sizes", F)), 
+                                                               checkboxInput("plotEqualSize", "Equal pie sizes", FALSE)), 
                                               
                                               conditionalPanel('input.graphType == "Color" | input.graphType == "UMatrix"', 
-                                                               checkboxInput("plotShowSC", "Show superclasses", T)), 
+                                                               checkboxInput("plotShowSC", "Show superclasses", TRUE)), 
 
                                               ## Show axes, re-arrange variables
                                               conditionalPanel(paste0('input.graphType == "Circular" | ', 
@@ -285,7 +285,7 @@ shinyUI(fluidPage(
                                                                       'input.graphType == "CatBarplot" | ', 
                                                                       'input.graphType == "Boxplot" | ', 
                                                                       'input.graphType == "Radar"'), 
-                                                               checkboxInput("plotAxes", "Show axes", value= T)),
+                                                               checkboxInput("plotAxes", "Show axes", value= TRUE)),
                                               
                                               ## Use transparency
                                               conditionalPanel(paste0('input.graphType == "Hitmap" | ', 
@@ -294,7 +294,7 @@ shinyUI(fluidPage(
                                                                       'input.graphType == "Boxplot" | ', 
                                                                       'input.graphType == "CatBarplot" | ', 
                                                                       'input.graphType == "Radar"'), 
-                                                               checkboxInput("plotTransparency", "Use transparency", value= T)),
+                                                               checkboxInput("plotTransparency", "Use transparency", value= TRUE)),
                                               
                                               conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "Color" & input.graphType != "UMatrix" & input.graphType != "SmoothDist"', 
                                                                fluidRow(column(4, p("Superclass palette")),

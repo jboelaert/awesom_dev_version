@@ -184,7 +184,7 @@ shinyServer(function(input, output, session) {
     input$varAll
     if (is.null(ok.data())) return()
     lapply(colnames(ok.data()), function(var) {
-      updateCheckboxInput(session, paste0("trainVarChoice", var), value= T)
+      updateCheckboxInput(session, paste0("trainVarChoice", var), value= TRUE)
     })
   })
   observe({
@@ -276,7 +276,7 @@ shinyServer(function(input, output, session) {
       }
       
       # Check for constant variables (if so, exclude and message)
-      varConstant <- apply(dat, 2, sd, na.rm= T) == 0
+      varConstant <- apply(dat, 2, sd, na.rm= TRUE) == 0
       if (any(varConstant)) {
         err.msg$constant <- paste0("Variables < ",
                                    ifelse(sum(varConstant) == 1, 
@@ -285,7 +285,7 @@ shinyServer(function(input, output, session) {
                                    " > are constant, and will be removed for training.")
         dat <- dat[, !varConstant]
         varWeights <- varWeights[!varConstant]
-        codeTxt$constant <- paste0("varConstant <- apply(dat, 2, sd, na.rm= T) == 0\n", 
+        codeTxt$constant <- paste0("varConstant <- apply(dat, 2, sd, na.rm= TRUE) == 0\n", 
                                    "dat <- dat[, !varConstant]\n", 
                                    if (any(varWeights != 1)) paste0("varWeights <- varWeights[!varConstant]\n"))
         if (sum(!varConstant) < 2) {
@@ -526,7 +526,7 @@ shinyServer(function(input, output, session) {
       fluidRow(column(4, p("Plot variables:"), 
                       conditionalPanel("input.plotAdvanced", 
                                        actionButton("plotArrange", "Reorder variables"))), 
-               column(8, selectInput("plotVarMult", NULL, multiple= T,
+               column(8, selectInput("plotVarMult", NULL, multiple= TRUE,
                                      choices= colnames(ok.data())[tmp.numeric],
                                      selected= ok.trainvars()[tmp.numeric[ok.trainvars()]])))
 
@@ -615,7 +615,7 @@ shinyServer(function(input, output, session) {
                                     paste0(", pal = '", input$palplot, "'")
                                   },
                                   if (input$plotRevPal) {
-                                    ", reversePal = T"
+                                    ", reversePal = TRUE"
                                   },
                                   ")\n")
     aweSOM::aweSOMsmoothdist(som = ok.som(), pal = input$palplot, reversePal = input$plotRevPal)
@@ -717,7 +717,7 @@ shinyServer(function(input, output, session) {
   # Update choices for rownames column
   output$clustVariables <- renderUI({
     if (is.null(ok.sc())) return()
-    isolate(selectInput(inputId= "clustVariables", label= NULL, multiple= T,
+    isolate(selectInput(inputId= "clustVariables", label= NULL, multiple= TRUE,
                         choices= c("rownames", "Superclass", "SOM.cell", colnames(ok.data())),
                         selected= c("rownames", "Superclass", "SOM.cell", colnames(ok.data())[1])))
   })

@@ -25,13 +25,13 @@ import.csv.txt <- function(input_dataFile, input_header, input_sep, input_quote,
                                     "', quote = '", the.quote, 
                                     "', dec = '", the.dec, 
                                     "', stringsAsFactors = TRUE, encoding = '", 
-                                   the.encoding, "', data.table = F)\n")
+                                   the.encoding, "', data.table = FALSE)\n")
 
   data <- try(data.frame(data.table::fread(input_dataFile_datapath, 
                                            header=the.header, sep=the.sep, 
                                            quote=the.quote, dec=the.dec, 
-                                           stringsAsFactors=T,
-                                           encoding = the.encoding)))
+                                           stringsAsFactors=TRUE,
+                                           encoding=the.encoding)))
   if(class(data) == "try-error"){ return(NULL)}
   return(list(data, data_read_reproducible))
 }

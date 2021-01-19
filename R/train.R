@@ -35,7 +35,7 @@
 somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "random")) {
   method <- match.arg(method)
   if (method == "random") {
-    init <- traindat[sample(nrow(traindat), nrows * ncols, replace= T), ]
+    init <- traindat[sample(nrow(traindat), nrows * ncols, replace= TRUE), ]
   } else if (method %in% c("pca.sample", "pca")) {
     # the most detailed grid axis is assigned to the first component
     if (nrows >= ncols) {
@@ -46,7 +46,7 @@ somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "rand
       y.ev <- 1
     }
     # perform PCA
-    traindata.pca <- prcomp(traindat, center= F, scale.= F)
+    traindata.pca <- prcomp(traindat, center= FALSE, scale.= FALSE)
     init.x <- seq(from= quantile(traindata.pca$x[,x.ev], .025), 
                   to= quantile(traindata.pca$x[,x.ev], .975),
                   length.out= nrows)

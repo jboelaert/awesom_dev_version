@@ -11,11 +11,7 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-library(aweSOM)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 
@@ -38,6 +34,8 @@ The training data, initial prototypes and other parameters are then passed to th
 
 
 ```{r}
+library(aweSOM)
+
 full.data <- iris
 ## Select variables
 train.data <- full.data[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
@@ -222,5 +220,3 @@ For hierarchical clustering, ```aweSOMdendrogram``` produces a dendogram, along 
 ```{r, fig.width=7, fig.height=4}
 aweSOMdendrogram(clust = superclust_hclust, nclass = 3)
 ```
-
-

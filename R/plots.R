@@ -1,6 +1,6 @@
 
 
-getPalette <- function(pal, n, reverse= F) {
+getPalette <- function(pal, n, reverse= FALSE) {
   if(pal == "grey") {
     res <- grey(1:n / n)
   } else if(pal == "rainbow") { 
@@ -169,12 +169,12 @@ aweSOMscreeplot <- function(som, nclass= 2,
 aweSOMsmoothdist <- function(som, 
                              pal= c("viridis", "grey", "rainbow", "heat", "terrain", 
                                     "topo", "cm", rownames(RColorBrewer::brewer.pal.info)), 
-                             reversePal= F) {
+                             reversePal= FALSE) {
   if (is.null(som)) return(NULL)
   pal <- match.arg(pal)
   
   mapdist <- aweSOM::somDist(som)
-  values <- matrix(rowMeans(mapdist$proto.data.dist.neigh, na.rm= T), 
+  values <- matrix(rowMeans(mapdist$proto.data.dist.neigh, na.rm= TRUE), 
                    som$grid$ydim, som$grid$xdim)
   filled.contour(1:som$grid$ydim, 1:som$grid$xdim,
                  values[, 1:som$grid$xdim],
@@ -337,7 +337,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
         ## "Contrast" normalization : means on data, then range(means) -> [0,1]
         
         normValues <- apply(realValues, 2, function(x) 
-          .05 + .9 * (x - min(x, na.rm= T)) / (max(x, na.rm= T) - min(x, na.rm= T)))
+          .05 + .9 * (x - min(x, na.rm= TRUE)) / (max(x, na.rm= TRUE) - min(x, na.rm= TRUE)))
         normValues <- unname(as.list(as.data.frame(t(normValues))))
         realValues <- unname(as.list(as.data.frame(t(realValues))))
         
@@ -387,7 +387,7 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
     proto.dataspace.dist <- as.matrix(dist(som$codes[[1]]))
     proto.dataspace.dist[round(proto.gridspace.dist, 3) > 1] <- NA
     proto.dataspace.dist[proto.gridspace.dist == 0] <- NA
-    realValues <- round(unname(rowMeans(proto.dataspace.dist, na.rm= T)), 4)
+    realValues <- round(unname(rowMeans(proto.dataspace.dist, na.rm= TRUE)), 4)
     normValues <- (realValues - min(realValues)) / (max(realValues) - min(realValues))
     normValues <- getPalette(palplot, 8, reversePal)[cut(normValues , seq(-.001, 1.001, length.out= 9))]
     varnames <- "Mean distance to neighbors"
@@ -419,8 +419,8 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
     res$label <- varnames
     res$labelColor <- getPalette(palplot, nvar, reversePal)
     
-    boxes.norm <- lapply(split(normDat, clustering), boxplot, plot= F)
-    boxes.real <- lapply(split(data, clustering), boxplot, plot= F)
+    boxes.norm <- lapply(split(normDat, clustering), boxplot, plot= FALSE)
+    boxes.real <- lapply(split(data, clustering), boxplot, plot= FALSE)
     res$normalizedValues <- unname(lapply(boxes.norm, function(x) unname(as.list(as.data.frame(round(x$stats, 3))))))
     res$realValues <- unname(lapply(boxes.real, function(x) unname(as.list(as.data.frame(round(x$stats, 3))))))
     
