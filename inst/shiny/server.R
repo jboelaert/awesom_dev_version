@@ -115,7 +115,12 @@ shinyServer(function(input, output, session) {
         input_dataFile_datapath = input$dataFile$datapath)
     }
     
-    isolate({values$codetxt$dataread <- imported_file_object[[2]]})
+    isolate({
+      values$codetxt$dataread <- 
+        paste0("## Import Data\n", 
+               "# setwd('/path/to/datafile/directory') ## Uncomment this line and set the path to the datafile's directory\n",
+               imported_file_object[[2]])
+    })
     imported_file_object[[1]]
   })
   
@@ -792,9 +797,7 @@ shinyServer(function(input, output, session) {
   #############################################################################
   
   reprocode <- reactive({
-    paste0("library(aweSOM)\n",
-           "\n## Import Data\n", 
-           "# setwd('/path/to/datafile/directory') ## Uncomment this line and set the path to the datafile's directory\n",
+    paste0("library(aweSOM)\n\n",
            values$codetxt$dataread, 
            values$codetxt$traindat, 
            values$codetxt$train,
@@ -816,6 +819,7 @@ shinyServer(function(input, output, session) {
     # For PDF output, change this to "report.pdf"
     filename = "aweSOM-report.html",
     content = function(file) {
+      if (is.null(ok.som())) return(NULL)
       # Copy the report file to a temporary directory before processing it, in
       # case we don't have write permissions to the current working dir (which
       # can happen when deployed).
