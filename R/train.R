@@ -76,7 +76,8 @@ somInit <- function(traindat, nrows, ncols, method= c("pca.sample", "pca", "rand
 #'
 #' @param som \code{kohonen} object, a SOM created by the \code{som} function.
 #'
-#' @return A list with distance measures
+#' @return A \code{list} with distance measures: between cells on the grid,
+#'   between prototypes in data space, and the neighborhood matrix on the grid.
 #'
 somDist <- function(som){
   if (is.null(som)) return(NULL)
@@ -98,13 +99,13 @@ somDist <- function(som){
 #' @param traindat matrix containing the training data.
 #'
 #' @references Kohonen T. (2001) \emph{Self-Organizing Maps}, 3rd edition,
-#'   Springer Press, Berlin.
+#'   Springer Press, Berlin. <doi:10.1007/978-3-642-56927-2>
 #'
 #'   Kaski, S. and Lagus, K. (1996) Comparing Self-Organizing Maps. In C. von
 #'   der Malsburg, W. von Seelen, J. C. Vorbruggen, and B. Sendho (Eds.)
 #'   \emph{Proceedings of ICANN96, International Conference on Articial Neural
 #'   Networks , Lecture Notes in Computer Science} vol. 1112, pp. 809-814.
-#'   Springer, Berlin.
+#'   Springer, Berlin. <doi:10.1007/3-540-61510-5_136>
 #'
 #' @details Four measures of SOM quality are returned : 
 #' \describe{
@@ -114,8 +115,8 @@ somDist <- function(som){
 #'   \item{Kaski-Lagus error:}{Combines aspects of the quantization and topographic error. It is the sum of the mean distance between points and their best-matching prototypes, and of the mean geodesic distance (pairwise prototype distances following the SOM grid) between the points and their second-best matching prototype.}
 #' }
 #' 
-#' @return A list with quality measures : quantization error, share of explained
-#'   variance, topographic error and Kaski-Lagus error.
+#' @return A \code{list} containing quality measures : quantization error, share
+#'   of explained variance, topographic error and Kaski-Lagus error.
 #'   
 somQuality <- function(som, traindat){
   if(is.null(som)) return(NULL)

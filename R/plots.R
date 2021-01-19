@@ -38,13 +38,16 @@ getPalette <- function(pal, n, reverse= FALSE) {
 
 
 
-#' Plot dendogram of hierarchical clustering of SOM cells
+#' Dendogram of hierarchical clustering of SOM cells
 #'
 #' Plots the dendogram of a hierarchical clustering of the SOM prototypes.
 #'
 #' @param clust an object of class \code{hclust}, the result of a hierarchical
 #'   clustering performed by \code{stats::hclust}.
-#' @param nclass number of superclasses
+#' @param nclass an integer, number of superclasses
+#' 
+#' @return Returns \code{NULL} if \code{nclass} is 1, or else a \code{list}
+#'   containing the SOM cells indexes of each superclass.
 #'
 #' @examples
 #' ## Build training data
@@ -86,6 +89,8 @@ aweSOMdendrogram <- function(clust, nclass){
 #' @param hmethod For hierarchicical clustering, the clustering method, by
 #'   default "complete". See the \code{stats::hclust} documentation for more
 #'   details.
+#'   
+#' @return No return value, called for side effects.
 #'
 #' @examples
 #' ## Build training data
@@ -149,6 +154,8 @@ aweSOMscreeplot <- function(som, nclass= 2,
 #' @param reversePal logical, whether color palette should be reversed. Default
 #'   is FALSE.
 #'
+#' @return No return value, called for side effects.
+#' 
 #' @details Note: the resulting smooth distance plot is inexact for the
 #'   hexagonal map layout.
 #'
@@ -194,6 +201,8 @@ aweSOMsmoothdist <- function(som,
 #' @param clust object containing the result of the super-clustering of the SOM
 #'   prototypes (either a \code{hclust} or a \code{pam} object).
 #'
+#' @return No return value, called for side effects.
+#' 
 #' @examples
 #' ## Build training data
 #' dat <- iris[, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]

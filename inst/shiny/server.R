@@ -1,11 +1,4 @@
 ################################################################################
-## Global Options
-################################################################################
-
-options(shiny.maxRequestSize=2^30) # Max filesize
-
-
-################################################################################
 ## Global Variables
 ################################################################################
 
@@ -575,7 +568,7 @@ shinyServer(function(input, output, session) {
   output$plotDendrogram <- renderPlot({
     if (input$sup_clust_method != "hierarchical") return(NULL)
     values$codetxt$plot <- paste0("\n## Plot superclasses dendrogram\n", 
-                                  "aweSOMdendrogram(ok.som, superclust, ", 
+                                  "aweSOMdendrogram(superclust, ", 
                                   input$kohSuperclass, ")\n")
     aweSOM::aweSOMdendrogram(ok.hclust(), input$kohSuperclass)
     }, width = reactive({input$plotSize / 4 + 500}),
@@ -600,7 +593,7 @@ shinyServer(function(input, output, session) {
   ## Silhouette plot
   output$plotSilhouette <- renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses silhouette plot\n", 
-                                  "aweSOMsilhouette(ok.som, superclass)\n")
+                                  "aweSOMsilhouette(ok.som, superclasses)\n")
     aweSOM::aweSOMsilhouette(ok.som(), ok.sc())
   },
   width = reactive({input$plotSize / 4 + 500}),
@@ -820,20 +813,14 @@ shinyServer(function(input, output, session) {
     filename = "aweSOM-report.html",
     content = function(file) {
       if (is.null(ok.som())) return(NULL)
-      # Copy the report file to a temporary directory before processing it, in
-      # case we don't have write permissions to the current working dir (which
-      # can happen when deployed).
+      # Copy the report file to a temporary directory before processing it
       tempReport <- file.path(tempdir(), "reproducible_code.Rmd")
       file.copy("reproducible_code.Rmd", tempReport, overwrite = TRUE)
       
-      # Set up parameters to pass to Rmd document
-      params <- list(code = values, ok.data = ok.data())
-      
-      # Knit the document, passing in the `params` list, and eval it in a
-      # child of the global environment (this isolates the code in the document
-      # from the code in this app).
+      # Knit the document and eval it in a child of the global environment (this
+      # isolates the code in the document from the code in this app).
       rmarkdown::render(tempReport, output_file = file,
-                        params = params,
+                        params = list(code = values, ok.data = ok.data()),
                         envir = new.env(parent = globalenv())
       )
     }
