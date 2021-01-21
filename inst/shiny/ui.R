@@ -226,13 +226,19 @@ shinyUI(fluidPage(
                              
                              #question about that panel below
                              conditionalPanel('input.graphType == "Pie" | input.graphType == "CatBarplot" | input.graphType == "Color" | input.graphType == "Names"', 
-                                              uiOutput("plotVarOne")),
+                                              # uiOutput("plotVarOne")
+                                              fluidRow(column(4, p("Plot variable:")), 
+                                                       column(8, selectInput("plotVarOne", NULL, choices= NULL, selected= NULL)))),
                              conditionalPanel(paste0('input.graphType == "Circular" | ', 
                                                      'input.graphType == "Barplot" | ', 
                                                      'input.graphType == "Boxplot" | ', 
                                                      'input.graphType == "Line" | ', 
                                                      'input.graphType == "Radar"'), 
-                                              uiOutput("plotVarMult")),
+                                              # uiOutput("plotVarMult")
+                                              fluidRow(column(4, p("Plot variable:"), 
+                                                              conditionalPanel("input.plotAdvanced", 
+                                                                               actionButton("plotArrange", "Reorder variables"))), 
+                                                       column(8, selectInput("plotVarMult", NULL, multiple= TRUE, choices= NULL, selected= NULL)))),
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist" & input.graphType != "Abstraction"',
                                               uiOutput("plotNames")),
                              checkboxInput("plotAdvanced", "Advanced options", F),

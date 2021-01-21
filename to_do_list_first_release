@@ -15,11 +15,16 @@ Vignette
 .
 
 Other: 
-* (Julien) Add references in help
-
+.
 
 For future version:
+* Training vars selection as a (html) multiple input, with separate weights section
+* Scales visible for CatBarplot
+* plot option: hide obs names
+* console-callable reorder variables
+* traindat to matrix in repro code (if no scale)
+* screeplot max classes = ncells
+* radar axes -> straight
 * support for additional observations
 * better legend
 * legends in exported svg
-

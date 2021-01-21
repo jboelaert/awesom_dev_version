@@ -501,30 +501,51 @@ shinyServer(function(input, output, session) {
      updateNumericInput(session, "kohSuperclass", max= som$grid$xdim * som$grid$ydim)
    })
 
-  ## Update variable selection for graphs
-  output$plotVarOne <- renderUI({
-    if (is.null(ok.som())) return(NULL)
-    isolate({
-      fluidRow(column(4, p("Plot variable:")), 
-               column(8, selectInput("plotVarOne", NULL, choices= colnames(ok.data()), 
-                                     selected= ok.trainvars()[1])))
-    })
-    
-  })
-  
-  output$plotVarMult <- renderUI({
-    if (is.null(ok.som())) return(NULL)
-    isolate({
+  ## Update variable selection for graphs, if necessary
+  observeEvent(ok.som(), {
+    changeVars <- TRUE
+    if (! is.null(values$previous.trainvars)) {
+      # if (length(ok.trainvars()) == length(values$previous.trainvars)) {
+      #   if (all.equal(sort(ok.trainvars()), sort(values$previous.trainvars)))
+      #     changeVars <- FALSE
+      # }
+      if (all(c(input$plotVarMult, input$plotVarOne) %in% colnames(ok.data())))
+          changeVars <- FALSE
+    }
+    if (changeVars) {
+      updateSelectInput(session, "plotVarOne", NULL, choices= colnames(ok.data()), 
+                        selected= ok.trainvars()[1])
       tmp.numeric <- sapply(ok.data(), is.numeric)
-      fluidRow(column(4, p("Plot variables:"), 
-                      conditionalPanel("input.plotAdvanced", 
-                                       actionButton("plotArrange", "Reorder variables"))), 
-               column(8, selectInput("plotVarMult", NULL, multiple= TRUE,
-                                     choices= colnames(ok.data())[tmp.numeric],
-                                     selected= ok.trainvars()[tmp.numeric[ok.trainvars()]])))
-
-    })
-  })
+      updateSelectInput(session, "plotVarMult", NULL,
+                        choices= colnames(ok.data())[tmp.numeric],
+                        selected= ok.trainvars()[tmp.numeric[ok.trainvars()]])
+      values$previous.trainvars <- ok.trainvars()
+    }
+  }) 
+  
+  # output$plotVarOne <- renderUI({
+  #   if (is.null(ok.som())) return(NULL)
+  #   isolate({
+  #     fluidRow(column(4, p("Plot variable:")), 
+  #              column(8, selectInput("plotVarOne", NULL, choices= colnames(ok.data()), 
+  #                                    selected= ok.trainvars()[1])))
+  #   })
+  #   
+  # })
+  # 
+  # output$plotVarMult <- renderUI({
+  #   if (is.null(ok.som())) return(NULL)
+  #   isolate({
+  #     tmp.numeric <- 
+  #     fluidRow(column(4, p("Plot variables:"), 
+  #                     conditionalPanel("input.plotAdvanced", 
+  #                                      actionButton("plotArrange", "Reorder variables"))), 
+  #              column(8, selectInput("plotVarMult", NULL, multiple= TRUE,
+  #                                    choices= colnames(ok.data())[tmp.numeric],
+  #                                    selected= ok.trainvars()[tmp.numeric[ok.trainvars()]])))
+  # 
+  #   })
+  # })
   
   ## Rearrange variables order if "Arrange" button is hit
   observeEvent(input$plotArrange, {
