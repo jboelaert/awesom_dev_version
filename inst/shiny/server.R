@@ -291,7 +291,7 @@ shinyServer(function(input, output, session) {
       if (input$trainscale) dat <- scale(dat)
       varWeights <- length(varWeights) * varWeights / sum(varWeights)
       dat <- t(sqrt(varWeights) * t(dat))
-      codeTxt$scale <- paste0(ifelse(input$trainscale, "### Scale training data\ndat <- scale(dat)\n", ""), 
+      codeTxt$scale <- paste0(ifelse(input$trainscale, "### Scale training data\ndat <- scale(dat)\n", "dat <- as.matrix(dat)"), 
                               if (any(varWeights != 1)) paste0(
                                 "### Apply (standardized) weights\n",
                                 "varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
