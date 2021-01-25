@@ -242,22 +242,10 @@ shinyServer(function(input, output, session) {
                                      ")\n")
                             })
       
-      
-      # Check that all variables are numeric, otherwise message and convert
-      varNumeric <- sapply(dat, is.numeric)
-      if (any(!varNumeric)) {
-        err.msg$numeric <- paste0("Variables < ",
-                                  paste(colnames(dat)[!varNumeric], collapse= ", "),
-                                  " > are not natively numeric, and will be forced to numeric.",
-                                  " (This is probably a bad idea.)")
-        dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))
-        codeTxt$numeric <- paste0("varNumeric <- sapply(dat, is.numeric)\n", 
-                                  "dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))\n")
-      }
-      
       # Remove NAs
       nrow.withNA <- nrow(dat)
-      dat <- as.matrix(na.omit(dat))
+      # dat <- as.matrix(na.omit(dat))
+      dat <- na.omit(dat)
       if (nrow(dat) < nrow.withNA) {
         err.msg$NArows <- paste(nrow.withNA - nrow(dat), 
                                 "observations contained missing values, and were removed.")
@@ -269,7 +257,8 @@ shinyServer(function(input, output, session) {
       }
       
       # Check for constant variables (if so, exclude and message)
-      varConstant <- apply(dat, 2, sd, na.rm= TRUE) == 0
+      # varConstant <- apply(dat, 2, sd, na.rm= TRUE) == 0
+      varConstant <- apply(dat, 2, function(x) all(x == x[1], na.rm= TRUE))
       if (any(varConstant)) {
         err.msg$constant <- paste0("Variables < ",
                                    ifelse(sum(varConstant) == 1, 
@@ -287,15 +276,39 @@ shinyServer(function(input, output, session) {
         }
       }
       
-      ## Scale variables and apply normalized weights
-      if (input$trainscale) dat <- scale(dat)
-      varWeights <- length(varWeights) * varWeights / sum(varWeights)
-      dat <- t(sqrt(varWeights) * t(dat))
-      codeTxt$scale <- paste0(ifelse(input$trainscale, "### Scale training data\ndat <- scale(dat)\n", "dat <- as.matrix(dat)"), 
-                              if (any(varWeights != 1)) paste0(
-                                "### Apply (standardized) weights\n",
-                                "varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
-                                "dat <- t(sqrt(varWeights) * t(dat))\n"))
+      # Check that all variables are numeric, otherwise message and convert
+      varNumeric <- sapply(dat, is.numeric)
+      if (any(!varNumeric)) {
+        # err.msg$numeric <- paste0("Variables < ",
+        #                           paste(colnames(dat)[!varNumeric], collapse= ", "),
+        #                           " > are not natively numeric, and will be forced to numeric.",
+        #                           " (This is probably a bad idea.)")
+        # dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))
+        # codeTxt$numeric <- paste0("varNumeric <- sapply(dat, is.numeric)\n", 
+        #                           "dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))\n")
+        datQual <- do.call(cbind, lapply(colnames(dat)[!varNumeric], function(ivar) {
+          res <- model.matrix(~as.factor(dat[, ivar])+0)
+          colnames(res) <- paste0(ivar, "_", gsub("as[.]factor[(]dat\\[, ivar\\]\\)", "", colnames(res)))
+          res
+        }))
+        datQual <- t(t(datQual) / sqrt(colMeans(datQual)))
+        dat <- as.matrix(dat[varNumeric])
+      }
+
+      if (any(varNumeric)) {
+        ## Scale variables and apply normalized weights
+        if (input$trainscale) dat <- scale(dat)
+        varWeights <- length(varWeights) * varWeights / sum(varWeights)
+        dat <- t(sqrt(varWeights) * t(dat))
+        codeTxt$scale <- paste0(ifelse(input$trainscale, "### Scale training data\ndat <- scale(dat)\n", "dat <- as.matrix(dat)"), 
+                                if (any(varWeights != 1)) paste0(
+                                  "### Apply (standardized) weights\n",
+                                  "varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
+                                  "dat <- t(sqrt(varWeights) * t(dat))\n"))
+      }      
+      if (any(!varNumeric)) {
+        dat <- cbind(dat, datQual)
+      }
       
       values$codetxt$traindat <- 
         paste0("\n## Build training data\n",
@@ -416,7 +429,8 @@ shinyServer(function(input, output, session) {
   ## Current training vars
   ok.trainvars <- reactive({
     if (is.null(ok.som())) return(NULL)
-    isolate(colnames(ok.traindat()$dat))
+    # isolate(colnames(ok.traindat()$dat))
+    isolate(intersect(colnames(ok.traindat()$dat), colnames(ok.data()))) ## continuous vars only
   })
   
   
