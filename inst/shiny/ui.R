@@ -262,6 +262,7 @@ shinyUI(fluidPage(
                                               ## Variable scales
                                               conditionalPanel(paste0('input.graphType == "Circular" | ', 
                                                                       'input.graphType == "Barplot" | ', 
+                                                                      'input.graphType == "CatBarplot" | ', 
                                                                       'input.graphType == "Boxplot" | ', 
                                                                       'input.graphType == "Line" | ', 
                                                                       'input.graphType == "Color" | ', 
