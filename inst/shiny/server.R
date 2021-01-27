@@ -148,47 +148,93 @@ shinyServer(function(input, output, session) {
   
   # Update train variable options on data change
   output$trainVarOptions <-renderUI({
-    if (is.null(ok.data())) return()
-    varclass <- sapply(ok.data(), class)
-    names(varclass) <- colnames(ok.data())
-    isnum <- varclass %in% c("integer", "numeric")
-    names(isnum) <- names(varclass) <- colnames(ok.data())
+    # if (is.null(ok.data())) return()
+    # varclass <- sapply(ok.data(), class)
+    # names(varclass) <- colnames(ok.data())
+    # isnum <- varclass %in% c("integer", "numeric")
+    # names(isnum) <- names(varclass) <- colnames(ok.data())
+    # 
+    # lapply(colnames(ok.data()), function(var) {
+    #   fluidRow(column(2, numericInput(paste0("trainVarWeight", var), NULL, value= 1, min= 0, max= 1e3)), 
+    #            column(8, checkboxInput(paste0("trainVarChoice", var), var, unname(isnum[var]))),  
+    #            column(2, p(varclass[var])))
+    # })
     
-    lapply(colnames(ok.data()), function(var) {
-      fluidRow(column(2, numericInput(paste0("trainVarWeight", var), NULL, value= 1, min= 0, max= 1e3)), 
-               column(8, checkboxInput(paste0("trainVarChoice", var), var, unname(isnum[var]))),  
-               column(2, p(varclass[var])))
+    if (is.null(ok.data())) return()
+    varclass <- sapply(ok.data()[, input$trainVarChoice], class)
+    if (is.null(varclass)) return()
+    isnum <- varclass %in% c("integer", "numeric")
+    names(isnum) <- names(varclass) <- input$trainVarChoice
+    lapply(input$trainVarChoice, function(var) {
+      fluidRow(column(3, numericInput(paste0("trainVarWeight", var), NULL, value= 1, min= 0, max= 1e3)), 
+               column(6, checkboxInput(paste0("trainVarChoice", var), var, value= TRUE)),  
+               column(3, p(varclass[var])))
     })
+    
+    
   })
   
+  output$trainVarSelect <- renderUI({
+    if (is.null(ok.data())) return()
+    if (is.null(values$trainVarSelect)) {
+      selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
+      values$trainVarSelect <- 
+        paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"'>",
+               paste0("<option value='", colnames(ok.data()), "'", ifelse(selectVars, "selected", ""),">", colnames(ok.data()), "</option>", collapse= ""), 
+               "</select>")
+    }
+    HTML(values$trainVarSelect)
+  })
   
   # Update train variable choice on button click
-  observe({
-    
-    input$varNum
+  observeEvent(input$varNum, {
     if (is.null(ok.data())) return()
     selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
-    names(selectVars) <- colnames(ok.data())
-    lapply(colnames(ok.data()), function(var) {
-      updateCheckboxInput(session, paste0("trainVarChoice", var), value= unname(selectVars[var]))
-    })
+    values$trainVarSelect <- 
+      paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"'>",
+             paste0("<option value='", colnames(ok.data()), "'", ifelse(selectVars, "selected", ""),">", colnames(ok.data()), "</option>", collapse= ""), 
+             "</select>")
   })
-  observe({
-    input$varAll
+  observeEvent(input$varAll, {
     if (is.null(ok.data())) return()
-    lapply(colnames(ok.data()), function(var) {
-      updateCheckboxInput(session, paste0("trainVarChoice", var), value= TRUE)
-    })
+    values$trainVarSelect <- 
+      paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"'>",
+             paste0("<option value='", colnames(ok.data()), "' selected>", colnames(ok.data()), "</option>", collapse= ""), 
+             "</select>")
   })
-  observe({
-    input$varNone
+  observeEvent(input$varNone, {
     if (is.null(ok.data())) return()
-    euss <- rep(F, ncol(ok.data()))
-    names(euss) <- colnames(ok.data())
-    lapply(colnames(ok.data()), function(var) {
-      updateCheckboxInput(session, paste0("trainVarChoice", var), value= unname(euss[var]))
-    })
+    values$trainVarSelect <- 
+      paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"'>",
+             paste0("<option value='", colnames(ok.data()), "'>", colnames(ok.data()), "</option>", collapse= ""), 
+             "</select>")
   })
+  
+  # observe({
+  #   input$varNum
+  #   if (is.null(ok.data())) return()
+  #   selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
+  #   names(selectVars) <- colnames(ok.data())
+  #   lapply(colnames(ok.data()), function(var) {
+  #     updateCheckboxInput(session, paste0("trainVarChoice", var), value= unname(selectVars[var]))
+  #   })
+  # })
+  # observe({
+  #   input$varAll
+  #   if (is.null(ok.data())) return()
+  #   lapply(colnames(ok.data()), function(var) {
+  #     updateCheckboxInput(session, paste0("trainVarChoice", var), value= TRUE)
+  #   })
+  # })
+  # observe({
+  #   input$varNone
+  #   if (is.null(ok.data())) return()
+  #   euss <- rep(F, ncol(ok.data()))
+  #   names(euss) <- colnames(ok.data())
+  #   lapply(colnames(ok.data()), function(var) {
+  #     updateCheckboxInput(session, paste0("trainVarChoice", var), value= unname(euss[var]))
+  #   })
+  # })
   
   # Update grid dimension on data update
   observe({
@@ -221,11 +267,15 @@ shinyServer(function(input, output, session) {
       err.msg <- NULL
       codeTxt <- list()
       
+      # yolo <- sapply(paste0("trainVarChoice", colnames(ok.data())),
+      #                function(var) input[[var]])
+      # browser()
+      # 
       varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())),
-                                       function(var) input[[var]]))
+                                       function(var) ifelse(length(input[[var]]), input[[var]], F)))
       varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())),
-                           function(var) input[[var]])
-      varSelected <- varSelected & varWeights > 0
+                           function(var) ifelse(length(input[[var]]), input[[var]], 0))
+      varSelected <- varSelected & varWeights > 0 & colnames(ok.data()) %in% input$trainVarChoice
       if (sum(varSelected) < 2)
         return(list(dat= NULL, msg= "Select at least two variables (with non-zero weight)."))
 

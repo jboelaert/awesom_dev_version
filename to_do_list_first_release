@@ -1,8 +1,14 @@
+Done
+* Scales option visible for CatBarplot
+* Plot vars selection updates change only when necessary (when previously selected variables are no longer present in the import data)
+* Fixed bug in repro script: training data to matrix when no scale() is called
+
 For future version:
-* Scales visible for CatBarplot
+* better explanation of range
+* add message in shiny when file is too large
+* import csv encoding options "whatever else" !!
 * plot option: hide obs names
 * console-callable reorder variables
-* screeplot max classes = ncells
 * radar axes -> straight
 * better legend
 * legends in exported svg
@@ -13,3 +19,5 @@ Wishlist
 * support for additional observations
 * obs cloud plot (with legend showing selected point's data)
 * support for qual variables (MCA)
+
+
