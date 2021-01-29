@@ -1,6 +1,5 @@
 shinyUI(fluidPage(
   tags$head(HTML("<title>aweSOM</title>")),
-  #to modify style of help messages (increase font etc. tbd after lunch)
   tags$style(
     HTML(".shiny-notification {position:fixed; top: 50%; left: 0px; width: 30%;}")
   ),
@@ -192,10 +191,6 @@ shinyUI(fluidPage(
                  #   h3("Import SOM:"),
                  #   fileInput("importmapbutton", "Import (RDS)"))),
                column(8, 
-                      # h3("Training variables:"),
-                      # fluidRow(column(4, actionButton("varNum", "Select numeric variables")), 
-                      #          column(4, actionButton("varAll", "Select all variables")), 
-                      #          column(4, actionButton("varNone", "Unselect all variables"))),
                       fluidRow(column(4, h3("Training variables:")), 
                                column(8, 
                                       actionButton("varNum", "Select numeric variables"),
@@ -207,9 +202,7 @@ shinyUI(fluidPage(
                                                column(6, HTML("<p><b>Variable</b></p>")), 
                                                column(3, HTML("<p><b>Type</b></p>"))),
                                       uiOutput("trainVarOptions")
-                                      )),
-                      # p(),
-                      
+                                      ))
                ))),
 
     tabPanel("Plot", 

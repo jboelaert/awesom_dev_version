@@ -161,18 +161,6 @@ shinyServer(function(input, output, session) {
   
   # Update train variables options on variable selection change
   output$trainVarOptions <-renderUI({
-    # if (is.null(ok.data())) return()
-    # varclass <- sapply(ok.data(), class)
-    # names(varclass) <- colnames(ok.data())
-    # isnum <- varclass %in% c("integer", "numeric")
-    # names(isnum) <- names(varclass) <- colnames(ok.data())
-    # 
-    # lapply(colnames(ok.data()), function(var) {
-    #   fluidRow(column(2, numericInput(paste0("trainVarWeight", var), NULL, value= 1, min= 0, max= 1e3)), 
-    #            column(8, checkboxInput(paste0("trainVarChoice", var), var, unname(isnum[var]))),  
-    #            column(2, p(varclass[var])))
-    # })
-    
     if (is.null(ok.data())) return()
     varclass <- sapply(ok.data()[, input$trainVarChoice], class)
     if (is.null(varclass)) return()
@@ -189,8 +177,6 @@ shinyServer(function(input, output, session) {
                                          levels(as.factor(ok.data()[, var])), 
                                          multiple= TRUE))))
     })
-    
-    
   })
   
   
@@ -217,33 +203,7 @@ shinyServer(function(input, output, session) {
              paste0("<option value='", colnames(ok.data()), "'>", colnames(ok.data()), "</option>", collapse= ""), 
              "</select>")
   })
-  
-  # observe({
-  #   input$varNum
-  #   if (is.null(ok.data())) return()
-  #   selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
-  #   names(selectVars) <- colnames(ok.data())
-  #   lapply(colnames(ok.data()), function(var) {
-  #     updateCheckboxInput(session, paste0("trainVarChoice", var), value= unname(selectVars[var]))
-  #   })
-  # })
-  # observe({
-  #   input$varAll
-  #   if (is.null(ok.data())) return()
-  #   lapply(colnames(ok.data()), function(var) {
-  #     updateCheckboxInput(session, paste0("trainVarChoice", var), value= TRUE)
-  #   })
-  # })
-  # observe({
-  #   input$varNone
-  #   if (is.null(ok.data())) return()
-  #   euss <- rep(F, ncol(ok.data()))
-  #   names(euss) <- colnames(ok.data())
-  #   lapply(colnames(ok.data()), function(var) {
-  #     updateCheckboxInput(session, paste0("trainVarChoice", var), value= unname(euss[var]))
-  #   })
-  # })
-  
+
   # Update grid dimension on data update
   observe({
     if (is.null(ok.data())) return()
@@ -542,22 +502,12 @@ shinyServer(function(input, output, session) {
   
   
   ## Current training vars
-  # ok.trainvars <- reactive({
-  #   if (is.null(ok.som())) return(NULL)
-  #   isolate(colnames(ok.traindat()$dat))
-  #   # isolate(intersect(colnames(ok.traindat()$dat), colnames(ok.data()))) ## continuous vars only
-  # })
   ok.trainvars <- eventReactive(ok.traindat(), {
     colnames(ok.traindat()$dat)
-    # isolate(intersect(colnames(ok.traindat()$dat), colnames(ok.data()))) ## continuous vars only
   })
   
   
   ## Current training rows (no NA)
-  # ok.trainrows <- reactive({
-  #   if (is.null(ok.som())) return(NULL)
-  #   isolate(rowSums(is.na(ok.data()[ok.trainvars()])) == 0)
-  # })
   ok.trainrows <- eventReactive(ok.trainvars(), {
     rowSums(is.na(ok.data()[input$trainVarChoice])) == 0
   })
@@ -666,30 +616,6 @@ shinyServer(function(input, output, session) {
       values$previous.trainvars <- ok.trainvars()
     }
   }) 
-  
-  # output$plotVarOne <- renderUI({
-  #   if (is.null(ok.som())) return(NULL)
-  #   isolate({
-  #     fluidRow(column(4, p("Plot variable:")), 
-  #              column(8, selectInput("plotVarOne", NULL, choices= colnames(ok.data()), 
-  #                                    selected= ok.trainvars()[1])))
-  #   })
-  #   
-  # })
-  # 
-  # output$plotVarMult <- renderUI({
-  #   if (is.null(ok.som())) return(NULL)
-  #   isolate({
-  #     tmp.numeric <- 
-  #     fluidRow(column(4, p("Plot variables:"), 
-  #                     conditionalPanel("input.plotAdvanced", 
-  #                                      actionButton("plotArrange", "Reorder variables"))), 
-  #              column(8, selectInput("plotVarMult", NULL, multiple= TRUE,
-  #                                    choices= colnames(ok.data())[tmp.numeric],
-  #                                    selected= ok.trainvars()[tmp.numeric[ok.trainvars()]])))
-  # 
-  #   })
-  # })
   
   ## Rearrange variables order if "Arrange" button is hit
   observeEvent(input$plotArrange, {
