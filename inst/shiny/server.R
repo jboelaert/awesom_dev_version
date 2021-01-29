@@ -248,22 +248,14 @@ shinyServer(function(input, output, session) {
       varNumeric <- sapply(dat, is.numeric)
       
       # Generate reproducible code
-      # codeTxt$sel <- paste0("dat <- ok.data[, c('", 
-      #                       paste(colnames(ok.data())[varSelected], collapse= "', '"), "')]\n",
-      #                       if (any(varWeights != 1)) {
-      #                         paste0("varWeights <- c(", 
-      #                                paste0(colnames(ok.data())[varSelected], 
-      #                                      " = ", varWeights, collapse= ", "), 
-      #                                ")\n")
-      #                       })
       codeTxt$sel <- paste0(
         if (any(varNumeric)) {
-          paste0("numVars <- c('",
-                 paste(colnames(dat)[varNumeric], collapse= "', '"), "')\n")
+          paste0('numVars <- c("',
+                 paste(colnames(dat)[varNumeric], collapse= '", "'), '")\n')
         },
         if (any(!varNumeric)) {
-          paste0("catVars <- c('",
-                 paste(colnames(dat)[!varNumeric], collapse= "', '"), "')\n")
+          paste0('catVars <- c("',
+                 paste(colnames(dat)[!varNumeric], collapse= '", "'), '")\n')
         },
         "selec.data <- import.data[, ",
         if (any(varNumeric) & any(!varNumeric)) {
@@ -284,7 +276,6 @@ shinyServer(function(input, output, session) {
       if (nrow(dat) < nrow.withNA) {
         err.msg$NArows <- paste(nrow.withNA - nrow(dat), 
                                 "observations contained missing values, and were removed.")
-        # codeTxt$NArows <- "selec.data <- na.omit(selec.data)\n"
         codeTxt$NArows <- paste0("NArows <- rowSums(is.na(selec.data)) > 0\n", 
                                  "selec.data <- selec.data[!NArows, ]\n")
       }
@@ -357,17 +348,17 @@ shinyServer(function(input, output, session) {
         codeTxt$scale <- paste0(
           codeTxt$scale, 
           "### Apply variables weights\n",
-          if (any(varNumeric)) "num.data <- num.data %*% diag(sqrt(varWeights[numVars]))\n",
+          if (any(varNumeric)) "num.data <- t(t(num.data) * sqrt(varWeights[numVars]))\n",
           if (any(!varNumeric)) 
             paste0("qual.weights <- rep(varWeights[catVars], times= sapply(selec.data[catVars], function(x) nlevels(as.factor(x))))\n", 
-                   "cat.data <- cat.data %*% diag(sqrt(qual.weights))\n"))
+                   "cat.data <- t(t(cat.data) * sqrt(qual.weights))\n"))
       }
       
       codeTxt$join <- paste0(
         if (any(!varNumeric)) if (length(droppedLevels) > 0) {
           paste0("### Drop selected factor levels\n", 
-                 "cat.data <- cat.data[, ! colnames(cat.data) %in% c('", 
-                 paste0(droppedLevels, collapse= "', '"), "')]\n")
+                 'cat.data <- cat.data[, ! colnames(cat.data) %in% c("', 
+                 paste0(droppedLevels, collapse= '", "'), '")]\n')
         }, 
         "### Finalize training data and plotting data\n", 
         if (any(!varNumeric) & !any(varNumeric)) {
@@ -417,19 +408,19 @@ shinyServer(function(input, output, session) {
                "### RNG Seed (for reproducibility)\n", 
                "set.seed(", input$trainSeed, ")\n",
                "### Initialization\n", 
-               "init <- somInit(train.data, ", input$kohDimx, ", ", input$kohDimy, 
+               'init <- somInit(train.data, ', input$kohDimx, ', ', input$kohDimy, 
                if (input$kohInit != "pca.sample") {
-                 paste0(", method= '", input$kohInit, "'")
+                 paste0(', method= "', input$kohInit, '"')
                }, 
                ")\n",
                "### Training\n", 
                "the.som <- kohonen::som(train.data, grid = kohonen::somgrid(", 
-               input$kohDimx, ", ", input$kohDimy, ", '", 
-               input$kohTopo, "'), rlen = ", input$trainRlen, 
+               input$kohDimx, ", ", input$kohDimy, ', "', 
+               input$kohTopo, '"), rlen = ', input$trainRlen, 
                ", alpha = c(", input$trainAlpha1, ", ", 
                input$trainAlpha2, "), radius = c(", 
                input$trainRadius1, ",", input$trainRadius2, 
-               "), init = init, dist.fcts = 'sumofsquares')\n")
+               '), init = init, dist.fcts = "sumofsquares")\n')
       
       ## Initialization
       set.seed(input$trainSeed)
@@ -480,7 +471,8 @@ shinyServer(function(input, output, session) {
       superclasses <- unname(cutree(ok.hclust(), input$kohSuperclass))
       
       values$codetxt$sc <- paste0("## Group cells into superclasses (hierarchical clustering)\n", 
-                                  "superclust <- hclust(dist(the.som$codes[[1]]), '", input$sup_clust_hcmethod, "')\n",
+                                  'superclust <- hclust(dist(the.som$codes[[1]]), "', 
+                                  input$sup_clust_hcmethod, '")\n',
                                   "superclasses <- unname(cutree(superclust, ", 
                                   input$kohSuperclass, "))\n")
     } else {
@@ -598,10 +590,6 @@ shinyServer(function(input, output, session) {
   observeEvent(ok.som(), {
     changeVars <- TRUE
     if (! is.null(values$previous.trainvars)) {
-      # if (length(ok.trainvars()) == length(values$previous.trainvars)) {
-      #   if (all.equal(sort(ok.trainvars()), sort(values$previous.trainvars)))
-      #     changeVars <- FALSE
-      # }
       if (all(c(input$plotVarMult, input$plotVarOne) %in% colnames(ok.data())))
           changeVars <- FALSE
     }
@@ -670,10 +658,10 @@ shinyServer(function(input, output, session) {
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
-                                  "aweSOMscreeplot(the.som, method = '", 
-                                  input$sup_clust_method, "', ", 
+                                  'aweSOMscreeplot(the.som, method = "', 
+                                  input$sup_clust_method, '", ', 
                                   if (input$sup_clust_method == "hierarchical") {
-                                    paste0("hmethod = '", input$sup_clust_hcmethod, "', ")
+                                    paste0('hmethod = "', input$sup_clust_hcmethod, '", ')
                                   },
                                   "nclass = ", input$kohSuperclass, ")\n")
     aweSOM::aweSOMscreeplot(ok.som(), input$kohSuperclass, input$sup_clust_method, input$sup_clust_hcmethod)
@@ -697,7 +685,7 @@ shinyServer(function(input, output, session) {
     values$codetxt$plot <- paste0("\n## Plot smooth neighbour distances\n", 
                                   "aweSOMsmoothdist(the.som",
                                   if (input$palplot != "viridis") {
-                                    paste0(", pal = '", input$palplot, "'")
+                                    paste0(', pal = "', input$palplot, '"')
                                   },
                                   if (input$plotRevPal) {
                                     ", reversePal = TRUE"
@@ -729,7 +717,7 @@ shinyServer(function(input, output, session) {
     ## Reproducible script for plot
     values$codetxt$plot <- paste0(
       "\n## Interactive plot\n", 
-      "aweSOMplot(som = the.som, type = '", input$graphType, "', ", 
+      'aweSOMplot(som = the.som, type = "', input$graphType, '", ', 
       if (! (input$graphType %in% c("Hitmap", "UMatrix"))) {
         "data = plot.data, "
       }, 
@@ -746,16 +734,16 @@ shinyServer(function(input, output, session) {
       }, 
       "\n",
       if (input$graphType %in% c("Circular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$contrast != "contrast") {
-        paste0("           scales = '", input$contrast, "',\n")
+        paste0('           scales = "', input$contrast, '",\n')
       },
       if (input$graphType %in% c("Circular", "Line", "Barplot", "Boxplot", "Color", "UMatrix", "Radar") && input$average_format != "mean") {
-        paste0("           values = '", input$average_format, "',\n")
+        paste0('           values = "', input$average_format, '",\n')
       },
       if (input$palsc != "Set3") {
-        paste0("           palsc = '", input$palsc, "', \n")
+        paste0('           palsc = "', input$palsc, '", \n')
       },
       if (input$palplot != "viridis") {
-        paste0("           palvar = '", input$palplot, "', \n")
+        paste0('           palvar = "', input$palplot, '", \n')
       }, 
       if (input$plotRevPal) {
         paste0("           palrev = ", input$plotRevPal, ", \n")
