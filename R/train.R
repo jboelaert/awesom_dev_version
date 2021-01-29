@@ -160,3 +160,25 @@ somQuality <- function(som, traindat){
   res
 }
 
+
+
+#' Complete disjunctive table
+#'
+#' Computes the complete disjunctive table of a set of factors, where each
+#' factor (ie categorical variable) is encoded as a set of dummy variables, one
+#' for each level (category).
+#'
+#' @param x \code{data.frame} on which the table is computed. All columns will
+#'   be treated as factors.
+#'
+#' @return A \code{matrix} of dummy variables, with \code{nrow(x)} rows and a
+#'   number of columns equal to the sum of numbers of levels in all the
+#'   variables of \code{x}.
+cdt <- function(x) {
+  attr(x, "na.action") <- "na.pass"
+  do.call(cbind, lapply(colnames(x), function(ivar) {
+    res <- model.matrix(as.formula(paste0("~as.factor(", ivar, ")+0")), x)
+    colnames(res) <- paste0(ivar, "_", gsub("as[.]factor[(].*?\\)", "", colnames(res)))
+    res
+  }))
+}

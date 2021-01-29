@@ -146,7 +146,20 @@ shinyServer(function(input, output, session) {
   ## Panel "Train"
   #############################################################################
   
-  # Update train variable options on data change
+  # Update train variable slection on data change
+  output$trainVarSelect <- renderUI({
+    if (is.null(ok.data())) return()
+    if (is.null(values$trainVarSelect)) {
+      selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
+      values$trainVarSelect <- 
+        paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"'>",
+               paste0("<option value='", colnames(ok.data()), "'", ifelse(selectVars, "selected", ""),">", colnames(ok.data()), "</option>", collapse= ""), 
+               "</select>")
+    }
+    HTML(values$trainVarSelect)
+  })
+  
+  # Update train variables options on variable selection change
   output$trainVarOptions <-renderUI({
     # if (is.null(ok.data())) return()
     # varclass <- sapply(ok.data(), class)
@@ -166,25 +179,20 @@ shinyServer(function(input, output, session) {
     isnum <- varclass %in% c("integer", "numeric")
     names(isnum) <- names(varclass) <- input$trainVarChoice
     lapply(input$trainVarChoice, function(var) {
-      fluidRow(column(3, numericInput(paste0("trainVarWeight", var), NULL, value= 1, min= 0, max= 1e3)), 
-               column(6, checkboxInput(paste0("trainVarChoice", var), var, value= TRUE)),  
-               column(3, p(varclass[var])))
+      fluidRow(fluidRow(column(3, numericInput(paste0("trainVarWeight", var), NULL, value= 1, min= 0, max= 1e3)), 
+                 column(6, checkboxInput(paste0("trainVarChoice", var), var, value= TRUE)),  
+                 column(3, p(varclass[var]))),
+        if(!isnum[var]) 
+          fluidRow(column(3), 
+                   column(9, selectInput(paste0("trainVarLevels", var), NULL,
+                                         levels(as.factor(ok.data()[, var])), 
+                                         levels(as.factor(ok.data()[, var])), 
+                                         multiple= TRUE))))
     })
     
     
   })
   
-  output$trainVarSelect <- renderUI({
-    if (is.null(ok.data())) return()
-    if (is.null(values$trainVarSelect)) {
-      selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
-      values$trainVarSelect <- 
-        paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"'>",
-               paste0("<option value='", colnames(ok.data()), "'", ifelse(selectVars, "selected", ""),">", colnames(ok.data()), "</option>", collapse= ""), 
-               "</select>")
-    }
-    HTML(values$trainVarSelect)
-  })
   
   # Update train variable choice on button click
   observeEvent(input$varNum, {
@@ -267,12 +275,8 @@ shinyServer(function(input, output, session) {
       err.msg <- NULL
       codeTxt <- list()
       
-      # yolo <- sapply(paste0("trainVarChoice", colnames(ok.data())),
-      #                function(var) input[[var]])
-      # browser()
-      # 
       varSelected <- as.logical(sapply(paste0("trainVarChoice", colnames(ok.data())),
-                                       function(var) ifelse(length(input[[var]]), input[[var]], F)))
+                                       function(var) isTRUE(input[[var]])))
       varWeights <- sapply(paste0("trainVarWeight", colnames(ok.data())),
                            function(var) ifelse(length(input[[var]]), input[[var]], 0))
       varSelected <- varSelected & varWeights > 0 & colnames(ok.data()) %in% input$trainVarChoice
@@ -281,25 +285,48 @@ shinyServer(function(input, output, session) {
 
       dat <- ok.data()[, varSelected]
       varWeights <- varWeights[varSelected]
+      varNumeric <- sapply(dat, is.numeric)
       
       # Generate reproducible code
-      codeTxt$sel <- paste0("dat <- ok.data[, c('", 
-                            paste(colnames(ok.data())[varSelected], collapse= "', '"), "')]\n",
-                            if (any(varWeights != 1)) {
-                              paste0("varWeights <- c(", 
-                                     paste(colnames(ok.data())[varSelected], 
-                                           " = ", varWeights, collapse= ", "), 
-                                     ")\n")
-                            })
+      # codeTxt$sel <- paste0("dat <- ok.data[, c('", 
+      #                       paste(colnames(ok.data())[varSelected], collapse= "', '"), "')]\n",
+      #                       if (any(varWeights != 1)) {
+      #                         paste0("varWeights <- c(", 
+      #                                paste0(colnames(ok.data())[varSelected], 
+      #                                      " = ", varWeights, collapse= ", "), 
+      #                                ")\n")
+      #                       })
+      codeTxt$sel <- paste0(
+        if (any(varNumeric)) {
+          paste0("numVars <- c('",
+                 paste(colnames(dat)[varNumeric], collapse= "', '"), "')\n")
+        },
+        if (any(!varNumeric)) {
+          paste0("catVars <- c('",
+                 paste(colnames(dat)[!varNumeric], collapse= "', '"), "')\n")
+        },
+        "selec.data <- import.data[, ",
+        if (any(varNumeric) & any(!varNumeric)) {
+          "c(numVars, catVars)]\n"
+        } else if (any(varNumeric)) {
+          "numVars]\n"
+        } else if (any(!varNumeric)) {
+          "catVars]\n"
+        },
+        if (any(varWeights != 1)) {
+          paste0("varWeights <- c(", 
+                 paste0(colnames(dat), " = ", varWeights, collapse= ", "), ")\n")
+        })
       
-      # Remove NAs
+      # Remove rows with NAs in training variables
       nrow.withNA <- nrow(dat)
-      # dat <- as.matrix(na.omit(dat))
       dat <- na.omit(dat)
       if (nrow(dat) < nrow.withNA) {
         err.msg$NArows <- paste(nrow.withNA - nrow(dat), 
                                 "observations contained missing values, and were removed.")
-        codeTxt$NArows <- "dat <- as.matrix(na.omit(dat))\n"
+        # codeTxt$NArows <- "selec.data <- na.omit(selec.data)\n"
+        codeTxt$NArows <- paste0("NArows <- rowSums(is.na(selec.data)) > 0\n", 
+                                 "selec.data <- selec.data[!NArows, ]\n")
       }
       if (nrow(dat) == 0) {
         err.msg$NArows <- "All observations contain missing values, training impossible."
@@ -317,8 +344,9 @@ shinyServer(function(input, output, session) {
                                    " > are constant, and will be removed for training.")
         dat <- dat[, !varConstant]
         varWeights <- varWeights[!varConstant]
-        codeTxt$constant <- paste0("varConstant <- apply(dat, 2, sd, na.rm= TRUE) == 0\n", 
-                                   "dat <- dat[, !varConstant]\n", 
+        varNumeric <- varNumeric[!varConstant]
+        codeTxt$constant <- paste0("varConstant <- apply(selec.data, 2, sd, na.rm= TRUE) == 0\n", 
+                                   "selec.data <- selec.data[, !varConstant]\n", 
                                    if (any(varWeights != 1)) paste0("varWeights <- varWeights[!varConstant]\n"))
         if (sum(!varConstant) < 2) {
           err.msg$allconstant <- "Less than two selected non-constant variables, training impossible."
@@ -326,39 +354,76 @@ shinyServer(function(input, output, session) {
         }
       }
       
-      # Check that all variables are numeric, otherwise message and convert
-      varNumeric <- sapply(dat, is.numeric)
+      non1weights <- any(varWeights != 1)
+      
+      # Transform non-numeric variables to dummies, excluding dropped levels
       if (any(!varNumeric)) {
-        # err.msg$numeric <- paste0("Variables < ",
-        #                           paste(colnames(dat)[!varNumeric], collapse= ", "),
-        #                           " > are not natively numeric, and will be forced to numeric.",
-        #                           " (This is probably a bad idea.)")
-        # dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))
-        # codeTxt$numeric <- paste0("varNumeric <- sapply(dat, is.numeric)\n", 
-        #                           "dat[, !varNumeric] <- as.data.frame(sapply(dat[, !varNumeric], as.numeric))\n")
-        datQual <- do.call(cbind, lapply(colnames(dat)[!varNumeric], function(ivar) {
-          res <- model.matrix(~as.factor(dat[, ivar])+0)
-          colnames(res) <- paste0(ivar, "_", gsub("as[.]factor[(]dat\\[, ivar\\]\\)", "", colnames(res)))
-          res
-        }))
-        datQual <- t(t(datQual) / sqrt(colMeans(datQual)))
+        datQual <- aweSOM::cdt(dat[!varNumeric])
+        varWeightsQual <- rep(varWeights[!varNumeric], 
+                              times= sapply(dat[!varNumeric], function(x) nlevels(as.factor(x))))
+        varLevels <- do.call(c, lapply(colnames(dat)[!varNumeric], 
+                                       function(x) paste0(x, "_", input[[paste0("trainVarLevels", x)]])))
+        droppedLevels <- colnames(datQual)[! colnames(datQual) %in% varLevels]
+        varWeightsQual <- varWeightsQual[colnames(datQual) %in% varLevels]
+        datQual <- datQual[, colnames(datQual) %in% varLevels]
         dat <- as.matrix(dat[varNumeric])
+        varWeights <- varWeights[varNumeric]
+        codeTxt$qualDummies <- paste0("### Transform categorical variables into dummies\n",
+                                      "cat.data <- cdt(selec.data[, catVars])\n")
       }
 
       if (any(varNumeric)) {
-        ## Scale variables and apply normalized weights
+        ## Scale variables and apply weights
         if (input$trainscale) dat <- scale(dat)
-        varWeights <- length(varWeights) * varWeights / sum(varWeights)
-        dat <- t(sqrt(varWeights) * t(dat))
-        codeTxt$scale <- paste0(ifelse(input$trainscale, "### Scale training data\ndat <- scale(dat)\n", "dat <- as.matrix(dat)"), 
-                                if (any(varWeights != 1)) paste0(
-                                  "### Apply (standardized) weights\n",
-                                  "varWeights <- length(varWeights) * varWeights / sum(varWeights)\n", 
-                                  "dat <- t(sqrt(varWeights) * t(dat))\n"))
+        dat <- t(t(dat) * sqrt(varWeights))
       }      
       if (any(!varNumeric)) {
+        if (input$trainscale) datQual <- t(t(datQual) / sqrt(colMeans(datQual)))
+        datQual <- t(t(datQual) * sqrt(varWeightsQual))
         dat <- cbind(dat, datQual)
       }
+      
+      if (input$trainscale) {
+        codeTxt$scale <- paste0("### Scale training variables\n",
+                                if (any(varNumeric)) {
+                                  "num.data <- scale(selec.data[, numVars])\n"
+                                }, 
+                                if (any(!varNumeric)) {
+                                  "cat.data <- t(t(cat.data) / sqrt(colSums(cat.data)))\n"
+                                })
+      } else codeTxt$scale <- "num.data <- as.matrix(selec.data[, numVars])\n"
+      
+      if (non1weights) {
+        codeTxt$scale <- paste0(
+          codeTxt$scale, 
+          "### Apply variables weights\n",
+          if (any(varNumeric)) "num.data <- num.data %*% diag(sqrt(varWeights[numVars]))\n",
+          if (any(!varNumeric)) 
+            paste0("qual.weights <- rep(varWeights[catVars], times= sapply(selec.data[catVars], function(x) nlevels(as.factor(x))))\n", 
+                   "cat.data <- cat.data %*% diag(sqrt(qual.weights))\n"))
+      }
+      
+      codeTxt$join <- paste0(
+        if (any(!varNumeric)) if (length(droppedLevels) > 0) {
+          paste0("### Drop selected factor levels\n", 
+                 "cat.data <- cat.data[, ! colnames(cat.data) %in% c('", 
+                 paste0(droppedLevels, collapse= "', '"), "')]\n")
+        }, 
+        "### Finalize training data and plotting data\n", 
+        if (any(!varNumeric) & !any(varNumeric)) {
+          "train.data <- cat.data\n"
+        } else if (any(!varNumeric) & any(varNumeric)) {
+          "train.data <- cbind(num.data, cat.data)\n"
+        } else {
+          "train.data <- num.data\n"
+        },
+        if (any(!varNumeric)) {
+          paste0("plot.data <- cbind(import.data, cdt(import.data[catVars]))", 
+                 if (!is.null(codeTxt$NArows)) "[!NArows, ]","\n")
+        } else {
+          paste0("plot.data <- import.data", 
+                 if (!is.null(codeTxt$NArows)) "[!NArows, ]","\n")
+        })
       
       values$codetxt$traindat <- 
         paste0("\n## Build training data\n",
@@ -369,7 +434,7 @@ shinyServer(function(input, output, session) {
                  paste0("### Warning: ", err.msg$NArows, "\n", codeTxt$NArows)},
                if (! is.null(codeTxt$constant)) {
                  paste0("### Warning: ", err.msg$constant, "\n", codeTxt$constant)},
-               codeTxt$scale)
+               codeTxt$qualDummies, codeTxt$scale, codeTxt$join)
       
       list(dat= dat, msg= err.msg)
     })
@@ -392,13 +457,13 @@ shinyServer(function(input, output, session) {
                "### RNG Seed (for reproducibility)\n", 
                "set.seed(", input$trainSeed, ")\n",
                "### Initialization\n", 
-               "init <- somInit(dat, ", input$kohDimx, ", ", input$kohDimy, 
+               "init <- somInit(train.data, ", input$kohDimx, ", ", input$kohDimy, 
                if (input$kohInit != "pca.sample") {
                  paste0(", method= '", input$kohInit, "'")
                }, 
                ")\n",
                "### Training\n", 
-               "ok.som <- kohonen::som(dat, grid = kohonen::somgrid(", 
+               "the.som <- kohonen::som(train.data, grid = kohonen::somgrid(", 
                input$kohDimx, ", ", input$kohDimy, ", '", 
                input$kohTopo, "'), rlen = ", input$trainRlen, 
                ", alpha = c(", input$trainAlpha1, ", ", 
@@ -455,21 +520,21 @@ shinyServer(function(input, output, session) {
       superclasses <- unname(cutree(ok.hclust(), input$kohSuperclass))
       
       values$codetxt$sc <- paste0("## Group cells into superclasses (hierarchical clustering)\n", 
-                                  "superclust <- hclust(dist(ok.som$codes[[1]]), '", input$sup_clust_hcmethod, "')\n",
+                                  "superclust <- hclust(dist(the.som$codes[[1]]), '", input$sup_clust_hcmethod, "')\n",
                                   "superclasses <- unname(cutree(superclust, ", 
                                   input$kohSuperclass, "))\n")
     } else {
       superclasses <- unname(ok.pam_clust()$clustering)
       
       values$codetxt$sc <- paste0("## Group cells into superclasses (PAM clustering)\n", 
-                                  "superclust <- cluster::pam(ok.som$codes[[1]], ", 
+                                  "superclust <- cluster::pam(the.som$codes[[1]], ", 
                                   input$kohSuperclass, ")\n",
                                   "superclasses <- unname(superclust$clustering)\n")
     }
     
     values$codetxt$sc <- paste0(values$codetxt$sc,
                                 "## Apply clusterings to observations\n",
-                                "obs.class <- ok.som$unit.classif\n",
+                                "obs.class <- the.som$unit.classif\n",
                                 "obs.superclass <- superclasses[obs.class]\n")
     
     superclasses
@@ -477,17 +542,24 @@ shinyServer(function(input, output, session) {
   
   
   ## Current training vars
-  ok.trainvars <- reactive({
-    if (is.null(ok.som())) return(NULL)
-    # isolate(colnames(ok.traindat()$dat))
-    isolate(intersect(colnames(ok.traindat()$dat), colnames(ok.data()))) ## continuous vars only
+  # ok.trainvars <- reactive({
+  #   if (is.null(ok.som())) return(NULL)
+  #   isolate(colnames(ok.traindat()$dat))
+  #   # isolate(intersect(colnames(ok.traindat()$dat), colnames(ok.data()))) ## continuous vars only
+  # })
+  ok.trainvars <- eventReactive(ok.traindat(), {
+    colnames(ok.traindat()$dat)
+    # isolate(intersect(colnames(ok.traindat()$dat), colnames(ok.data()))) ## continuous vars only
   })
   
   
   ## Current training rows (no NA)
-  ok.trainrows <- reactive({
-    if (is.null(ok.som())) return(NULL)
-    isolate(rowSums(is.na(ok.data()[, ok.trainvars()])) == 0)
+  # ok.trainrows <- reactive({
+  #   if (is.null(ok.som())) return(NULL)
+  #   isolate(rowSums(is.na(ok.data()[ok.trainvars()])) == 0)
+  # })
+  ok.trainrows <- eventReactive(ok.trainvars(), {
+    rowSums(is.na(ok.data()[input$trainVarChoice])) == 0
   })
   
   
@@ -560,10 +632,17 @@ shinyServer(function(input, output, session) {
   })
   
   ## Update max nb superclasses
-   observe({
-     som <- ok.som()
-     updateNumericInput(session, "kohSuperclass", max= som$grid$xdim * som$grid$ydim)
-   })
+  observe({
+    som <- ok.som()
+    updateNumericInput(session, "kohSuperclass", max= som$grid$xdim * som$grid$ydim)
+  })
+  
+  ## ok.plotdata : contains ok.data and the dummy-encoded training qual variables
+  ok.plotdata <- eventReactive(ok.trainvars(), {
+    if (all(ok.trainvars() %in% colnames(ok.data()))) return(ok.data()) 
+    qualVar <- sapply(input$trainVarChoice, function(x) !is.numeric(ok.data()[x]))
+    cbind(ok.data(), aweSOM::cdt(ok.data()[input$trainVarChoice[qualVar]]))
+  })
 
   ## Update variable selection for graphs, if necessary
   observeEvent(ok.som(), {
@@ -578,11 +657,12 @@ shinyServer(function(input, output, session) {
     }
     if (changeVars) {
       updateSelectInput(session, "plotVarOne", NULL, choices= colnames(ok.data()), 
-                        selected= ok.trainvars()[1])
-      tmp.numeric <- sapply(ok.data(), is.numeric)
+                        selected= input$trainVarChoice[1])
+      tmp.numeric <- sapply(ok.plotdata(), is.numeric)
       updateSelectInput(session, "plotVarMult", NULL,
-                        choices= colnames(ok.data())[tmp.numeric],
-                        selected= ok.trainvars()[tmp.numeric[ok.trainvars()]])
+                        choices= colnames(ok.plotdata())[tmp.numeric],
+                        # selected= ok.trainvars()[tmp.numeric[ok.trainvars()]])
+                        selected= ok.trainvars())
       values$previous.trainvars <- ok.trainvars()
     }
   }) 
@@ -614,12 +694,13 @@ shinyServer(function(input, output, session) {
   ## Rearrange variables order if "Arrange" button is hit
   observeEvent(input$plotArrange, {
     vars <- input$plotVarMult
+    dat <- ok.plotdata()
     if (length(vars) >= 2) {
       if (input$average_format == "mean") {
-        cellValues <- do.call(rbind, lapply(split(ok.data()[, vars], ok.som()$unit.classif), 
+        cellValues <- do.call(rbind, lapply(split(dat[, vars], ok.som()$unit.classif), 
                                             colMeans))
       } else if (input$average_format == "median") { 
-        cellValues <- do.call(rbind, lapply(split(ok.data()[, vars], ok.som()$unit.classif), 
+        cellValues <- do.call(rbind, lapply(split(dat[, vars], ok.som()$unit.classif), 
                                             function(x) apply(x, 2, median)))
       } else if (input$average_format == "prototypes") { 
         if (! all(vars %in% colnames(ok.som()$codes[[1]]))) return(NULL)
@@ -627,7 +708,7 @@ shinyServer(function(input, output, session) {
       }
       
       if (input$contrast == "range") {
-        for (i in vars) cellValues[, i] <- (cellValues[, i] - min(ok.data()[, i])) / (max(ok.data()[, i]) - min(ok.data()[, i]))
+        for (i in vars) cellValues[, i] <- (cellValues[, i] - min(dat[, i])) / (max(dat[, i]) - min(dat[, i]))
       } else if (input$contrast == "contrast") {
         for (i in vars) cellValues[, i] <- (cellValues[, i] - min(cellValues[, i])) / (max(cellValues[, i]) - min(cellValues[, i]))
       }
@@ -663,7 +744,7 @@ shinyServer(function(input, output, session) {
   ## Scree plot
   output$plotScreeplot <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses scree plot\n", 
-                                  "aweSOMscreeplot(ok.som, method = '", 
+                                  "aweSOMscreeplot(the.som, method = '", 
                                   input$sup_clust_method, "', ", 
                                   if (input$sup_clust_method == "hierarchical") {
                                     paste0("hmethod = '", input$sup_clust_hcmethod, "', ")
@@ -678,7 +759,7 @@ shinyServer(function(input, output, session) {
   ## Silhouette plot
   output$plotSilhouette <- renderPlot({
     values$codetxt$plot <- paste0("\n## Plot superclasses silhouette plot\n", 
-                                  "aweSOMsilhouette(ok.som, superclasses)\n")
+                                  "aweSOMsilhouette(the.som, superclasses)\n")
     aweSOM::aweSOMsilhouette(ok.som(), ok.sc())
   },
   width = reactive({input$plotSize / 4 + 500}),
@@ -688,7 +769,7 @@ shinyServer(function(input, output, session) {
   ## Smooth distance plot
   output$plotSmoothDist <-  renderPlot({
     values$codetxt$plot <- paste0("\n## Plot smooth neighbour distances\n", 
-                                  "aweSOMsmoothdist(ok.som",
+                                  "aweSOMsmoothdist(the.som",
                                   if (input$palplot != "viridis") {
                                     paste0(", pal = '", input$palplot, "'")
                                   },
@@ -713,20 +794,25 @@ shinyServer(function(input, output, session) {
   output$theWidget <- aweSOM:::renderaweSOM({
     if (is.null(input$plotNames)) return(NULL) # Prevents error due to not-yet loaded UI element, for reproducible script
     if (is.null(ok.som())) return(NULL)
+    if (input$graphType %in% c("Circular", "Barplot", "Line", "Radar"))
+      if (input$average_format == "prototypes") if(!any(input$plotVarMult %in% ok.trainvars())) {
+        warning("Prototypes plot: none of the selected variables are training variables.")
+        return(NULL)
+      }
     
     ## Reproducible script for plot
     values$codetxt$plot <- paste0(
       "\n## Interactive plot\n", 
-      "aweSOMplot(som = ok.som, type = '", input$graphType, "', ", 
+      "aweSOMplot(som = the.som, type = '", input$graphType, "', ", 
       if (! (input$graphType %in% c("Hitmap", "UMatrix"))) {
-        "data = ok.data, "
+        "data = plot.data, "
       }, 
       "\n",
       if (input$graphType %in% c("Circular", "Barplot", "Boxplot", "Line", "Radar")) {
-        paste0("           variables = c('", paste(input$plotVarMult, collapse= "', '"), "'),\n")
+        paste0('           variables = c("', paste(input$plotVarMult, collapse= '", "'), '"),\n')
       },
       if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
-        paste0("           variables = '", input$plotVarOne, "',\n")
+        paste0('           variables = "', input$plotVarOne, '",\n')
       },
       "           superclass = superclasses, ", 
       if (input$plotNames != "(rownames)") {
@@ -767,7 +853,7 @@ shinyServer(function(input, output, session) {
     
     aweSOM:::aweSOMwidget(ok.som= ok.som(), 
                           ok.sc= ok.sc(), 
-                          ok.data= ok.data(), 
+                          ok.data= ok.plotdata(), 
                           ok.trainrows= ok.trainrows(), 
                           graphType= input$graphType, 
                           plotNames= input$plotNames, 
@@ -875,13 +961,13 @@ shinyServer(function(input, output, session) {
   #############################################################################
   
   reprocode <- reactive({
-    paste0("library(aweSOM)\n\n",
+    paste0("library(aweSOM) # (version 1.0.1) \n\n",
            values$codetxt$dataread, 
            values$codetxt$traindat, 
            values$codetxt$train,
            if (!is.null(ok.som())) paste0(
              "\n## Quality measures\n",
-             "somQuality(ok.som, dat)\n\n",
+             "somQuality(the.som, train.data)\n\n",
              values$codetxt$sc, 
              values$codetxt$plot))
   })

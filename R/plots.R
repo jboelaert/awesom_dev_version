@@ -295,10 +295,12 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
     ##########
     
     if (type %in% c("Circular", "Line", "Barplot", "Color", "Radar")) {
-      if (all(varnames %in% colnames(som$codes[[1]]))) {
-        prototypes <- som$codes[[1]][, varnames]
-      } else
-        prototypes <- som$codes[[1]]
+      if (valueFormat == "prototypes") {
+        varnames <- intersect(varnames, colnames(som$codes[[1]]))
+        nvar <- length(varnames)
+        if (is.null(varnames)) return(NULL)
+        prototypes <- as.matrix(as.data.frame(som$codes[[1]])[varnames])
+      }
       
       ## realValues are the one displayed in the text info above the plot
       if (valueFormat == "mean") {

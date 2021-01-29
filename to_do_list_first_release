@@ -2,6 +2,8 @@ Done
 * Scales option visible for CatBarplot
 * Plot vars selection updates change only when necessary (when previously selected variables are no longer present in the import data)
 * Fixed bug in repro script: training data to matrix when no scale() is called
+* Support for categorical variables
+* Fixed training weights (no longer standardized)
 
 For future version:
 * better explanation of range
@@ -15,9 +17,7 @@ For future version:
 * quality measures on plot page? 
 
 Wishlist
-* Training vars selection as a (html) multiple input, with separate weights section
 * support for additional observations
 * obs cloud plot (with legend showing selected point's data)
-* support for qual variables (MCA)
-
+* NA handling
 
