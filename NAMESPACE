@@ -9,13 +9,14 @@ importFrom("stats", "cutree", "dist", "hclust", "median", "prcomp",
 ## exports
 # standard functions
 export(aweSOM)
-export(somDist)
-export(somInit)
-export(somQuality)
 export(aweSOMdendrogram)
+export(aweSOMplot)
 export(aweSOMscreeplot)
 export(aweSOMsilhouette)
 export(aweSOMsmoothdist)
-export(aweSOMplot)
+export(cdt)
+export(somDist)
+export(somInit)
+export(somQuality)
 
 S3method(print, somQual)

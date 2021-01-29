@@ -18,7 +18,7 @@ import.csv.txt <- function(input_dataFile, input_header, input_sep, input_quote,
   the.encoding <- switch(input_encoding, "unknown" = "unknown", 
                          "UTF-8" = "UTF-8", "Latin-1" = "Latin-1")
   
-  data_read_reproducible <- paste0("ok.data <- data.table::fread('", 
+  data_read_reproducible <- paste0("import.data <- data.table::fread('", 
                                    input_dataFile$name, "', ",
                                     "header = '", the.header, 
                                     "', sep ='", the.sep, 
@@ -52,7 +52,7 @@ import.excel_xlsx <- function(input_dataFile, input_column_names, input_trim_spa
   if(input_worksheet_specified_bol == TRUE & input_worksheet_specs != "") the.sheet <- input_worksheet_specs
   
   
-  data_read_reproducible <- paste0("ok.data <- data.frame(readxl::read_xlsx('", 
+  data_read_reproducible <- paste0("import.data <- data.frame(readxl::read_xlsx('", 
                                    input_dataFile$name, "', ",
                                    "col_names = ", the.header, ", ",
                                    if (! is.null(the.range)) {
@@ -93,7 +93,7 @@ import.excel_xls <- function(input_dataFile, input_column_names_xls, input_trim_
   if(input_worksheet_specified_bol_xls == TRUE & input_worksheet_specs_xls != "") the.sheet <- input_worksheet_specs_xls
   
   
-  data_read_reproducible <- paste0("ok.data <- data.frame(readxl::read_xls('", 
+  data_read_reproducible <- paste0("import.data <- data.frame(readxl::read_xls('", 
                                    input_dataFile$name, "', ",
                                    "col_names = ", the.header, ", ",
                                    if (! is.null(the.range)) {
@@ -128,7 +128,7 @@ import.excel_xls <- function(input_dataFile, input_column_names_xls, input_trim_
 import.spss <- function(input_dataFile, input_dataFile_datapath, input_skip_spss){
   if (is.null((input_dataFile))) return(NULL)
 
-  data_read_reproducible <- paste0("ok.data <- data.frame(haven::read_spss('", 
+  data_read_reproducible <- paste0("import.data <- data.frame(haven::read_spss('", 
                                    input_dataFile$name, "', skip = ", 
                                    input_skip_spss, "))\n")
   
@@ -152,7 +152,7 @@ import.stata <- function(input_dataFile, input_dataFile_datapath){
     return(NULL)
   }
   
-  data_read_reproducible <- paste0("ok.data <- data.frame(foreign::read.dta('", 
+  data_read_reproducible <- paste0("import.data <- data.frame(foreign::read.dta('", 
                                    input_dataFile$name, "'))\n")
 
   data <- try(data.frame(foreign::read.dta(file = input_dataFile_datapath)))
@@ -166,7 +166,7 @@ import.stata <- function(input_dataFile, input_dataFile_datapath){
 import.sas.data <- function(input_dataFile, input_dataFile_datapath ){
   if (is.null((input_dataFile))) return(NULL)
   
-  data_read_reproducible <- paste0("ok.data <- data.frame(haven::read_sas('", 
+  data_read_reproducible <- paste0("import.data <- data.frame(haven::read_sas('", 
                                    input_dataFile$name, "'))\n")
   
   data <- try(data.frame(haven::read_sas(data_file = input_dataFile_datapath)))
