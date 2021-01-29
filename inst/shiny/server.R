@@ -356,7 +356,7 @@ shinyServer(function(input, output, session) {
       
       codeTxt$join <- paste0(
         if (any(!varNumeric)) if (length(droppedLevels) > 0) {
-          paste0("### Drop selected factor levels\n", 
+          paste0("### Drop unselected factor levels\n", 
                  'cat.data <- cat.data[, ! colnames(cat.data) %in% c("', 
                  paste0(droppedLevels, collapse= '", "'), '")]\n')
         }, 
