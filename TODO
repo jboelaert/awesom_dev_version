@@ -1,23 +1,27 @@
-Done
-* Scales option visible for CatBarplot
-* Plot vars selection updates change only when necessary (when previously selected variables are no longer present in the import data)
-* Fixed bug in repro script: training data to matrix when no scale() is called
-* Support for categorical variables
-* Fixed training weights (no longer standardized)
+Done:
+* corrected: shinythemes to imported packages
+* fixed bug in somInit: prcomp rather than princomp
+* UI Train: fixed UI crash when som dim 1x1
+* UI Export: fixed bug with cat variables
+* New logo, new UI theme
+* Train msg: separate section for train options, add train nrows.
+* UI train: allowed <1 weights
+* UI train: implemented buttons to adjust weights
+* upgraded legend, present in svg, interactive
+* new Cloud plot
 
-For future version:
-* better explanation of range
-* add message in shiny when file is too large
-* import csv encoding options "whatever else" !!
-* plot option: hide obs names
-* console-callable reorder variables
-* radar axes -> straight
-* better legend
-* legends in exported svg
-* quality measures on plot page? 
+For next version: 
+* !! for numeric .5 weights when compensate (when was cat before...)
+* help for weights
 
 Wishlist
+* vignette for categorical / mixed data
 * support for additional observations
-* obs cloud plot (with legend showing selected point's data)
-* NA handling
+* polygon distance plot
+* lookup obs by name in plot panel
+* file import: URL, toy examples
+* UI train: var type selection (num to factor, factor to dummy...)
+* UI train: history of seeds?
+* UI plot: multiple var through double select (one selection, one order)
+* plot: frontiers between cells colored for distance
 

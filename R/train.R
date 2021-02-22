@@ -1,3 +1,4 @@
+## Functions useful in the training of SOM
 
 #' Initialize SOM prototypes
 #'
@@ -47,24 +48,29 @@ somInit <- function(traindat, nrows, ncols,
       x.ev <- 2
       y.ev <- 1
     }
-    # perform PCA
-    traindata.pca <- princomp(traindat) # use princomp for the fix_sign argument
-    init.x <- seq(from= quantile(traindata.pca$scores[,x.ev], .025), 
-                  to= quantile(traindata.pca$scores[,x.ev], .975),
+    # perform PCA (NA filled with mean, PCA rotated so that the first variable
+    # is positively correlated with each principal axis)
+    pcadat <- apply(traindat, 2, 
+                    function(x) {x[is.na(x)] <- mean(x, na.rm = T); x})
+    traindata.pca <- prcomp(pcadat)
+    traindata.pca$x <- traindata.pca$x %*% diag(sign(traindata.pca$rotation[1, ]))
+    init.x <- seq(from= quantile(traindata.pca$x[,x.ev], .025), 
+                  to= quantile(traindata.pca$x[,x.ev], .975),
                   length.out= nrows)
-    init.y <- seq(from= quantile(traindata.pca$scores[,y.ev], .025), 
-                  to= quantile(traindata.pca$scores[,y.ev], .975),
+    init.y <- seq(from= quantile(traindata.pca$x[,y.ev], .025), 
+                  to= quantile(traindata.pca$x[,y.ev], .975),
                   length.out= ncols)
     init.base <- as.matrix(expand.grid(x= init.x, y= init.y)) # here a hex variant could be created instead if hex topology
     
     if (method == "pca.sample") {
-      ## As in SOMbrero, init to observations closest to a 2D PCA grid
+      ## Init to observations closest to a 2D PCA grid
       closest.obs <- apply(init.base, 1, function(point) 
-        which.min(colSums((t(traindata.pca$scores[,c(x.ev,y.ev)])-point)^2)))
+        which.min(colSums((t(traindata.pca$x[,c(x.ev,y.ev)])-point)^2)))
       init <- traindat[closest.obs,]
     } else if (method == "pca") {
-      ## Pure PCA grid
-      init <- tcrossprod(init.base, traindata.pca$loadings[, 1:2])
+      ## Pure PCA grid 
+      init <- tcrossprod(init.base, traindata.pca$rotation[, 1:2]) %*%
+        diag(sign(traindata.pca$rotation[1, 1:2]))
     }
   } 
   init
@@ -130,19 +136,21 @@ somQuality <- function(som, traindat){
   
   ## BMU, Squared distance from obs to BMU
   bmu <- som$unit.classif
-  sqdist <- rowSums((traindat - som$codes[[1]][bmu, ])^2)
+  sqdist <- rowSums((traindat - som$codes[[1]][bmu, ])^2, na.rm = TRUE)
   
   ## Quantization error
   err.quant <- mean(sqdist)
   
   ## Interclass variance ratio
-  totalvar <- sum(apply(traindat, 2, var)) * 
-    (nrow(traindat) - 1) / nrow(traindat)
+  # totalvar <- sum(apply(traindat, 2, var, na.rm = TRUE)) * 
+  #   (nrow(traindat) - 1) / nrow(traindat)
+  totalvar <- mean(rowSums(t(t(traindat) - colMeans(traindat, na.rm = TRUE))^2, 
+                           na.rm = TRUE))
   err.varratio <- 100 - round(100 * err.quant / totalvar, 2)
   
   ## Topographic error
   bmu2 <- apply(traindat, 1, function(row) {
-    dist <- colSums((t(som$codes[[1]]) - row)^2)
+    dist <- colMeans((t(som$codes[[1]]) - row)^2, na.rm = TRUE)
     order(dist)[2]
   })
   err.topo <- mean(!ok.dist$neigh.matrix[cbind(bmu, bmu2)])

@@ -1,8 +1,11 @@
-url: https://jansodoge.github.io/awesom_dev_version/
+template:
+  params:
+    bootswatch: united
+url: https://julbo.gitlab.io/awesom-package/
 home:
   links:
   - text: Self-Organizing Maps on the Wikipedia
-    href: https://community.rstudio.com/
+    href: https://en.wikipedia.org/wiki/Self-organizing_map
   - text: kohonen R Package documentation
     href: https://cran.r-project.org/web/packages/kohonen/kohonen.pdf
 navbar:
@@ -27,10 +30,12 @@ reference:
   - somInit
   - somQuality
   - somDist
+  - cdt
 - title: Plot SOM
 - contents:
   - aweSOMplot
   - aweSOMsmoothdist
+  - aweSOMreorder
 - title: SOM superclustering
 - contents:
   - aweSOMdendrogram

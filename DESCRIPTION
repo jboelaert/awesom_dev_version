@@ -1,7 +1,7 @@
 Package: aweSOM
 Title: Interactive Self-Organizing Maps
-Version: 1.0
-Date: 2021-01-19
+Version: 1.2
+Date: 2021-02-18
 Authors@R: c(person("Julien", "Boelaert", role= c("aut", "cre"), email="julien.boelaert@univ-lille.fr"), 
              person("Etienne", "Ollion", role= "aut"), 
              person("Jan", "Sodoge", role= "aut"), 
@@ -10,10 +10,11 @@ Authors@R: c(person("Julien", "Boelaert", role= c("aut", "cre"), email="julien.b
              person("Arnaud", "Lemba Kote", role= "ctb"), 
              person("Theo", "Renoud", role= "ctb"), 
              person("Samuel", "Hym", role= "ctb"))
-Description: Self-organizing maps (also known as SOM, see Kohonen (2001) <doi:10.1007/978-3-642-56927-2>) are a method for dimensionality reduction and clustering of continuous data. This package introduces interactive (html) graphics for easier analysis of SOM results. It also features an interactive interface, for push-button training and visualization of SOM, as well as tools to evaluate the quality of SOM.
+Description: Self-organizing maps (also known as SOM, see Kohonen (2001) <doi:10.1007/978-3-642-56927-2>) are a method for dimensionality reduction and clustering of continuous data. This package introduces interactive (html) graphics for easier analysis of SOM results. It also features an interactive interface, for push-button training and visualization of SOM on numeric, categorical or mixed data, as well as tools to evaluate the quality of SOM.
 License: GPL (>= 2)
 Depends: R (>= 3.1.0)
-Imports: kohonen, shiny, htmlwidgets, rmarkdown, htmltools, rclipboard, RColorBrewer, viridis, data.table, DT, kernlab, stats, cluster, e1071, haven, foreign, readxl
+Imports: kohonen (>= 2.0), shiny (>= 1.6), htmlwidgets, bslib, rmarkdown, htmltools, rclipboard, RColorBrewer, viridis, data.table, DT, kernlab, stats, cluster, e1071, haven, foreign, readxl
 Suggests: knitr
 VignetteBuilder: knitr
+Encoding: UTF-8
 RoxygenNote: 7.1.1
