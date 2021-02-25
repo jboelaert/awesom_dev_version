@@ -78,6 +78,7 @@ HTMLWidgets.widget({
 
     document.getElementById(infoId).style.textAlign = "center";
     document.getElementById(messageId).style.textAlign = "center";
+    document.getElementById(messageId).style.whiteSpace = "nowrap";
     document.getElementById(namesId).style.textAlign = "center";
     if (!showNames) document.getElementById(namesId).style.display = "none";
     document.getElementById(plotId).innerHTML = ""; //remove the old graph
@@ -134,6 +135,8 @@ HTMLWidgets.widget({
           cellPositions[iCell].x = (theCol + 0.5) * cellSize;
           cellPositions[iCell].y = (nbRows - 0.5 - theRow) * cellSize;
           cellPositions[iCell].cell = iCell;
+          cellPositions[iCell].row = theRow;
+          cellPositions[iCell].col = theCol;
         }
       }
       
@@ -552,7 +555,7 @@ HTMLWidgets.widget({
   			if (transparency) d3.select(this).transition().duration(10).style("fill-opacity", 0.8);
   			d3.select("#" + infoId).text('Cell ' + parseInt(d.cell+1,10) + ', superclass ' +
             superclass[d.cell] + ', N= ' + cellPop[d.cell]);
-  			d3.select("#" + messageId).text(realValues[d.cell] == null ? "-" : realValues[d.cell]);
+  			d3.select("#" + messageId).text(realValues[d.cell][0] == null ? "-" : realValues[d.cell]);
   			d3.select("#" + namesId).text(cellNames[d.cell]);
   		});
   		cells.on('mouseout', function(m, d, i) {
@@ -1025,6 +1028,19 @@ HTMLWidgets.widget({
       // Cloud plot
       //////////////////////////////////////////////////////////////////////////
       var cloudArray = [];
+      var cloudTooltip =  d3.select("#" + plotId)
+        .append("div").attr("class", "cloudTooltip").attr("id", "cloudTooltip")
+        .style("position", "fixed")
+        .style("z-index", "10")
+        .style("opacity", 0)
+        .style("font-family", "arial")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px");
+      var ctElt = document.getElementById("cloudTooltip");
+        
       var sizeMult = (topology == "rectangular" ? 0.7:0.55)
       for (var iObs = 0; iObs < normalizedValues.length; iObs++) {
         cloudArray.push({x: normalizedValues[iObs][0] * sizeMult * innerCellSize, 
@@ -1051,7 +1067,6 @@ HTMLWidgets.widget({
 				.on("mouseenter", function(m, d) {
   				d3.select("#" + messageId)
   				  .text(d.name + (label.length > 1 ? (" : " + label[d.color]):""));
-			    //document.getElementById(namesId).innerHTML = obsDetail[d.obs];
 
   				d3.selectAll(".cloudCircle")
   				  .attr("fill-opacity", function(dd) {
@@ -1060,28 +1075,42 @@ HTMLWidgets.widget({
   				  .attr("stroke", function(dd) {
   				    return dd.obs === d.obs ? "#111":labelColor[dd.color];
   				  });
+  				  
+  				if (fullData.length > 0) {
+            var thetitle = "<strong>" + d.name + "</strong>" + "<table>";
+            for (var iVar= 0; iVar < fullData[0].length; iVar++) {
+              thetitle += "<tr> <td> <strong>" + forceArray(fullDataNames)[iVar] + "</strong> &nbsp;</td><td>" + fullData[d.obs][iVar] + "</td></tr>";
+            }
+            thetitle += "</table>";
+/*            cloudTooltip.style("opacity", 1).html(thetitle)
+              .style("left", (m.clientX+ cellSize / 4) + "px")
+              .style("top", (m.clientY) + "px");*/
+            cloudTooltip.style("opacity", 1).html(thetitle);
+            // Adaptive placement for tooltip
+            if ((cellPositions[d.cell].col + 1) > (nbColumns / 2)) {
+              cloudTooltip.style("left", (m.clientX - cellSize / 4 - ctElt.clientWidth) + "px");
+            } else {
+              cloudTooltip.style("left", (m.clientX + cellSize / 4) + "px");
+            }
+            // Ensure that the tooltip is not cut by top or bottom of window
+            var theRow = (topology === "hexagonal" ? (cellPositions[d.cell].row - 1):(nbRows - 1 - cellPositions[d.cell].row));
+            var ctTop = m.clientY - ((theRow + 1) > (nbRows / 2) ? ctElt.clientHeight:0);
+            if (ctTop + ctElt.clientHeight > window.innerHeight)
+              ctTop = window.innerHeight - ctElt.clientHeight;
+            if (ctTop < 0) ctTop = 0;
+            cloudTooltip.style("top", ctTop + "px");
+  				}
 				})
 				.on("mouseleave", function(m, d) {
+  				cloudTooltip.style("opacity", 0).html("");
 				  d3.select("#" + messageId).text("-");
-  				//d3.select("#" + namesId).text("-");
   				d3.selectAll(".cloudCircle")
 						.attr("fill-opacity", transparency? 0.4:1)
   				  .attr("stroke", function(dd) {
   				    return labelColor[dd.color];
   				  });
 				});
-
-			if (fullData.length > 0) {
-			  cloudPoints.append("svg:title").text(function(d) {
-			    var thetitle = d.name + "\n";
-			    for (var iVar= 0; iVar < fullData[0].length; iVar++) {
-			     thetitle += forceArray(fullDataNames)[iVar] + " : " + fullData[d.obs][iVar] + "\n";
-			    }
-			    return thetitle;
-			  });
-			}
     }
-
   }, 
          resize: function(width, height) {}
     };

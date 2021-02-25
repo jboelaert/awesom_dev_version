@@ -192,21 +192,51 @@ shinyServer(function(input, output, session) {
   ## Panel "Train"
   #############################################################################
   
-  # Update train variable slection on data change
-  output$trainVarSelect <- renderUI({
+  ## Update grid dimension on data update
+  observe({
     if (is.null(ok.data())) return()
-    if (is.null(values$trainVarSelect)) {
-      selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
-      values$trainVarSelect <- 
-        paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"' style='width: 100%;'>",
-               paste0("<option value='", colnames(ok.data()), "'", ifelse(selectVars, "selected", ""),">", colnames(ok.data()), "</option>", collapse= ""), 
-               "</select>")
-    }
-    HTML(values$trainVarSelect, 
-         "<p>Use Shift and Ctrl to select several variables.</p>")
+    tmp.dim <- max(4, min(10, ceiling(sqrt(nrow(ok.data()) / 10))))
+    updateNumericInput(session, "kohDimx", value= tmp.dim)
+    updateNumericInput(session, "kohDimy", value= tmp.dim)
   })
   
-  # Update train variables options on variable selection change
+  ## Update training radius on change of grid
+  observe({
+    if (is.null(ok.data())) return()
+    tmpgrid <- kohonen::somgrid(input$kohDimx, input$kohDimy, input$kohTopo)
+    tmpgrid$n.hood <- ifelse(input$kohTopo == "hexagonal", "circular", "square")
+    radius <- round(unname(quantile(kohonen::unit.distances(tmpgrid, FALSE), .67)), 2)
+    updateNumericInput(session, "trainRadius1", value= radius)
+    updateNumericInput(session, "trainRadius2", value= -radius)
+  })
+  
+  ## Train variable selection as a non-shiny select input
+  output$trainVarSelect <- renderUI({
+    HTML(values$trainVarSelect, 
+         if(!is.null(values$trainVarSelect)) "<p><em>Use Shift and Ctrl to select several variables.</em></p>")
+  })
+  ## Handling of the hand-made select, to be called by observe events
+  trainVarSelectString <- function(the.names, the.selected) {
+    paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, length(the.names) / 2)) ,"' style='width: 100%;'>",
+           paste0("<option value='", the.names, "'", ifelse(the.selected, "selected", ""),">", the.names, "</option>", collapse= ""), 
+           "</select>")
+  }
+  ## Update train variable choices on data import or button click
+  observeEvent(c(ok.data(), input$varNum), {
+    if (is.null(ok.data())) return()
+    selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
+    values$trainVarSelect <- trainVarSelectString(colnames(ok.data()), selectVars)
+  })
+  observeEvent(input$varAll, {
+    if (is.null(ok.data())) return()
+    values$trainVarSelect <- trainVarSelectString(colnames(ok.data()), rep(TRUE, ncol(ok.data())))
+  })
+  observeEvent(input$varNone, {
+    if (is.null(ok.data())) return()
+    values$trainVarSelect <- trainVarSelectString(colnames(ok.data()), rep(FALSE, ncol(ok.data())))
+  })
+  
+  ## Update train variables options on variable selection change
   output$trainVarOptions <-renderUI({
     if (is.null(ok.data())) return()
     varclass <- sapply(ok.data()[, input$trainVarChoice], class)
@@ -215,43 +245,18 @@ shinyServer(function(input, output, session) {
     names(isnum) <- names(varclass) <- input$trainVarChoice
     lapply(input$trainVarChoice, function(var) {
       fluidRow(fluidRow(column(3, numericInput(paste0("trainVarWeight", var), NULL, value= 1, min= 0, step= 1e-3)), 
-                 column(6, checkboxInput(paste0("trainVarChoice", var), var, value= TRUE)),  
-                 column(3, p(varclass[var]))),
-        if(!isnum[var]) 
-          fluidRow(column(3), 
-                   column(9, selectInput(paste0("trainVarLevels", var), NULL,
-                                         levels(as.factor(ok.data()[, var])), 
-                                         levels(as.factor(ok.data()[, var])), 
-                                         multiple= TRUE))))
+                        column(6, checkboxInput(paste0("trainVarChoice", var), var, value= TRUE)),  
+                        column(3, p(varclass[var]))),
+               if(!isnum[var]) 
+                 fluidRow(column(3), 
+                          column(9, selectInput(paste0("trainVarLevels", var), NULL,
+                                                levels(as.factor(ok.data()[, var])), 
+                                                levels(as.factor(ok.data()[, var])), 
+                                                multiple= TRUE))))
     })
   })
   
-  
-  # Update train variable choice on button click
-  observeEvent(input$varNum, {
-    if (is.null(ok.data())) return()
-    selectVars <- sapply(ok.data(), class) %in% c("integer", "numeric")
-    values$trainVarSelect <- 
-      paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"' style='width: 100%;'>",
-             paste0("<option value='", colnames(ok.data()), "'", ifelse(selectVars, "selected", ""),">", colnames(ok.data()), "</option>", collapse= ""), 
-             "</select>")
-  })
-  observeEvent(input$varAll, {
-    if (is.null(ok.data())) return()
-    values$trainVarSelect <- 
-      paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"' style='width: 100%;'>",
-             paste0("<option value='", colnames(ok.data()), "' selected>", colnames(ok.data()), "</option>", collapse= ""), 
-             "</select>")
-  })
-  observeEvent(input$varNone, {
-    if (is.null(ok.data())) return()
-    values$trainVarSelect <- 
-      paste0("<select name='trainVarChoice' multiple size='", min(50, max(10, ncol(ok.data()) / 2)) ,"' style='width: 100%;'>",
-             paste0("<option value='", colnames(ok.data()), "'>", colnames(ok.data()), "</option>", collapse= ""), 
-             "</select>")
-  })
-  
-  # Update train weights on button click
+  ## Update train weights on button click
   observeEvent(input$weightsToOne, {
     if (is.null(ok.data())) return()
     for (ivar in input$trainVarChoice) {
@@ -274,27 +279,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-
-  # Update grid dimension on data update
-  observe({
-    if (is.null(ok.data())) return()
-    tmp.dim <- max(4, min(10, ceiling(sqrt(nrow(ok.data()) / 10))))
-    updateNumericInput(session, "kohDimx", value= tmp.dim)
-    updateNumericInput(session, "kohDimy", value= tmp.dim)
-  })
-  # Update training radius on change of grid
-  observe({
-    if (is.null(ok.data())) return()
-    tmpgrid <- kohonen::somgrid(input$kohDimx, input$kohDimy, input$kohTopo)
-    tmpgrid$n.hood <- ifelse(input$kohTopo == "hexagonal", "circular", "square")
-    radius <- round(unname(quantile(kohonen::unit.distances(tmpgrid, FALSE), .67)), 2)
-    updateNumericInput(session, "trainRadius1", value= radius)
-    updateNumericInput(session, "trainRadius2", value= -radius)
-  })
   
-  
- 
-
   ## Create training data when button is hit
   ok.traindat <- reactive({
     if (input$trainbutton == 0) return(NULL)
@@ -710,48 +695,7 @@ shinyServer(function(input, output, session) {
   #############################################################################
   ## Panel "Plot"
   #############################################################################
-  
-  
-  ## Download interactive plot (download widget)
-  output$downloadInteractive <- downloadHandler(
-    filename= paste0(Sys.Date(), "-aweSOM.html"), 
-    content= function(file) {
-      if (is.null(ok.som())) return(NULL)
-      widg <- aweSOM::aweSOMplot(som= ok.som(), type = input$graphType,
-                                 data = ok.plotdata(), 
-                                 variables = if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
-                                   input$plotVarOne
-                                 } else if (input$graphType == "Cloud") {
-                                   if (input$plotShowTooltip) {
-                                     c(input$plotVarColor, input$plotVarTooltip)
-                                   } else input$plotVarColor
-                                 } else {
-                                   input$plotVarMult
-                                 },
-                                 superclass = ok.sc(), 
-                                 obsNames = if (input$plotNames != "(rownames)") {
-                                   ok.data()[, input$plotNames]
-                                 } else {
-                                   NULL
-                                 }, 
-                                 scales = input$contrast, 
-                                 values = input$average_format, 
-                                 size = input$plotSize, palsc = input$palsc, 
-                                 palvar = input$palplot, palrev = input$plotRevPal, 
-                                 showAxes = input$plotAxes, 
-                                 transparency = input$plotTransparency, 
-                                 boxOutliers = input$plotOutliers,
-                                 showSC = input$plotShowSC, 
-                                 pieEqualSize = input$plotEqualSize, 
-                                 showNames = input$plotShowNames, 
-                                 legendPos = input$legendPos, 
-                                 legendFontsize = input$legendFontsize, 
-                                 cloudType = input$plotCloudType, 
-                                 cloudSeed = input$plotCloudSeed)
-      
-      htmlwidgets::saveWidget(widg, file = file)
-    }) 
-  
+
   ## Update plot type choices on plot "what" selection
   observe({
     input$graphWhat
@@ -1028,6 +972,46 @@ shinyServer(function(input, output, session) {
                           cloudType= input$plotCloudType, 
                           cloudSeed= input$plotCloudSeed)
   })
+  
+  ## Download interactive plot (download widget)
+  output$downloadInteractive <- downloadHandler(
+    filename= paste0(Sys.Date(), "-aweSOM.html"), 
+    content= function(file) {
+      if (is.null(ok.som())) return(NULL)
+      widg <- aweSOM::aweSOMplot(som= ok.som(), type = input$graphType,
+                                 data = ok.plotdata()[ok.trainrows(), , drop = FALSE], 
+                                 variables = if (input$graphType %in% c("Color", "Pie", "CatBarplot")) {
+                                   input$plotVarOne
+                                 } else if (input$graphType == "Cloud") {
+                                   if (input$plotShowTooltip) {
+                                     c(input$plotVarColor, input$plotVarTooltip)
+                                   } else input$plotVarColor
+                                 } else {
+                                   input$plotVarMult
+                                 },
+                                 superclass = ok.sc(), 
+                                 obsNames = if (input$plotNames != "(rownames)") {
+                                   ok.data()[, input$plotNames]
+                                 } else {
+                                   NULL
+                                 }, 
+                                 scales = input$contrast, 
+                                 values = input$average_format, 
+                                 size = input$plotSize, palsc = input$palsc, 
+                                 palvar = input$palplot, palrev = input$plotRevPal, 
+                                 showAxes = input$plotAxes, 
+                                 transparency = input$plotTransparency, 
+                                 boxOutliers = input$plotOutliers,
+                                 showSC = input$plotShowSC, 
+                                 pieEqualSize = input$plotEqualSize, 
+                                 showNames = input$plotShowNames, 
+                                 legendPos = input$legendPos, 
+                                 legendFontsize = input$legendFontsize, 
+                                 cloudType = input$plotCloudType, 
+                                 cloudSeed = input$plotCloudSeed)
+      
+      htmlwidgets::saveWidget(widg, file = file)
+    }) 
   
 
   

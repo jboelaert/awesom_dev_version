@@ -425,12 +425,6 @@ shinyUI(
 
                              # D3-based plots
                              conditionalPanel('input.graphType != "Silhouette" & input.graphType != "Dendrogram" & input.graphType != "Screeplot" & input.graphType != "SmoothDist"', 
-                                              # fluidRow(column(9, 
-                                              #                 HTML('<h4 id="theWidget-info"></h4>'),
-                                              #                 HTML('<h4 id="theWidget-message"></h4>'),
-                                              #                 aweSOM:::aweSOMoutput("theWidget")),
-                                              #          column(3, conditionalPanel('input.graphType != "Radar" & input.graphType != "Line" & input.graphType != "Heat" & input.graphType != "Hitmap"',
-                                              #                                     HTML('<svg id="theWidget-legend", width="100%"></svg>')))),
                                               HTML('<h4 id="theWidget-info"></h4>'),
                                               HTML('<h4 id="theWidget-message"></h4>'),
                                               aweSOM:::aweSOMoutput("theWidget"),

@@ -13,6 +13,9 @@ Done:
 For next version: 
 * !! for numeric .5 weights when compensate (when was cat before...)
 * help for weights
+* help for cloud options
+* import error message (always txt/csv)
+* Fr vignette ?
 
 Wishlist
 * vignette for categorical / mixed data
@@ -24,4 +27,4 @@ Wishlist
 * UI train: history of seeds?
 * UI plot: multiple var through double select (one selection, one order)
 * plot: frontiers between cells colored for distance
-
+* aweSOM(data = ...)

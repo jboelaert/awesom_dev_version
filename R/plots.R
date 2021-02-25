@@ -290,7 +290,9 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
       if (length(unique(data)) > 8) {
         data <- cut(data, 8)
       } else data <- as.factor(data)
-      data <- factor(data, levels = rev(levels(data)))
+      if (legendPos == "beside") {
+        data <- factor(data, levels = rev(levels(data)))
+      }
     } else data <- as.factor(data)
     unique.values <- levels(data)
     nvalues <- nlevels(data)
@@ -423,8 +425,12 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
     res$isCatBarplot <- FALSE
     res$showSC <- showSC
     if (type == "Color") {
-      res$labelColor <- rev(getPalette(palplot, 8, reversePal))
-      res$label <- rev(reallevels)
+      res$labelColor <- getPalette(palplot, 8, reversePal)
+      res$label <- reallevels
+      if (legendPos == "beside") {
+        res$labelColor <- rev(res$labelColor)
+        res$label <- rev(res$label)
+      }
     }
   } else if (type == "Boxplot") {
     res$nVars <- nvar
