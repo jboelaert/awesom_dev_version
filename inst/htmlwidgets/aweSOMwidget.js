@@ -164,14 +164,14 @@ HTMLWidgets.widget({
       cellPositions = [];
       for (var i = nbRows; i > 0; i--) {
         for (var j = 0; j < nbColumns; j++) {
-          cellPositions.push({x: hexRadius * Math.sqrt(3) * 0.5 * (1 + 2 * j + ((i+1) % 2)),
+          cellPositions.push({x: hexRadius * Math.sqrt(3) * 0.5 * (1 + 2 * j + ((nbRows-i+1) % 2)),
                               y: hexRadius * ((i-1) * 1.5 + 1), 
                               cell: (nbRows - i)*nbColumns + j, 
                               row: i, col:j}); 
         }
       }
     }
-    
+
     // Create the svg containing plot and legend
     var theSvg = d3.select("#" + plotId).append("svg")
 		.attr("width", width)

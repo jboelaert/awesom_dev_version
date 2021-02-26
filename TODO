@@ -9,6 +9,7 @@ Done:
 * UI train: implemented buttons to adjust weights
 * upgraded legend, present in svg, interactive
 * new Cloud plot
+* fixed bug: SOM dimensions were flipped wrt kohonen, and hex placement not right when odd number of rows
 
 For next version: 
 * !! for numeric .5 weights when compensate (when was cat before...)

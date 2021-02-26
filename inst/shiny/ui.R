@@ -170,8 +170,8 @@ shinyUI(
         h3("Train new map:"),
         actionButton("trainbutton", HTML("<b>Train SOM</b>"), width= "100%",  class = "btn-primary"),
         hr(),
-        fluidRow(column(4, numericInput('kohDimx', "Rows", 4, min= 1)),
-                 column(4, numericInput('kohDimy', "Cols", 4, min= 1)),
+        fluidRow(column(4, numericInput('kohDimy', "Rows", 4, min= 1)),
+                 column(4, numericInput('kohDimx', "Cols", 4, min= 1)),
                  column(4, selectInput('kohTopo', "Topology",
                                        c("hexagonal", "rectangular")))),
         

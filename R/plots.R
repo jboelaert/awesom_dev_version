@@ -255,8 +255,8 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
   clustering <- factor(som$unit.classif, 1:somsize)
   clust.table <- table(clustering)
   
-  gridInfo <- list(nbLines= som$grid$xdim,
-                   nbColumns= som$grid$ydim,
+  gridInfo <- list(nbLines= som$grid$ydim,
+                   nbColumns= som$grid$xdim,
                    topology= ifelse(som$grid$topo == "rectangular", 
                                     'rectangular', "hexagonal"))
   n.sc <- length(unique(superclass))
@@ -524,12 +524,14 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
                        which(theSomDist$neigh.matrix[som$unit.classif[iObs], ]))
         protodists <- rowSums(t(t(som$codes[[1]][theProtos, , drop = FALSE]) -
                                   som$data[[1]][iObs, ])^2, na.rm = TRUE)
-        protodists[1] <- 2 * protodists[1]
-        protodists <- sqrt(protodists)
-        protodists <- exp(-protodists) / sum(exp(-protodists))
-        0.8 * (matrix(protodists, 1) %*% som$grid$pts[theProtos, ] -
-                 som$grid$pts[theProtos[1], ])
+        proto2 <- (theProtos[-1])[which.min(protodists[-1])]
+        protodists <- c(protodists[1], min(protodists[-1]))
+        matrix(protodists / sum(protodists), 1) %*%
+          som$grid$pts[c(som$unit.classif[iObs], proto2), ]
       }))
+      clouddata <- .6 * (clouddata - som$grid$pts[som$unit.classif, ])
+      clouddata[, 2] <- -clouddata[, 2]
+      
     } else if (cloudType == "random") {
       if (!is.na(cloudSeed)) set.seed(cloudSeed)
       clouddata <- matrix(ncol = 2, stats::runif(2 * nrow(som$data[[1]]), 
@@ -553,7 +555,6 @@ getPlotParams <- function(type, som, superclass, data, plotsize,
     fulldata <- sapply(fulldata, function(x) as.character(x))
     res$fullData <- as.matrix(fulldata)
     res$fullDataNames <- colnames(fulldata)
-    
   }
   
   res
@@ -923,13 +924,13 @@ aweSOMplot <- function(som, type= c("Hitmap", "Cloud", "UMatrix", "Circular",
   ## Compute widget dimensions
   if (som$grid$topo == "rectangular") {
     cellSize <- size / max(som$grid$xdim, som$grid$ydim)
-    widWidth <- min(size, cellSize * som$grid$ydim)
-    widHeight <- min(size, cellSize * som$grid$xdim)
+    widWidth <- min(size, cellSize * som$grid$xdim)
+    widHeight <- min(size, cellSize * som$grid$ydim)
   } else {
-    hexRadius <- min(size / (sqrt(3) * (som$grid$ydim + 0.5)), 
-                     size / (1.5 * som$grid$xdim + 0.5))
-    widWidth <- min(size, hexRadius * (sqrt(3) * (som$grid$ydim + 0.5)))
-    widHeight <- min(size, hexRadius * (1.5 * som$grid$xdim + 0.5))
+    hexRadius <- min(size / (sqrt(3) * (som$grid$xdim + 0.5)), 
+                     size / (1.5 * som$grid$ydim + 0.5))
+    widWidth <- min(size, hexRadius * (sqrt(3) * (som$grid$xdim + 0.5)))
+    widHeight <- min(size, hexRadius * (1.5 * som$grid$ydim + 0.5))
   }
   
   ## Create the widget

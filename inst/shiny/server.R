@@ -561,7 +561,8 @@ shinyServer(function(input, output, session) {
                "### RNG Seed (for reproducibility)\n", 
                "set.seed(", input$trainSeed, ")\n",
                "### Initialization\n", 
-               'init <- somInit(train.data, ', input$kohDimx, ', ', input$kohDimy, 
+               'init <- somInit(train.data, ncols = ', input$kohDimx, 
+               ', nrows = ', input$kohDimy, 
                if (input$kohInit != "pca.sample") {
                  paste0(', method= "', input$kohInit, '"')
                }, 
@@ -578,7 +579,7 @@ shinyServer(function(input, output, session) {
       
       ## Initialization
       set.seed(input$trainSeed)
-      init <- aweSOM::somInit(dat, input$kohDimx, input$kohDimy, input$kohInit)
+      init <- aweSOM::somInit(dat, input$kohDimy, input$kohDimx, input$kohInit)
       
       ## Train SOM
       res <- kohonen::som(dat,
@@ -677,7 +678,7 @@ shinyServer(function(input, output, session) {
     
     cat("## SOM summary:\n")
     isolate(cat(paste0(
-      "SOM of size ", input$kohDimx, "x", input$kohDimy, " with a ", 
+      "SOM of ", input$kohDimy, " rows and ", input$kohDimx, " columns, with a ", 
       ok.som()$grid$topo, " topology and a bubble neighbourhood function.\n",
       "Trained on ", nrow(ok.traindat()$dat) , " observations, ", 
       ncol(ok.traindat()$dat) , " variables ; ", 
@@ -783,19 +784,24 @@ shinyServer(function(input, output, session) {
   
   ## For "Cloud" plot, disable kPCA method if nobs > 1000
   observeEvent(ok.trainrows(), {
-    if (sum(ok.trainrows()) > 1e3) {
-      updateSelectInput(session, "plotCloudType", 
-                        choices = c("Cell-wise PCA" = "cellPCA",
-                                    "Cell-centered PCA" = "PCA",
-                                    "Prototype Proximity" = "proximity", 
-                                    "Random" = "random"))
-    } else {
-      updateSelectInput(session, "plotCloudType", 
-                        choices = c("Cell-wise PCA" = "cellPCA",
-                                    "Cell-centered kPCA" = "kPCA", 
-                                    "Cell-centered PCA" = "PCA",
-                                    "Prototype Proximity" = "proximity", 
-                                    "Random" = "random"))
+    if (is.null(values$cloudKshown)) values$cloudKshown <- TRUE
+    nowshown <- sum(ok.trainrows()) <= 1e3
+    if (nowshown != values$cloudKshown) {
+      values$cloudKshown <- nowshown
+      if (nowshown) {
+        updateSelectInput(session, "plotCloudType", 
+                          choices = c("Cell-wise PCA" = "cellPCA",
+                                      "Cell-centered kPCA" = "kPCA", 
+                                      "Cell-centered PCA" = "PCA",
+                                      "Prototype Proximity" = "proximity", 
+                                      "Random" = "random"))
+      } else {
+        updateSelectInput(session, "plotCloudType", 
+                          choices = c("Cell-wise PCA" = "cellPCA",
+                                      "Cell-centered PCA" = "PCA",
+                                      "Prototype Proximity" = "proximity", 
+                                      "Random" = "random"))
+      }
     }
   })
   
