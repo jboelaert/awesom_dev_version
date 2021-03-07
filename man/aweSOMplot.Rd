@@ -102,7 +102,8 @@ below the plot.}
 \item{legendPos}{character, whether and where to display the legend (if
 applicable). Possible values are "beside", "below" or "none".}
 
-\item{legendFontsize}{numeric, font size to use for the legend. Default is 14.}
+\item{legendFontsize}{numeric, font size to use for the legend, and for the
+tooltip information of the "Cloud" plot. Default is 14.}
 
 \item{cloudType}{character, for "Cloud" type, controls how the point
 coordinates are computed, see Details.}
@@ -167,10 +168,10 @@ prototypes. Points close to the center of their cell are close to their
 prototype, and points with similar placements in the clouds thus have a
 similar difference to their prototype.
 \item{"proximity"}: the point coordinates are computed one by one, based on
-the proximity the observation's training data to its winning prototype and to
-its neighboring prototypes. Points close to their cell's center are close to
-their closest prototype, while points close to another cell are close to that
-cell's prototype.
+the distances of the observation's training data to its cell's prototype and
+to its second best matching prototypes among its cell's neighbors. Points
+close to their cell's center are close to their closest prototype, while
+points close to another cell are close to that cell's prototype.
 \item{"random"}: the point coordinates are random samples from a uniform
 distribution.
 }

@@ -33,35 +33,36 @@ HTMLWidgets.widget({
     //console.log(data);
     
     // Import common data
-    var plotType= data.plotType;
-    var nbRows= data.gridInfo.nbLines;
-    var nbColumns= data.gridInfo.nbColumns;
-    var topology= data.gridInfo.topology;
-    var superclass = data.superclass;
-    var superclassColor = data.superclassColor;
-  	var cellNames = data.cellNames;
-  	var cellPop = data.cellPop;
-  	
-  	var nVars = data.nVars;
-  	var label = forceArray(data.label);
-    var labelColor = forceArray(data.labelColor);
-    var normalizedValues = data.normalizedValues;
-    var realValues = data.realValues;
-    var normalizedSize = data.normalizedSize;
-  	var normalizedExtremesValues= data.normalizedExtremesValues;
-  	var realExtremesValues= data.realExtremesValues;
-    var isCatBarplot = data.isCatBarplot;
-    var showSC = data.showSC;
-    var showAxes = data.showAxes;
-    var transparency = data.transparency;
-    var showNames = data.showNames;
-    var legendPos = data.legendPos;
-    var legendFontsize = data.legendFontsize;
-    var clustering = data.clustering;
-    var cloudColor = data.cloudColor;
-    var obsDetail = data.obsDetail;
-    var fullData = data.fullData;
-    var fullDataNames = data.fullDataNames;
+    var plotType= data.plotType, 
+  	  nbRows= data.gridInfo.nbLines, 
+  	  nbColumns= data.gridInfo.nbColumns, 
+  	  topology= data.gridInfo.topology, 
+  	  superclass = data.superclass, 
+  	  superclassColor = data.superclassColor, 
+  	  cellNames = data.cellNames, 
+  	  cellPop = data.cellPop,
+  	  nVars = data.nVars, 
+  	  label = forceArray(data.label), 
+  	  labelColor = forceArray(data.labelColor), 
+  	  normalizedValues = data.normalizedValues, 
+  	  realValues = data.realValues, 
+  	  normalizedSize = data.normalizedSize, 
+  	  normalizedExtremesValues= data.normalizedExtremesValues, 
+  	  realExtremesValues= data.realExtremesValues, 
+  	  isCatBarplot = data.isCatBarplot, 
+  	  showSC = data.showSC, 
+  	  showAxes = data.showAxes, 
+  	  transparency = data.transparency, 
+  	  showNames = data.showNames, 
+  	  legendPos = data.legendPos, 
+  	  legendFontsize = data.legendFontsize, 
+  	  legendReverse = data.legendReverse,
+  	  clustering = data.clustering, 
+  	  cloudColor = data.cloudColor, 
+  	  colorVarName = data.colorVarName, 
+  	  obsDetail = data.obsDetail, 
+  	  fullData = data.fullData, 
+  	  fullDataNames = data.fullDataNames;
     
     // IDs of plot, legend, infos
     var plotId = el.attributes.id.value;
@@ -314,12 +315,13 @@ HTMLWidgets.widget({
     // Create legend (if appropriate)
     /////////////////////////
     if (legendPos != "none") if (plotType === "Circular" || plotType === "Barplot" || plotType === "Boxplot" || plotType === "Line" || plotType === "Pie" || plotType === "Color" || plotType === "Cloud") {
-      var  colors  = labelColor;
       
+      var legendColors = legendReverse ? labelColor.slice().reverse():labelColor;
+
       // ColWidth: pixel size based on max nchar of the labels
       var legendColWidth = label.reduce(
         function (a, b) {return a.length > b.length ? a : b;}
-      ).length * 0.5 * legendFontsize + 25;
+      ).length * 0.6 * legendFontsize + 25;
       
       var theLegend= thePlot;
       var legendHeight, legendWidth, legendNcols, legendNrows, legendCentering;
@@ -343,16 +345,16 @@ HTMLWidgets.widget({
       }
 
       var legenddots = theLegend.selectAll("legenddots")
-        .data(label).enter()
+        .data(legendReverse ? label.slice().reverse():label).enter()
         .append("circle").attr("class", "legendElt")
         .attr("cx", function(d,i){ return (Math.floor(i/legendNrows) * legendColWidth + legendFontsize + (legendPos === "beside" ? 0:(legendFontsize + legendCentering)));})
         .attr("cy", function(d,i){ return i % legendNrows * (1.5 * legendFontsize) + (0.5 * legendFontsize) + (legendPos === "beside" ? legendCentering:0);})
         .attr("r", legendFontsize / 2)
-        .style("fill", function(d,i){return colors[i];})
+        .style("fill", function(d,i){return legendColors[i];})
         .attr("transform", "translate(" + (legendPos === "beside" ? (legendFontsize + width):0) + " , " + (legendPos === "beside" ? 0:(legendFontsize + height)) + ")");
         
       var legendlabels = theLegend.selectAll("legendlabels")
-        .data(label).enter()
+        .data(legendReverse ? label.slice().reverse():label).enter()
         .append("text").attr("class", "legendElt")
         .attr("x", function(d,i){ return (Math.floor(i/legendNrows) * legendColWidth + 2 * legendFontsize + (legendPos === "beside" ? 0:(legendFontsize + legendCentering)));})
         .attr("y", function(d,i){ return i % legendNrows * (1.5 * legendFontsize) + (0.8 * legendFontsize) + (legendPos === "beside" ? legendCentering:0);})
@@ -555,7 +557,7 @@ HTMLWidgets.widget({
   			if (transparency) d3.select(this).transition().duration(10).style("fill-opacity", 0.8);
   			d3.select("#" + infoId).text('Cell ' + parseInt(d.cell+1,10) + ', superclass ' +
             superclass[d.cell] + ', N= ' + cellPop[d.cell]);
-  			d3.select("#" + messageId).text(realValues[d.cell][0] == null ? "-" : realValues[d.cell]);
+  			d3.select("#" + messageId).text(forceArray(realValues[d.cell])[0] == null ? "-" : (colorVarName + " : " + realValues[d.cell]));
   			d3.select("#" + namesId).text(cellNames[d.cell]);
   		});
   		cells.on('mouseout', function(m, d, i) {
@@ -1034,6 +1036,7 @@ HTMLWidgets.widget({
         .style("z-index", "10")
         .style("opacity", 0)
         .style("font-family", "arial")
+        .style("font-size", legendFontsize + "px")
         .style("background-color", "white")
         .style("border", "solid")
         .style("border-width", "2px")
@@ -1082,9 +1085,6 @@ HTMLWidgets.widget({
               thetitle += "<tr> <td> <strong>" + forceArray(fullDataNames)[iVar] + "</strong> &nbsp;</td><td>" + fullData[d.obs][iVar] + "</td></tr>";
             }
             thetitle += "</table>";
-/*            cloudTooltip.style("opacity", 1).html(thetitle)
-              .style("left", (m.clientX+ cellSize / 4) + "px")
-              .style("top", (m.clientY) + "px");*/
             cloudTooltip.style("opacity", 1).html(thetitle);
             // Adaptive placement for tooltip
             if ((cellPositions[d.cell].col + 1) > (nbColumns / 2)) {
