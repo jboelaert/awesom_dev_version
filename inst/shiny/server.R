@@ -318,14 +318,18 @@ shinyServer(function(input, output, session) {
       values$trainVarLevelsLoaded <- rep(FALSE, ncol(ok.data()))
       names(values$trainVarLevelsLoaded) <- colnames(ok.data())
     }
-    for (ivar in input$trainVarChoice) {
-      if (! is.null(input[[paste0("trainVarType", gsub("[.]", "_", ivar))]])) {
-        if (input[[paste0("trainVarType", gsub("[.]", "_", ivar))]] == "factor") {
-          if (!values$trainVarLevelsLoaded[[ivar]]) {
-            values$trainVarLevelsLoaded[[ivar]] <- TRUE
-            updateSelectInput(session, paste0("trainVarLevels", ivar), 
-                              choices = levels(as.factor(ok.data()[, ivar])), 
-                              selected = levels(as.factor(ok.data()[, ivar])))
+    if (all(input$trainVarChoice %in% names(values$trainVarLevelsLoaded))) {
+      for (ivar in input$trainVarChoice) {
+        if (! is.null(input[[paste0("trainVarType", 
+                                    gsub("[.]", "_", ivar))]])) {
+          if (input[[paste0("trainVarType", 
+                            gsub("[.]", "_", ivar))]] == "factor") {
+            if (!values$trainVarLevelsLoaded[[ivar]]) {
+              values$trainVarLevelsLoaded[[ivar]] <- TRUE
+              updateSelectInput(session, paste0("trainVarLevels", ivar), 
+                                choices = levels(as.factor(ok.data()[, ivar])), 
+                                selected = levels(as.factor(ok.data()[, ivar])))
+            }
           }
         }
       }
@@ -775,7 +779,7 @@ shinyServer(function(input, output, session) {
   
   ## Training message
   output$Message <- renderPrint({
-    if (is.null(ok.data())) return(cat("Import data to train a SOM."))
+    if (is.null(isolate(ok.data()))) return(cat("Import data to train a SOM."))
     if (!is.null(ok.traindat()$msg)) {
       cat(paste0("********** Warning: **********\n", 
                  paste("* ", ok.traindat()$msg, collapse= "\n"), 
