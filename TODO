@@ -21,6 +21,7 @@ Done:
 * help for weights
 * help for cloud options
 * UI train: var type selection (num to factor, factor to num)
+* UI import: added ods import, and options for spss, sas and stata 
 
 For next version: 
 

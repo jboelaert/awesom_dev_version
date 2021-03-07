@@ -150,50 +150,47 @@ shinyServer(function(input, output, session) {
   ok.data <- reactive({
     if(input$file_type == "csv_txt"){ 
       imported_file_object <- aweSOM:::import.csv.txt(
-        dataFile = input$dataFile ,header = input$header, 
+        dataFile = input$dataFile, header = input$header, 
         sep = input$sep, quote = input$quote, dec = input$dec,
-        encoding = input$encoding, 
-        dataFile_datapath = input$dataFile$datapath)
-    } else if(input$file_type == "excel_xlsx"){
-      imported_file_object <-  aweSOM:::import.excel_xlsx(
-        dataFile = input$dataFile, column_names = input$column_names, 
+        encoding = input$encoding)
+    } else if (input$file_type == "ods") {
+      imported_file_object <- aweSOM:::import.ods(
+        dataFile = input$dataFile, 
+        sheet = input$ods_sheet, 
+        col_names = input$ods_col_names, 
+        ods_na = input$ods_na, 
+        skip = input$ods_skip, 
+        range = input$ods_range)
+    } else if(input$file_type == "excel"){
+      imported_file_object <-  aweSOM:::import.excel(
+        dataFile = input$dataFile, 
+        column_names = input$column_names, 
         trim_spaces = input$trim_spaces, 
         range_specified_bol = input$range_specified_bol, 
         range_specs = input$range_specs,
         worksheet_specified_bol = input$worksheet_specified_bol,
         worksheet_specs = input$worksheet_specs, 
-        dataFile_datapath = input$dataFile$datapath,
         rows_to_skip = input$rows_to_skip)
-    } else if(input$file_type == "excel_xls"){
-      imported_file_object <- aweSOM:::import.excel_xls(
-        dataFile = input$dataFile, 
-        column_names_xls = input$column_names_xls,
-        trim_spaces_xls = input$trim_spaces_xls,
-        range_specified_bol_xls = input$range_specified_bol_xls,
-        range_specs_xls = input$range_specs_xls,
-        worksheet_specified_bol_xls = input$worksheet_specified_bol_xls,
-        worksheet_specs_xls = input$worksheet_specs_xls,
-        dataFile_datapath = input$dataFile$datapath,
-        rows_to_skip_xls = input$rows_to_skip_xls)
     } else if(input$file_type == "spss"){
       imported_file_object <- aweSOM:::import.spss(
         dataFile = input$dataFile, 
-        dataFile_datapath = input$dataFile$datapath, 
-        skip_spss = input$skip_spss)
-    } else if(input$file_type == "stata"){
-      imported_file_object <- aweSOM:::import.stata(
-        dataFile = input$dataFile, 
-        dataFile_datapath = input$dataFile$datapath)
+        skip = input$skip_spss,
+        user_na = input$user_na_spss)
     } else if(input$file_type == "sas_data"){
       imported_file_object <- aweSOM:::import.sas.data(
         dataFile = input$dataFile, 
-        dataFile_datapath = input$dataFile$datapath)
-    }
+        catalog_file = if (input$sas_use_catalog) input$sas_catalog_file else NULL,
+        skip = input$sas_skip)
+    } else if(input$file_type == "stata"){
+      imported_file_object <- aweSOM:::import.stata(
+        dataFile = input$dataFile, 
+        convert_factors = input$convert_factors_stata)
+    } 
     
     isolate({
       values$codetxt$dataread <- 
-        paste0("## Import Data\n", 
-               "# setwd('/path/to/datafile/directory') ## Uncomment this line and set the path to the datafile's directory\n",
+        paste0('## Import Data\n', 
+               '# setwd("/path/to/datafile/directory") ## Uncomment this line and set the path to the datafile\'s directory\n',
                imported_file_object[[2]])
     })
     imported_file_object[[1]]
@@ -214,7 +211,7 @@ shinyServer(function(input, output, session) {
       return(HTML("<h4 style='text-align: center;'> Welcome to aweSOM! </h4>
                   <h4 style='text-align: center;'> Import data to get started. </h4>"))
     if (! is.null(input$dataFile) & is.null(ok.data())) 
-      return(h4("Data import failed. Check that the specified file type is correct, or try different import parameters."))
+      return(HTML("<h4 style='text-align: center;'>Data import failed.</h4> <h5 style='text-align: center;'>Check that the specified file type is correct, or try different import parameters.</h5>"))
     HTML("<h4 style='text-align: center;'> Data import successful, proceed to Train.</h4><br/>")
   })
   

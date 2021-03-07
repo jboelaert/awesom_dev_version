@@ -178,15 +178,19 @@ aweSOMsmoothdist <- function(som,
   pal <- match.arg(pal)
   
   mapdist <- aweSOM::somDist(som)
-  interpol <- akima::interp(
-    x = som$grid$pts[, 1], y = som$grid$pts[, 2],
-    z = rowMeans(mapdist$proto.data.dist.neigh, na.rm = TRUE),
-    nx = 10 * som$grid$xdim, ny = 10 * som$grid$ydim)
-  interpol <- data.frame(x = rep(interpol$x, ncol(interpol$z)), 
-                         y = rep(interpol$y, each = nrow(interpol$z)), 
-                         z = as.numeric(interpol$z))
+  plates <- fields::Tps(x = som$grid$pts, 
+                        Y = rowMeans(mapdist$proto.data.dist.neigh,
+                                     na.rm= TRUE), 
+                        give.warnings = FALSE)
+  interpol <- expand.grid(x = seq(min(som$grid$pts[, 1]) - 0.5, 
+                                  max(som$grid$pts[, 1]) + 0.5, by = 0.1), 
+                          y = seq(min(som$grid$pts[, 2]) - 0.5, 
+                                  max(som$grid$pts[, 2]) + 0.5, by = 0.1))
+  interpol <- data.frame(interpol, 
+                         z = fields::predict.Krig(plates, interpol)[, 1])
   ggplot2::ggplot(interpol, ggplot2::aes(x, y, z= z)) + 
-    ggplot2::geom_contour_filled(bins = 8, na.rm = TRUE) + 
+    ggplot2::geom_contour_filled(binwidth = 1.2 * diff(range(interpol$z)) / 8, 
+                                 na.rm = TRUE) + 
     ggplot2::geom_point(data= data.frame(som$grid$pts, z = NA), 
                         size = legendFontsize / 10) +
     ggplot2::theme_void() + ggplot2::coord_fixed() + 
